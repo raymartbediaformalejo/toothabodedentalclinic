@@ -1,0 +1,45 @@
+.checkbox-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 10px;
+}
+
+.input-field {
+  position: relative;
+}
+.input-field input[type="checkbox"] {
+  display: none;
+}
+
+.input + .check-icon {
+  position: relative;
+
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px hsl(0 1% 71%) inset;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.check-icon .check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.input:checked + .check-icon {
+  box-shadow: 0 0 0 0.7em #c97e00 inset;
+}
+
+.small.checkbox-container.with-label .label {
+  font-size: 13px;
+}
+.medium.checkbox-container.with-label .label {
+  font-size: 15px;
+}
+.large.checkbox-container.with-label .label {
+  font-size: 18px;
+}
