@@ -1,8 +1,11 @@
 import logo from "@/assets/toothabodelogo.png";
 import MobileToggle from "./mobile-toggle";
 import { Link } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 
 const Header = () => {
+  const { email } = useAuth();
+  console.log(`${email ? email : "not login"}`);
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-primary-50">
       <Link to="/" className="flex items-center gap-1">

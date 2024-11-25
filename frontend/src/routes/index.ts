@@ -1,6 +1,7 @@
 import Homepage from "@/pages/Home";
 import SignUp from "@/pages/SignUp/index";
 import LogIn from "@/pages/LogIn/index";
+import DashboardAdmin from "@/pages/DashboardAdmin";
 
 type TRoute = {
   path: string;
@@ -24,6 +25,13 @@ const routes: TRoute[] = [
     path: "/log-in",
     component: LogIn,
     isAuthenticated: false,
+  },
+
+  // DASHBOARD ADMIN
+  {
+    path: "/dashboardadmin",
+    component: DashboardAdmin,
+    isAuthenticated: true,
   },
 ];
 

@@ -10,37 +10,26 @@ import {
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
-import { createPatientSchema } from "@/types/schema";
+import { loginUserSchema } from "@/types/schema";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TCreatePatient } from "@/types/types";
+import { TLoginUser } from "@/types/types";
+import { useLoginUser } from "@/service/mutation";
 
 const LogIn = () => {
-  const form = useForm<TCreatePatient>({
-    mode: "onTouched",
-    resolver: zodResolver(createPatientSchema),
-    // defaultValues: {
-    //   email: "",
-    //   password: "",
-    //   cPassword: "",
-    //   mobileNo: "",
-    //   firstname: "",
-    //   middlename: "",
-    //   lastname: "",
-    //   nickname: "",
-    //   birthDay: "",
-    //   sex: "",
-    //   age: undefined,
-    //   occupation: "",
-    //   religion: "",
-    //   nationality: "Filipino",
-    // },
+  const login = useLoginUser();
+  const form = useForm<TLoginUser>({
+    resolver: zodResolver(loginUserSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const onSubmit: SubmitHandler<TCreatePatient> = async (data) => {
-    console.log("data: ", data);
+  const onSubmit: SubmitHandler<TLoginUser> = async (data) => {
+    login.mutate(data);
   };
 
   return (

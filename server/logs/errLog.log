@@ -1,0 +1,1 @@
+20241125	16:36:12	c38d2b26-c269-449e-867b-376772e5219a	Too Many Requests: Too many login attempts from this IP, please try again after a 60 second pause	POST	/auth	http://localhost:5173

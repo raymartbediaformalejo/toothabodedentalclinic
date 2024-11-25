@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { createPatientSchema } from "./schema";
+import { createPatientSchema, loginUserSchema } from "./schema";
 
 export type TCreatePatient = z.infer<typeof createPatientSchema>;
+
+export type TLoginUser = z.infer<typeof loginUserSchema>;
 
 export type TRegion = {
   code: string;
@@ -20,4 +22,10 @@ export type TBrgys = TProvince & {
 };
 export type TBrgysManila = {
   name: string;
+};
+
+export type TUsername = {
+  firstname: string;
+  lastname: string;
+  middlename?: string;
 };

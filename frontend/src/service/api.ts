@@ -1,11 +1,35 @@
-import { TCreatePatient } from "@/types/types";
 import axios from "axios";
+import createAuthRefreshInterceptor from "axios-auth-refresh";
 
-const baseUrl = "http://localhost:4000/api";
+import { TCreatePatient, TLoginUser } from "@/types/types";
+import { refreshAuth } from "./refresh-auth";
+
+// const baseUrl = "http://localhost:4000/api";
 // const baseUrl = "/api";
 
 export const axiosInstance = axios.create({
-  baseURL: baseUrl,
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
+
+axiosInstance.defaults.headers.common["Content-Type"] = "application/json";
+
+export const loginUserAPI = async (data: TLoginUser) =>
+  await axiosInstance.post("/auth", data);
+
+export const logout = async () => await axiosInstance.post("/auth/logout");
+
+export const setHeaderToken = (token: string) => {
+  axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
+};
+
+export const removeHeaderToken = () => {
+  delete axiosInstance.defaults.headers.common.Authorization;
+};
+
+createAuthRefreshInterceptor(axiosInstance, refreshAuth, {
+  statusCodes: [401],
+  pauseInstanceWhileRefreshing: true,
 });
 
 export const regionsAPI = async () => {

@@ -6,8 +6,15 @@ import { BsQuestionCircle } from "react-icons/bs";
 
 import { SheetClose } from "../ui/sheet";
 import { Button } from "../ui/button";
+import useAuth from "@/hooks/useAuth";
+import { useLogout } from "@/service/mutation";
 
 const NavigationSidebar = () => {
+  const { userId } = useAuth();
+  const logout = useLogout();
+  const handleLogout = () => {
+    logout.mutate();
+  };
   return (
     <div className="mt-12 ">
       <div className="flex flex-col gap-2">
@@ -74,16 +81,26 @@ const NavigationSidebar = () => {
       </div>
 
       <div className="flex flex-col gap-4 mt-20">
-        <SheetClose asChild>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/log-in">Log In</Link>
-          </Button>
-        </SheetClose>
-        <SheetClose asChild>
-          <Button asChild size="lg">
-            <Link to="/sign-up">Sign Up</Link>
-          </Button>
-        </SheetClose>
+        {!userId ? (
+          <>
+            <SheetClose asChild>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/log-in">Log In</Link>
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button asChild size="lg">
+                <Link to="/sign-up">Sign Up</Link>
+              </Button>
+            </SheetClose>
+          </>
+        ) : (
+          <SheetClose asChild>
+            <Button size="lg" onClick={handleLogout}>
+              Logout
+            </Button>
+          </SheetClose>
+        )}
       </div>
     </div>
   );

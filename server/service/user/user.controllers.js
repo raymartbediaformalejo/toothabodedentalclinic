@@ -21,7 +21,10 @@ const createUser = async (request, response) => {
   } catch (error) {
     return response
       .status(500)
-      .send({ message: "Internal Server Error(User Controller)", ok: false });
+      .send({
+        message: `Internal Server Error(User Controller): ${error}`,
+        ok: false,
+      });
   }
 };
 

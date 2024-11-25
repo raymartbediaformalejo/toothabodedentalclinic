@@ -175,7 +175,6 @@ class User {
           values.nickname,
           values.occupation,
           values.address,
-          values.address,
           values.barangay,
           values.city,
           values.region,

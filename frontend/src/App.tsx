@@ -1,11 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import routes from "./routes/index";
-import ProtectedRoutes from "./pages/Auth/ProtectedRoutes";
-import UnprotectedRoutes from "./pages/Auth/UnprotectedRoutes";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-// import UnprotectedRoutes from "./pages/Auth/UnprotectedRoutes";
 
 function App() {
   return (
@@ -18,11 +15,9 @@ function App() {
                 key={index}
                 path={route.path}
                 element={
-                  <ProtectedRoutes>
-                    <div>
-                      <route.component />
-                    </div>
-                  </ProtectedRoutes>
+                  <div>
+                    <route.component />
+                  </div>
                 }
               />
             ) : (
@@ -30,11 +25,11 @@ function App() {
                 key={index}
                 path={route.path}
                 element={
-                  <UnprotectedRoutes>
+                  <div>
                     {!route.isAdminPage ? <Header /> : ""}
                     <route.component />
                     {!route.isAdminPage ? <Footer /> : ""}
-                  </UnprotectedRoutes>
+                  </div>
                 }
               />
             );
