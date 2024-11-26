@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import routes from "./routes/index";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { SidebarProvider } from "./components/ui/sidebar";
+import { NavigationSidebarDashboard } from "./components/navigation/navigation-sidebar-dashboard";
+
+import NavigationTopDashboard from "./components/navigation/navigation-top-dashboard";
 
 function App() {
   return (
@@ -15,9 +19,13 @@ function App() {
                 key={index}
                 path={route.path}
                 element={
-                  <div>
-                    <route.component />
-                  </div>
+                  <SidebarProvider>
+                    <NavigationSidebarDashboard />
+                    <main className="w-full">
+                      <NavigationTopDashboard />
+                      <route.component />
+                    </main>
+                  </SidebarProvider>
                 }
               />
             ) : (
