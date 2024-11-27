@@ -14,6 +14,7 @@ class User {
       const result = await client.query(queryGetUsers);
       return result.rows;
     } catch (error) {
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
@@ -36,12 +37,10 @@ class User {
         u.sex,
         u.email,
         u.mobile_no "mobileNo",
-        u.password,
-        u.profile_pic "profilePic",
+        u.profile_pic_url "profilePicUrl",
         u.account_status "accountStatus",
         u.nationality,
         u.religion,
-        u.role_id "roleId",
         u.deleted,
         u.created_at "createdAt",
         u.created_by "createdBy",
@@ -52,6 +51,7 @@ class User {
       `;
 
       const result = await client.query(queryGetUser, [userId]);
+      return result.rows;
     } catch (error) {
       throw error;
     } finally {

@@ -3,14 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import routes from "./routes/index";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { SidebarProvider } from "./components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "./components/ui/sidebar";
 import { NavigationSidebarDashboard } from "./components/navigation/navigation-sidebar-dashboard";
 
 import NavigationTopDashboard from "./components/navigation/navigation-top-dashboard";
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <div>
+      <Toaster richColors position="bottom-right" />
       <Router>
         <Routes>
           {routes.map((route, index) => {
@@ -21,10 +23,12 @@ function App() {
                 element={
                   <SidebarProvider>
                     <NavigationSidebarDashboard />
-                    <main className="w-full">
+                    <SidebarInset className="w-full bg-[#fcfcfc]">
                       <NavigationTopDashboard />
-                      <route.component />
-                    </main>
+                      <div className="mx-6 mt-8">
+                        <route.component />
+                      </div>
+                    </SidebarInset>
                   </SidebarProvider>
                 }
               />

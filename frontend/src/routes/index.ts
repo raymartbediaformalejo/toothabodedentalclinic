@@ -2,6 +2,7 @@ import Homepage from "@/pages/Home";
 import SignUp from "@/pages/SignUp/index";
 import LogIn from "@/pages/LogIn/index";
 import DashboardAdmin from "@/pages/DashboardAdmin";
+import Dentists from "@/pages/DashboardAdmin/Dentist";
 
 type TRoute = {
   path: string;
@@ -31,6 +32,11 @@ const routes: TRoute[] = [
   {
     path: "/dashboardadmin",
     component: DashboardAdmin,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/dentists",
+    component: Dentists,
     isAuthenticated: true,
   },
 ];

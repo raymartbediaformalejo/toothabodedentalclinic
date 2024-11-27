@@ -1,6 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -31,7 +32,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { NavigationUser } from "./navigation-user";
+import useAuth from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 // Menu items.
 const items = [
@@ -72,8 +75,8 @@ const items = [
     ],
   },
   {
-    title: "Dentist",
-    url: "#",
+    title: "Dentists",
+    url: "/dashboardadmin/dentists",
     icon: DentistsIcon,
   },
   {
@@ -104,12 +107,8 @@ const items = [
 ];
 
 export function NavigationSidebarDashboard() {
+  const { userId } = useAuth();
   const { open } = useSidebar();
-  const [openCMS, setOpenCMS] = useState(false);
-
-  const handleToggleOpenCMS = () => {
-    setOpenCMS((prev) => !prev);
-  };
 
   return (
     <Sidebar collapsible="icon">
@@ -138,10 +137,10 @@ export function NavigationSidebarDashboard() {
                 >
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                      <a href={item.url}>
+                      <Link to={item.url}>
                         <item.icon className="w-10 h-6" />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
@@ -158,9 +157,9 @@ export function NavigationSidebarDashboard() {
                           {item.items?.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
                               <SidebarMenuSubButton size="lg">
-                                <a href={subItem.url}>
+                                <Link to={subItem.url}>
                                   <span>{subItem.title}</span>
-                                </a>
+                                </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))}
@@ -174,6 +173,10 @@ export function NavigationSidebarDashboard() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        {" "}
+        <NavigationUser userId={userId} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

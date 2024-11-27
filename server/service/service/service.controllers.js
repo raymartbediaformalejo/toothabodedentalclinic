@@ -1,5 +1,18 @@
 const Service = require("./service.services.js");
 
+const getService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const data = await Service.getService(serviceId);
+    return res.status(200).send({ data, ok: true });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error (Service): ${error}`,
+      ok: false,
+    });
+  }
+};
+
 const getServices = async (req, res) => {
   try {
     const data = await Service.getServices();
@@ -12,4 +25,89 @@ const getServices = async (req, res) => {
   }
 };
 
-module.exports = { getServices };
+const createService = async (req, res) => {
+  try {
+    const serviceData = req.body;
+    const data = await Service.createService(serviceData);
+    return res.status(201).send({ data, ok: true });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error(Service Controller): ${error}`,
+      ok: false,
+    });
+  }
+};
+
+const updateService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    const { title, description, orderNo, visible, updatedBy } = req.body;
+
+    const result = await Service.updateService({
+      serviceId,
+      title,
+      description,
+      orderNo,
+      visible,
+      updatedBy,
+    });
+    return res.status(result.status).send({
+      message: result.message,
+      ok: result.status === 200 || result.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error(Service Controller): ${error}`,
+      ok: false,
+    });
+  }
+};
+
+const deleteService = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+    const result = await Service.deleteService(serviceId);
+    return res.status(result.status).send({
+      message: result.message,
+      ok: result.status === 200 || result.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error(Service Controller): ${error}`,
+      ok: false,
+    });
+  }
+};
+
+const deleteAllServices = async (req, res) => {
+  const { serviceIds } = req.body;
+
+  if (!Array.isArray(serviceIds) || serviceIds.length === 0) {
+    return res
+      .status(400)
+      .send({ message: "Invalid or missing serviceIds array", ok: false });
+  }
+  try {
+    const result = await Service.deleteAllService(serviceIds);
+
+    return res.status(result.status).send({
+      message: result.message,
+      ok: result.status === 200 || result.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error(Service Controller): ${error.message}`,
+      ok: false,
+    });
+  }
+};
+
+module.exports = {
+  getService,
+  getServices,
+  createService,
+  updateService,
+  deleteService,
+  deleteAllServices,
+};

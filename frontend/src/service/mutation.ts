@@ -1,9 +1,20 @@
-import { TCreatePatient, TLoginUser } from "@/types/types";
+import {
+  TCreatePatient,
+  TCreateService,
+  TEditService,
+  TLoginUser,
+  TServiceId,
+  TServiceIds,
+} from "@/types/types";
 import { jwtDecode } from "jwt-decode";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
   createPatientAPI,
+  createServiceAPI,
+  deleteAllServiceAPI,
+  deleteServiceAPI,
+  editServiceAPI,
   loginUserAPI,
   logout,
   removeHeaderToken,
@@ -67,6 +78,69 @@ export const useLogout = () => {
     },
     onError: (error) => {
       console.log("💥 Logout failed", error);
+    },
+  });
+};
+
+// ============ || SERVICE || ===========
+
+export const useCreateService = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TCreateService) => createServiceAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      console.log("Error Creation: ", error);
+      return error;
+    },
+  });
+};
+
+export const useEditService = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TEditService) => editServiceAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      return error;
+    },
+  });
+};
+
+export const useDeleteService = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TServiceId) => deleteServiceAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      return error;
+    },
+  });
+};
+
+export const useDeleteAllService = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TServiceIds) => deleteAllServiceAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      return error;
     },
   });
 };

@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { barangaysAPI, provincesCitiesAPI, regionsAPI } from "./api";
+import {
+  barangaysAPI,
+  getServicesAPI,
+  getUserAPI,
+  provincesCitiesAPI,
+  regionsAPI,
+} from "./api";
 
 export const useGetAllRegions = () => {
   return useQuery({
@@ -20,5 +26,20 @@ export const useGetBarangays = (id: string) => {
   return useQuery({
     queryKey: ["/regions/brgys", id],
     queryFn: barangaysAPI,
+  });
+};
+
+export const useGetUser = (id: string) => {
+  console.log("id: ", id);
+  return useQuery({
+    queryKey: ["/user", id],
+    queryFn: getUserAPI,
+  });
+};
+
+export const useGetServices = () => {
+  return useQuery({
+    queryKey: ["/service"],
+    queryFn: getServicesAPI,
   });
 };

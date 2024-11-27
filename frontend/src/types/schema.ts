@@ -124,3 +124,33 @@ export const loginUserSchema = userSchema.pick({
   email: true,
   password: true,
 });
+
+export const serviceSchema = z.object({
+  serviceId: z.string(),
+  title: z.string(),
+  description: z.string(),
+  orderNo: z.number(),
+  visible: z.boolean(),
+  deleted: z.boolean(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+  updatedAt: z.string(),
+  updatedBy: z.string(),
+});
+
+export const createServiceSchema = serviceSchema.pick({
+  title: true,
+  description: true,
+  orderNo: true,
+  visible: true,
+  createdBy: true,
+});
+
+export const editServiceSchema = serviceSchema.pick({
+  serviceId: true,
+  title: true,
+  description: true,
+  orderNo: true,
+  visible: true,
+  updatedBy: true,
+});

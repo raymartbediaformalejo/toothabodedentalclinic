@@ -1,7 +1,14 @@
 import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 
-import { TCreatePatient, TLoginUser } from "@/types/types";
+import {
+  TCreatePatient,
+  TCreateService,
+  TEditService,
+  TLoginUser,
+  TServiceId,
+  TServiceIds,
+} from "@/types/types";
 import { refreshAuth } from "./refresh-auth";
 
 // const baseUrl = "http://localhost:4000/api";
@@ -54,4 +61,48 @@ export const barangaysAPI = async (args: { queryKey: string[] }) => {
 export const createPatientAPI = async (data: TCreatePatient) => {
   console.log("createPatientAPI: ", data);
   await axiosInstance.post("/user/signup", data);
+};
+
+export const getUserAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(`/user/${queryKey[1]}`);
+  return data;
+};
+
+// ============ || SERVICE || ===========
+
+export const getServicesAPI = async () => {
+  const { data } = await axiosInstance.get("/service");
+  return data;
+};
+
+export const getServiceAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(`/service/${queryKey[1]}`);
+  return data;
+};
+
+export const createServiceAPI = async (data: TCreateService) =>
+  await axiosInstance.post("/service", data);
+
+export const editServiceAPI = async (data: TEditService) => {
+  await axiosInstance.patch(`/service/${data.serviceId}`, {
+    title: data.title,
+    description: data.description,
+    orderNo: data.orderNo,
+    visible: data.visible,
+    updatedBy: data.updatedBy,
+  });
+};
+
+export const deleteServiceAPI = async (serviceId: TServiceId) => {
+  const { data } = await axiosInstance.patch(`/service/delete/${serviceId}`);
+  return data;
+};
+
+export const deleteAllServiceAPI = async (data: TServiceIds) => {
+  const { data: result } = await axiosInstance.delete(`/service/deleteAll`, {
+    data,
+  });
+  return result;
 };
