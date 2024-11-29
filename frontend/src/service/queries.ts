@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 
 import {
   barangaysAPI,
-  getServicesAPI,
+  getServiceAPI,
+  getAllServicesAPI,
   getUserAPI,
   provincesCitiesAPI,
   regionsAPI,
 } from "./api";
+import { TServiceId } from "@/types/types";
 
 export const useGetAllRegions = () => {
   return useQuery({
@@ -37,9 +39,16 @@ export const useGetUser = (id: string) => {
   });
 };
 
-export const useGetServices = () => {
+export const useGetAllServices = () => {
   return useQuery({
     queryKey: ["/service"],
-    queryFn: getServicesAPI,
+    queryFn: getAllServicesAPI,
+  });
+};
+
+export const useGetService = (serviceId: TServiceId) => {
+  return useQuery({
+    queryKey: ["/service", serviceId],
+    queryFn: getServiceAPI,
   });
 };

@@ -86,7 +86,7 @@ const items = [
   },
   {
     title: "Services",
-    url: "#",
+    url: "/dashboardadmin/service",
     icon: ServiceIcon,
   },
   {

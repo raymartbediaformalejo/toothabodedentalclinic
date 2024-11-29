@@ -71,7 +71,7 @@ export const getUserAPI = async (args: { queryKey: string[] }) => {
 
 // ============ || SERVICE || ===========
 
-export const getServicesAPI = async () => {
+export const getAllServicesAPI = async () => {
   const { data } = await axiosInstance.get("/service");
   return data;
 };

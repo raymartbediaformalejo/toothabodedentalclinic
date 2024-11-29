@@ -3,6 +3,7 @@ import SignUp from "@/pages/SignUp/index";
 import LogIn from "@/pages/LogIn/index";
 import DashboardAdmin from "@/pages/DashboardAdmin";
 import Dentists from "@/pages/DashboardAdmin/Dentist";
+import Services from "@/pages/DashboardAdmin/Service";
 
 type TRoute = {
   path: string;
@@ -35,8 +36,13 @@ const routes: TRoute[] = [
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/dentists",
+    path: "/dashboardadmin/dentist",
     component: Dentists,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/service",
+    component: Services,
     isAuthenticated: true,
   },
 ];

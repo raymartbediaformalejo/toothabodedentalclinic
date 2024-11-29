@@ -21,3 +21,27 @@ export const createUsername = (user: TUsername): string => {
     return `${formattedFirstName} ${formattedLastName}`;
   }
 };
+
+export const formatDate = (rawDateString: string) => {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const date = new Date(rawDateString);
+
+  const month = monthNames[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  return `${month} ${day}, ${year}`;
+};
