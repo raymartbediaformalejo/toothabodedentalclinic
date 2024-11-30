@@ -23,7 +23,7 @@ function App() {
                 element={
                   <SidebarProvider>
                     <NavigationSidebarDashboard />
-                    <SidebarInset className="w-full ">
+                    <SidebarInset className="w-full bg-neutral-50">
                       <NavigationTopDashboard />
                       <div className="mx-6 mt-12">
                         <route.component />

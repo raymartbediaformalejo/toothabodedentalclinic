@@ -86,7 +86,7 @@ export const createServiceAPI = async (data: TCreateService) =>
   await axiosInstance.post("/service", data);
 
 export const editServiceAPI = async (data: TEditService) => {
-  await axiosInstance.patch(`/service/${data.serviceId}`, {
+  await axiosInstance.patch(`/service/${data.id}`, {
     title: data.title,
     description: data.description,
     orderNo: data.orderNo,
@@ -95,8 +95,8 @@ export const editServiceAPI = async (data: TEditService) => {
   });
 };
 
-export const deleteServiceAPI = async (serviceId: TServiceId) => {
-  const { data } = await axiosInstance.patch(`/service/delete/${serviceId}`);
+export const deleteServiceAPI = async (id: TServiceId) => {
+  const { data } = await axiosInstance.patch(`/service/delete/${id}`);
   return data;
 };
 

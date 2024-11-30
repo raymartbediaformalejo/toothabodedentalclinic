@@ -126,7 +126,7 @@ export const loginUserSchema = userSchema.pick({
 });
 
 export const serviceSchema = z.object({
-  serviceId: z.string(),
+  id: z.string(),
   title: z.string(),
   description: z.string(),
   orderNo: z.number(),
@@ -147,7 +147,7 @@ export const createServiceSchema = serviceSchema.pick({
 });
 
 export const editServiceSchema = serviceSchema.pick({
-  serviceId: true,
+  id: true,
   title: true,
   description: true,
   orderNo: true,

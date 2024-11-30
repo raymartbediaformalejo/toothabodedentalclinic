@@ -18,12 +18,12 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 const selectTriggerVariants = cva(
-  "flex w-full border items-center justify-between placeholder:text-black/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full border items-center justify-between placeholder:text-neutral-900/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       variant: {
-        default: "border-black bg-white",
-        secondary: "rounded-md border-black/10 shadow-sm",
+        default: "border-neutral-300 bg-white",
+        secondary: "rounded-md border-neutral-300",
       },
       size: {
         default:

@@ -9,7 +9,7 @@ class Service {
     try {
       const queryGetService = `
       SELECT 
-        s.service_id "serviceId",
+        s.id,
         s.title,
         s.description,
         s.order_no "orderNo",
@@ -19,7 +19,7 @@ class Service {
         s.updated_at "updatedAt",
         s.updated_by "updatedBy"
       FROM tbl_service s 
-      WHERE s.service_id = $1 AND s.deleted = false
+      WHERE s.id = $1 AND s.deleted = false
       `;
       const result = await client.query(queryGetService, [serviceId]);
       return result.rows;
@@ -36,7 +36,7 @@ class Service {
     try {
       const queryGetServices = `
       SELECT 
-        s.service_id "serviceId",
+        s.id,
         s.title,
         s.description,
         s.order_no "orderNo",
@@ -88,7 +88,7 @@ class Service {
 
       const queryInsertService = `
       INSERT INTO tbl_service (
-      service_id,
+      id,
       title,
       description,
       order_no,
@@ -136,7 +136,7 @@ class Service {
       const updateServiceQuery = `
       UPDATE tbl_service
       SET title = $1, description = $2, order_no = $3, visible = $4, updated_at = $5, updated_by = $6
-      WHERE service_id = $7
+      WHERE id = $7
       `;
 
       await client.query(updateServiceQuery, [
@@ -173,7 +173,7 @@ class Service {
       const deleteServiceQuery = `
         UPDATE tbl_service
         SET deleted = true, updated_at = $1
-        WHERE service_id = $2
+        WHERE id = $2
       `;
 
       const updatedAt = new Date();
@@ -215,7 +215,7 @@ class Service {
       const deleteAllServiceQuery = `
         UPDATE tbl_service
         SET deleted = true, updated_at = $1
-        WHERE service_id = ANY($2)
+        WHERE id = ANY($2)
       `;
 
       const updatedAt = new Date();

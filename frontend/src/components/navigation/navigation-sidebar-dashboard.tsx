@@ -111,7 +111,7 @@ export function NavigationSidebarDashboard() {
   const { open } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="shadow-sidebar-shadow">
       <SidebarHeader>
         <div className={cn("flex ", open ? "gap-2" : "gap-0  justify-center")}>
           <img

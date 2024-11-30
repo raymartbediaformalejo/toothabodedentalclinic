@@ -4,6 +4,8 @@ import LogIn from "@/pages/LogIn/index";
 import DashboardAdmin from "@/pages/DashboardAdmin";
 import Dentists from "@/pages/DashboardAdmin/Dentist";
 import Services from "@/pages/DashboardAdmin/Service";
+import AddNewService from "@/pages/DashboardAdmin/Service/AddNewService";
+import EditService from "@/pages/DashboardAdmin/Service/EditService";
 
 type TRoute = {
   path: string;
@@ -43,6 +45,16 @@ const routes: TRoute[] = [
   {
     path: "/dashboardadmin/service",
     component: Services,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/service/new",
+    component: AddNewService,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/service/:serviceId",
+    component: EditService,
     isAuthenticated: true,
   },
 ];

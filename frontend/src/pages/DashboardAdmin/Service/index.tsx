@@ -8,6 +8,7 @@ import {
   SortingState,
 } from "@tanstack/react-table";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 import {
   Table,
@@ -110,7 +111,7 @@ const Services = () => {
       rowSelection,
       sorting,
     },
-    getRowId: (row) => row.serviceId,
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -165,11 +166,13 @@ const Services = () => {
     }
   };
 
+  console.log("CanPreviousPage: ", table.getCanPreviousPage());
+
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center justify-between mb-6">
         <header className=" text-black/80">
-          <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[38px]">
+          <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
             Services
           </h1>
         </header>
@@ -178,9 +181,12 @@ const Services = () => {
           <Button
             variant="db_default"
             size="lg"
+            asChild
             onClick={() => navigate("new")}
           >
-            <span>Add new service</span> <FiPlus className="w-4 h-4" />
+            <Link to="new">
+              <span>Add new service</span> <FiPlus className="w-4 h-4" />
+            </Link>
           </Button>
           <Dialog
             open={isDeleteAllModalOpen}
@@ -198,12 +204,12 @@ const Services = () => {
                 <MdDeleteForever className="w-[19px] h-[19px] text-red/80" />
               </Button>
             )}
-            <DialogContent className="p-0 overflow-hidden text-black bg-white">
+            <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
               <DialogHeader className="px-6 pt-8">
                 <DialogTitle className="text-2xl font-bold text-center">
                   Delete service
                 </DialogTitle>
-                <DialogDescription className="text-center text-zinc-500">
+                <DialogDescription className="text-center text-neutral-600">
                   Are you sure you want to delete all the selected services?
                 </DialogDescription>
               </DialogHeader>
@@ -221,7 +227,7 @@ const Services = () => {
                     size="lg"
                     className="rounded-md"
                     onClick={() =>
-                      handleDeleteAllService({ serviceIds: selectedServiceRow })
+                      handleDeleteAllService({ ids: selectedServiceRow })
                     }
                   >
                     Delete
@@ -246,7 +252,7 @@ const Services = () => {
                         {header.id === "title" && (
                           <TableHead
                             key={header.id}
-                            className="flex ml-3 items-center"
+                            className="flex items-center ml-3"
                           >
                             <Checkbox
                               variant="white"
@@ -259,7 +265,7 @@ const Services = () => {
                               onClick={header.column.getToggleSortingHandler()}
                             >
                               {header.isPlaceholder ? null : (
-                                <span className="select-none font-semibold whitespace-nowrap">
+                                <span className="font-semibold select-none whitespace-nowrap">
                                   {flexRender(
                                     header.column.columnDef.header,
                                     header.getContext()
@@ -272,13 +278,13 @@ const Services = () => {
                                     <LuArrowUp className="w-4 h-4 text-neutral-500 " />
                                   ),
                                   desc: (
-                                      <LuArrowUp className="w-4 h-4 text-neutral-500 -rotate-180 " />
+                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
                                     ),
                                   // prettier-ignore
                                   // @ts-expect-error: Unreachable code error
                                 }[header.column.getIsSorted()]
                               ) : (
-                                <LuArrowUp className="w-4 h-4 text-neutral-500 opacity-0" />
+                                <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
                               )}
                             </div>
                           </TableHead>
@@ -291,7 +297,7 @@ const Services = () => {
                           >
                             <div className="w-min -ml-3 flex items-center gap-2 transition-[background-color] duration-200 ease-in-out py-2 px-3 rounded-md data-[state=open]:bg-neutral-500 font-medium hover:bg-neutral-200 [&>svg]:transition-[opacity,transform] [&>svg]:duration-150 [&>svg]:ease-in-out [&>svg]:hover:opacity-100">
                               {header.isPlaceholder ? null : (
-                                <span className="select-none font-semibold whitespace-nowrap">
+                                <span className="font-semibold select-none whitespace-nowrap">
                                   {flexRender(
                                     header.column.columnDef.header,
                                     header.getContext()
@@ -304,13 +310,13 @@ const Services = () => {
                                     <LuArrowUp className="w-4 h-4 text-neutral-500 " />
                                   ),
                                   desc: (
-                                      <LuArrowUp className="w-4 h-4 text-neutral-500 -rotate-180 " />
+                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
                                     ),
                                   // prettier-ignore
                                   // @ts-expect-error: Unreachable code error
                                 }[header.column.getIsSorted()]
                               ) : (
-                                <LuArrowUp className="w-4 h-4 text-neutral-500 opacity-0" />
+                                <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
                               )}
                             </div>
                           </TableHead>
@@ -346,7 +352,7 @@ const Services = () => {
                   <TableRow
                     key={row.id}
                     isSelected={selectedServiceRow.includes(
-                      row.original.serviceId
+                      row.original.id
                     )}
                   >
                     {row.getVisibleCells().map((cell) => {
@@ -402,7 +408,7 @@ const Services = () => {
                     <TableCell>
                       <Popover>
                         <PopoverTrigger
-                          id={row.original.serviceId}
+                          id={row.original.id}
                           className="data-[state=open]:bg-black/10 transition-[background-color] duration-300 ease-in-out py-2 px-3 rounded-md hover:bg-black/10 "
                         >
                           <BsThreeDots />
@@ -418,7 +424,7 @@ const Services = () => {
                               variant="outline"
                               onClick={() =>
                                 navigate(
-                                  `/dashboardadmin/service/${row.original.serviceId}`
+                                  `/dashboardadmin/service/${row.original.id}`
                                 )
                               }
                             >
@@ -440,12 +446,12 @@ const Services = () => {
                                 <span>Delete</span>
                                 <MdDeleteForever className="w-5 h-5 ml-6 text-red/70" />
                               </Button>
-                              <DialogContent className="p-0 overflow-hidden text-black bg-white">
+                              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
                                 <DialogHeader className="px-6 pt-8">
                                   <DialogTitle className="text-2xl font-bold text-center">
                                     Delete service
                                   </DialogTitle>
-                                  <DialogDescription className="text-center text-zinc-500">
+                                  <DialogDescription className="text-center text-neutral-600">
                                     Are you sure you want to do this? <br />
                                     <span className="font-semibold text-primary-600">
                                       {`${row.original.title} `}
@@ -469,7 +475,7 @@ const Services = () => {
                                       className="rounded-md"
                                       onClick={() =>
                                         handleDeleteService({
-                                          serviceId: row.original.serviceId,
+                                          serviceId: row.original.id,
                                           title: row.original.title,
                                         })
                                       }
@@ -535,33 +541,34 @@ const Services = () => {
             ${table.getPageCount()}`}
             </p>
             {/* =========== START PAGINATION ============= */}
-            <Pagination className="mr-4">
-              <PaginationContent>
-                <PaginationItem className="hidden md:hidden lg:inline-flex">
+            <Pagination className="">
+              <PaginationContent className="flex gap-1">
+                <PaginationItem className="hidden sm:hidden md:inline-flex">
                   <PaginationFirstPage
+                    className="disabled:cursor-not-allowed"
                     size="icon"
-                    disabled={!table.getCanPreviousPage()}
+                    isActive={table.getCanPreviousPage()}
                     onClick={() => table.setPageIndex(0)}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationPrevious
                     size="icon"
-                    disabled={!table.getCanPreviousPage()}
+                    isActive={table.getCanPreviousPage()}
                     onClick={() => table.previousPage()}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
                     size="icon"
-                    disabled={!table.getCanNextPage()}
+                    isActive={table.getCanNextPage()}
                     onClick={() => table.nextPage()}
                   />
                 </PaginationItem>
-                <PaginationItem className="hidden md:hidden lg:inline-flex">
+                <PaginationItem className="hidden sm:hidden md:inline-flex">
                   <PaginationLastPage
                     size="icon"
-                    disabled={!table.getCanNextPage()}
+                    isActive={table.getCanNextPage()}
                     onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                   />
                 </PaginationItem>

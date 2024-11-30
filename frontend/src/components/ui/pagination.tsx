@@ -40,7 +40,7 @@ const PaginationItem = React.forwardRef<
   <li
     ref={ref}
     className={cn(
-      "border rounded-md flex place-items-center shadow-sm border-black/10 overflow-hidden ",
+      "flex place-items-center overflow-hidden rounded-[8px]",
       className
     )}
     {...props}
@@ -64,7 +64,7 @@ const PaginationButton = ({
     className={cn(
       "",
       buttonVariants({
-        variant: isActive ? "outline" : "default",
+        variant: isActive ? "db_ghost" : "db_disabled",
         size,
       }),
       className
@@ -90,18 +90,22 @@ const PaginationFirstPage = ({
 PaginationFirstPage.displayName = "PaginationFirstPage";
 const PaginationPrevious = ({
   className,
+  disabled,
   ...props
-}: React.ComponentProps<typeof PaginationButton>) => (
-  <PaginationButton
-    aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 ", className)}
-    {...props}
-  >
-    <RxCaretLeft className="w-5 h-5" />
-    <span className="sr-only">Previous</span>
-  </PaginationButton>
-);
+}: React.ComponentProps<typeof PaginationButton>) => {
+  console.log("PaginationPrevious: ", disabled);
+  return (
+    <PaginationButton
+      aria-label="Go to previous page"
+      size="default"
+      className={cn("gap-1 ", className)}
+      {...props}
+    >
+      <RxCaretLeft className="w-5 h-5" />
+      <span className="sr-only">Previous</span>
+    </PaginationButton>
+  );
+};
 PaginationPrevious.displayName = "PaginationPrevious";
 
 const PaginationLastPage = ({

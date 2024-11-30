@@ -23,12 +23,16 @@ const buttonVariants = cva(
           "bg-primary-700 text-white transition-[background-color]  ease-in-out hover:bg-primary-700/85 focus:bg-primary-700/85 rounded-[8px]",
         db_outline:
           "bg-transparent border border-primary-700 text-primary-700 transition-[background-color] hover:bg-primary-700/10 focus:bg-primary-700/10 rounded-[8px]",
+        db_ghost:
+          "bg-transparent border border-neutral-500 text-neutral-500 transition-[background-color] hover:bg-neutral-500/10 focus:bg-neutral-500/10 rounded-[8px]",
+        db_disabled:
+          "border border-neutral-300 text-neutral-300 cursor-not-allowed shadow-none rounded-[8px]",
       },
       size: {
         default: "h-[40.9px] px-4 py-2",
         sm: "h-8 px-3 text-xs",
         lg: "h-[49px] px-4",
-        icon: "h-9 w-9",
+        icon: "h-8 w-8",
       },
     },
     defaultVariants: {
