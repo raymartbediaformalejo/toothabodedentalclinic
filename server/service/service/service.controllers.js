@@ -1,51 +1,58 @@
 const Service = require("./service.services.js");
 
 const getService = async (req, res) => {
+  console.log("controller getService");
   try {
     const { serviceId } = req.params;
     const data = await Service.getService(serviceId);
     return res.status(200).send({ data, ok: true });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error (Service): ${error}`,
+      message: `${error}`,
       ok: false,
     });
   }
 };
 
 const getServices = async (req, res) => {
+  console.log("controller getServices");
+
   try {
     const data = await Service.getServices();
     return res.status(200).send({ data, ok: true });
   } catch (error) {
     console.log("Error Products Controller", error);
     return res.status(500).send({
-      message: `Internal Server Error (All Service): ${error}`,
+      message: `${error}`,
       ok: false,
     });
   }
 };
 
 const createService = async (req, res) => {
+  console.log("controller createService");
   try {
     const serviceData = req.body;
     const data = await Service.createService(serviceData);
-    return res.status(201).send({ data, ok: true });
+    return res
+      .status(data.status)
+      .send({ data, ok: data.status === 200 || data.status === 201 });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Create Service Controller): ${error}`,
+      message: `${error}`,
       ok: false,
     });
   }
 };
 
 const updateService = async (req, res) => {
+  console.log("controller updateService");
   try {
     const { serviceId } = req.params;
 
     const { title, description, orderNo, visible, updatedBy } = req.body;
 
-    const result = await Service.updateService({
+    const data = await Service.updateService({
       serviceId,
       title,
       description,
@@ -53,9 +60,9 @@ const updateService = async (req, res) => {
       visible,
       updatedBy,
     });
-    return res.status(result.status).send({
-      message: result.message,
-      ok: result.status === 200 || result.status === 201,
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
     });
   } catch (error) {
     return res.status(500).send({
@@ -68,61 +75,57 @@ const updateService = async (req, res) => {
 const deleteService = async (req, res) => {
   try {
     const { serviceId } = req.params;
-    const result = await Service.deleteService(serviceId);
-    return res.status(result.status).send({
-      message: result.message,
-      ok: result.status === 200 || result.status === 201,
+    const data = await Service.deleteService(serviceId);
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Delete Service Controller): ${error}`,
+      message: `${error}`,
       ok: false,
     });
   }
 };
 
 const deleteAllServices = async (req, res) => {
-  const { serviceIds } = req.body;
+  const { ids } = req.body.data;
 
-  if (!Array.isArray(serviceIds) || serviceIds.length === 0) {
-    return res
-      .status(400)
-      .send({ message: "Invalid or missing serviceIds array", ok: false });
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new Error("Invalid or missing serviceIds array");
   }
   try {
-    const result = await Service.deleteAllService(serviceIds);
+    const data = await Service.deleteAllService(ids);
 
-    return res.status(result.status).send({
-      message: result.message,
-      ok: result.status === 200 || result.status === 201,
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Delete All Service Controller): ${error.message}`,
+      message: `${error.message}`,
       ok: false,
     });
   }
 };
 
 const saveSortedService = async (req, res) => {
+  console.log("controller saveSortedService: ", req.body);
   try {
     const sortedServices = req.body;
     if (!Array.isArray(sortedServices) || sortedServices.length === 0) {
-      return res.status(400).send({
-        message: "Invalid or missing sortedServices array",
-        ok: false,
-      });
+      throw new Error("Invalid or missing sortedServices array");
     }
 
     const data = await Service.saveSortedService(sortedServices);
 
-    return res.status(data.status).send({
-      message: data.message,
-      ok: data.status === 200,
+    return res.status(200).send({
+      data,
+      ok: data.status === 200 || data.status === 201,
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Save Service Controller): ${error.message}`,
+      message: `${error.message}`,
       ok: false,
     });
   }

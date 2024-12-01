@@ -33,14 +33,14 @@ export const DraggableServiceItem = ({
       style={style}
       {...attributes}
       {...listeners}
-      className={`select-none border flex items-center gap-2 rounded-[6px] p-3 ${
+      className={`relative select-none border flex items-center justify-start gap-1 rounded-[6px] pt-3 pb-3 pr-3 pl-1 overflow-hidden text-ellipsis text-nowrap ${
         isDragging
           ? "bg-primary-50 z-10 border-primary-500 text-primary-700"
           : "bg-neutral-100 text-neutral-800 border-neutral-300 "
       } ${className}`}
     >
-      <RiDraggable className="text-[28px]" />
-      <p className="overflow-hidden text-nowrap text-ellipsis">{title}</p>
+      <RiDraggable className="h-[24px] w-[24px] absolute" />
+      <p className="relative top-0  left-[26px] ">{title}</p>
     </div>
   );
 };

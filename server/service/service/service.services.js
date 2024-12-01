@@ -4,6 +4,7 @@ const pool = require("../../config/conn.js");
 
 class Service {
   static getService = async (serviceId) => {
+    console.log("getService");
     const client = await pool.connect();
 
     try {
@@ -32,6 +33,7 @@ class Service {
     }
   };
   static getServices = async () => {
+    console.log("getServices");
     const client = await pool.connect();
 
     try {
@@ -60,8 +62,9 @@ class Service {
   };
 
   static createService = async (values) => {
+    console.log("createService");
     if (!values.title) {
-      throw new Error("Title and order number are required");
+      throw new Error("Title is required");
     }
 
     const client = await pool.connect();
@@ -71,7 +74,7 @@ class Service {
       await client.query("BEGIN");
 
       const queryServiceTitleAlreadyExist = `
-      SELECT * FROM "tbl_service" WHERE title = $1
+      SELECT * FROM "tbl_service" WHERE title = $1 AND deleted = false
       `;
 
       const resultServiceTitleAlreadyExisted = await client.query(
@@ -81,10 +84,7 @@ class Service {
 
       if (resultServiceTitleAlreadyExisted.rows.length > 0) {
         await client.query("ROLLBACK");
-        return {
-          status: 409,
-          message: "Service title already existed.",
-        };
+        throw new Error(`Service "${values.title}" title already existed.`);
       }
 
       const queryGetMaxOrderNo = `
@@ -122,22 +122,21 @@ class Service {
       if (newServiceResult.rowCount > 0) {
         return {
           status: 201,
-          message: `New service ${values.title} is created.`,
+          message: `New service "${values.title}" is created.`,
         };
       } else {
         throw new Error("Invalid service data received!");
       }
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Internal Server Error (Creating user): ${error.message}`
-      );
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }
   };
 
   static updateService = async (values) => {
+    console.log("updateService");
     const client = await pool.connect();
     const updatedAt = new Date();
     const serviceId = values.serviceId;
@@ -167,19 +166,29 @@ class Service {
       };
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Internal Server Error (Updating service): ${error.message}`
-      );
+      throw new Error(`Internal Server Error: ${error.message}`);
     } finally {
       client.release();
     }
   };
 
   static deleteService = async (serviceId) => {
+    console.log("deleteService");
     const client = await pool.connect();
 
     try {
       await client.query("BEGIN");
+
+      const queryGetTitle = `
+      SELECT s.title 
+      FROM tbl_service s
+      WHERE s.id = $1
+      `;
+
+      const serviceName = (await client.query(queryGetTitle, [serviceId]))
+        .rows[0].title;
+
+      console.log("serviceName: ", serviceName);
 
       const deleteServiceQuery = `
         UPDATE tbl_service
@@ -197,27 +206,23 @@ class Service {
       await client.query("COMMIT");
 
       if (result.rowCount === 0) {
-        return {
-          status: 404,
-          message: "Service not found or already deleted.",
-        };
+        throw new Error("Service not found or already move to trash.");
       }
 
       return {
         status: 200,
-        message: `Service with ID ${serviceId} has been move to trash.`,
+        message: `Service "${serviceName}" has been move to trash.`,
       };
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Internal Server Error (Deleting service): ${error.message}`
-      );
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }
   };
 
-  static deleteAllService = async (serviceIds) => {
+  static deleteAllService = async (ids) => {
+    console.log("deleteAllService");
     const client = await pool.connect();
 
     try {
@@ -233,16 +238,13 @@ class Service {
 
       const result = await client.query(deleteAllServiceQuery, [
         updatedAt,
-        serviceIds,
+        ids,
       ]);
 
       await client.query("COMMIT");
 
       if (result.rowCount === 0) {
-        return {
-          status: 404,
-          message: "No services found or already deleted.",
-        };
+        throw new Error("No services found or already deleted.");
       }
 
       return {
@@ -251,9 +253,7 @@ class Service {
       };
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Internal Server Error (Deleting multiple services): ${error.message}`
-      );
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }
@@ -261,7 +261,6 @@ class Service {
 
   static saveSortedService = async (values) => {
     const client = await pool.connect();
-    console.log("eme");
 
     try {
       const querySaveSortedService = `
@@ -274,7 +273,7 @@ class Service {
         const { id } = values[i];
         console.log("id: ", id);
         if (!id) {
-          throw new Error("Invalid service ID in sortedServices array");
+          throw new Error("Invalid service ID in services");
         }
         await client.query(querySaveSortedService, [i + 1, id]);
       }
@@ -283,13 +282,11 @@ class Service {
 
       return {
         status: 200,
-        message: `Successfully updated sorted service`,
+        message: `Successfully sorted services`,
       };
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Internal Server Error (Updating service): ${error.message}`
-      );
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }

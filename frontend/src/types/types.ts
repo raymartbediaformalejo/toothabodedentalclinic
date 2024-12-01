@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createPatientSchema,
   createServiceSchema,
+  deleteServiceSchema,
   editServiceSchema,
   loginUserSchema,
   saveSortedServiceSchema,

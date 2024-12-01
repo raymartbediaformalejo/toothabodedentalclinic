@@ -22,6 +22,7 @@ import {
   saveSortedServiceAPI,
   setHeaderToken,
 } from "./api";
+import { toast } from "sonner";
 
 export const useCreatePatient = () => {
   const navigate = useNavigate();
@@ -87,16 +88,22 @@ export const useLogout = () => {
 // ============ || SERVICE || ===========
 
 export const useCreateService = () => {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TCreateService) => createServiceAPI(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("data: ", data);
+      if (data?.data?.data.status === 201) {
+        toast.success(data?.data?.data?.message);
+      }
       queryClient.invalidateQueries({ queryKey: ["/service"] });
-      navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
-      console.log("Error Creation: ", error);
+      console.log("error: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });
@@ -107,7 +114,17 @@ export const useEditService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TEditService) => editServiceAPI(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 409) {
+        // @ts-ignore
+        toast.error(data?.data?.data.message);
+      }
+      // @ts-ignore
+      if (data?.data?.data.status === 201) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
       queryClient.invalidateQueries({ queryKey: ["/service"] });
       navigate("/dashboardadmin/service");
     },
@@ -121,10 +138,31 @@ export const useSaveSortedService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TSaveSortedService[]) => saveSortedServiceAPI(data),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
+      console.log("data useSaveSortedService: ", data);
+      console.log("variables useSaveSortedService: ", variables);
+      console.log("context useSaveSortedService: ", context);
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
       queryClient.invalidateQueries({ queryKey: ["/service"] });
     },
+    onError: (_, error) => {
+      console.log("error useSaveSortedService: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
     onSettled: (_, error) => {
+      console.log("error useSaveSortedService: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });
@@ -135,11 +173,17 @@ export const useDeleteService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TServiceId) => deleteServiceAPI(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("data useDeleteService: ", data);
+      toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["/service"] });
       navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });
@@ -150,11 +194,17 @@ export const useDeleteAllService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TServiceIds) => deleteAllServiceAPI(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("data useDeleteAllService: ", data);
+      toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["/service"] });
       navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });

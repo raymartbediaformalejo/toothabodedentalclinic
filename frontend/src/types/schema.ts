@@ -129,7 +129,7 @@ export const serviceSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  orderNo: z.number(),
+  orderNo: z.number().optional(),
   visible: z.boolean(),
   deleted: z.boolean(),
   createdAt: z.string(),
@@ -141,7 +141,6 @@ export const serviceSchema = z.object({
 export const createServiceSchema = serviceSchema.pick({
   title: true,
   description: true,
-  orderNo: true,
   visible: true,
   createdBy: true,
 });
@@ -153,6 +152,11 @@ export const editServiceSchema = serviceSchema.pick({
   orderNo: true,
   visible: true,
   updatedBy: true,
+});
+
+export const deleteServiceSchema = serviceSchema.pick({
+  id: true,
+  title: true,
 });
 
 export const saveSortedServiceSchema = serviceSchema.pick({

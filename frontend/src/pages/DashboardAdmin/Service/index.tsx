@@ -146,7 +146,6 @@ const Services = () => {
   }) => {
     try {
       await deleteService.mutate(serviceId);
-      toast.success(`"${title}" service has been deleted!`);
       setIsModalOpen(false);
       navigate(location.pathname, { replace: true });
     } catch (error) {
@@ -159,14 +158,11 @@ const Services = () => {
       if (selectedServiceRow.length) {
         setIsDeleteAllModalOpen(false);
         await deleteAllService.mutate(doctorIDs);
-        toast.success(`Selected service(s) has been deleted!`);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
-  console.log("CanPreviousPage: ", table.getCanPreviousPage());
 
   return (
     <>
@@ -241,261 +237,261 @@ const Services = () => {
 
       {/* =========== START TABLE ============= */}
       <Card className="bg-white shadow-sidebar-shadow overflow-hidden border-[rgba(46,32,0,0.1)]">
-        <Table className="font-inter ">
-          <TableHeader className="bg-neutral-100">
-            {table.getHeaderGroups().map((headerGroup) => {
-              return (
-                <TableRow key={headerGroup.id} className="h-auto">
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <>
-                        {header.id === "title" && (
-                          <TableHead
-                            key={header.id}
-                            className="flex items-center ml-3"
-                          >
-                            <Checkbox
-                              variant="white"
-                              onChange={table.getToggleAllRowsSelectedHandler()}
-                              checked={table.getIsAllPageRowsSelected()}
-                            />
-
-                            <div
-                              className="-ml-3 h-full flex gap-2 transition-[background-color] duration-200 ease-in-out py-2 px-3 rounded-md data-[state=open]:bg-neutral-500 font-medium hover:bg-neutral-200 items-center [&>svg]:transition-[opacity,transform] [&>svg]:duration-150 [&>svg]:ease-in-out [&>svg]:hover:opacity-100"
-                              onClick={header.column.getToggleSortingHandler()}
-                            >
-                              {header.isPlaceholder ? null : (
-                                <span className="font-semibold select-none whitespace-nowrap">
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </span>
-                              )}
-                              {header.column.getIsSorted() ? (
-                                {
-                                  asc: (
-                                    <LuArrowUp className="w-4 h-4 text-neutral-500 " />
-                                  ),
-                                  desc: (
-                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
-                                    ),
-                                  // prettier-ignore
-                                  // @ts-expect-error: Unreachable code error
-                                }[header.column.getIsSorted()]
-                              ) : (
-                                <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
-                              )}
-                            </div>
-                          </TableHead>
-                        )}
-
-                        {header.id !== "title" && (
-                          <TableHead
-                            key={header.id}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            <div className="w-min -ml-3 flex items-center gap-2 transition-[background-color] duration-200 ease-in-out py-2 px-3 rounded-md data-[state=open]:bg-neutral-500 font-medium hover:bg-neutral-200 [&>svg]:transition-[opacity,transform] [&>svg]:duration-150 [&>svg]:ease-in-out [&>svg]:hover:opacity-100">
-                              {header.isPlaceholder ? null : (
-                                <span className="font-semibold select-none whitespace-nowrap">
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </span>
-                              )}
-                              {header.column.getIsSorted() ? (
-                                {
-                                  asc: (
-                                    <LuArrowUp className="w-4 h-4 text-neutral-500 " />
-                                  ),
-                                  desc: (
-                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
-                                    ),
-                                  // prettier-ignore
-                                  // @ts-expect-error: Unreachable code error
-                                }[header.column.getIsSorted()]
-                              ) : (
-                                <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
-                              )}
-                            </div>
-                          </TableHead>
-                        )}
-                      </>
-                    );
-                  })}
-
-                  <TableHead className="w-[80px]"></TableHead>
-                </TableRow>
-              );
-            })}
-          </TableHeader>
-          <TableBody className={cn(isLoading && "h-[200px] ")}>
-            {!allServices.length && !isLoading && (
-              <div className="absolute flex w-full py-6">
-                <p className="w-full italic text-center text-black/70 ">
-                  There are no records to display for Service
-                </p>
-              </div>
-            )}
-            {isLoading && (
-              <div className="absolute flex flex-col w-full gap-1 py-1">
-                <Skeleton className="w-full h-10" />
-                <Skeleton className="w-full h-10" />
-                <Skeleton className="w-full h-10" />
-                <Skeleton className="w-full h-10" />
-              </div>
-            )}
-            {table.getRowModel().rows.map((row) => {
-              return (
-                <>
-                  <TableRow
-                    key={row.id}
-                    isSelected={selectedServiceRow.includes(
-                      row.original.id
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => {
+        {allServices.length === 0 && !isLoading && (
+          <div className="w-full flex items-center justify-center  py-6 h-[200px]">
+            <p className="w-full italic text-center text-black/70 ">
+              There are no records to display for Service
+            </p>
+          </div>
+        )}
+        {allServices.length > 0 && (
+          <Table className="font-inter ">
+            <TableHeader className="bg-neutral-100">
+              {table.getHeaderGroups().map((headerGroup) => {
+                return (
+                  <TableRow key={headerGroup.id} className="h-auto">
+                    {headerGroup.headers.map((header) => {
                       return (
                         <>
-                          {cell.column.id === "title" ? (
-                            <TableCell
-                              key={cell.id}
-                              className="flex ml-3 text-[#424242] text-sm"
+                          {header.id === "title" && (
+                            <TableHead
+                              key={header.id}
+                              className="flex items-center ml-3"
                             >
                               <Checkbox
-                                id={cell.id}
-                                onChange={row.getToggleSelectedHandler()}
-                                checked={row.getIsSelected()}
-                                className="h-[38px]"
+                                variant="white"
+                                onChange={table.getToggleAllRowsSelectedHandler()}
+                                checked={table.getIsAllPageRowsSelected()}
                               />
-                              <label
-                                htmlFor={cell.id}
-                                className="flex self-center"
+
+                              <div
+                                className="-ml-3 h-full flex gap-2 transition-[background-color] duration-200 ease-in-out py-2 px-3 rounded-md data-[state=open]:bg-neutral-500 font-medium hover:bg-neutral-200 items-center [&>svg]:transition-[opacity,transform] [&>svg]:duration-150 [&>svg]:ease-in-out [&>svg]:hover:opacity-100"
+                                onClick={header.column.getToggleSortingHandler()}
                               >
-                                {flexRender(
-                                  cell.column.columnDef.cell,
-                                  cell.getContext()
+                                {header.isPlaceholder ? null : (
+                                  <span className="font-semibold select-none whitespace-nowrap">
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </span>
                                 )}
-                              </label>
-                            </TableCell>
-                          ) : cell.column.id == "createdBy" ? (
-                            <CustomTableCellCreatedBy
-                              userID={cell.getValue() as string}
-                            />
-                          ) : cell.column.id === "createdAt" ? (
-                            <TableCell
-                              key={cell.id}
-                              className="text-[#424242] text-sm"
+                                {header.column.getIsSorted() ? (
+                                  {
+                                    asc: (
+                                      <LuArrowUp className="w-4 h-4 text-neutral-500 " />
+                                    ),
+                                    desc: (
+                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
+                                    ),
+                                    // prettier-ignore
+                                    // @ts-expect-error: Unreachable code error
+                                  }[header.column.getIsSorted()]
+                                ) : (
+                                  <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
+                                )}
+                              </div>
+                            </TableHead>
+                          )}
+
+                          {header.id !== "title" && (
+                            <TableHead
+                              key={header.id}
+                              onClick={header.column.getToggleSortingHandler()}
                             >
-                              {formatDate(cell.getValue() as string)}
-                            </TableCell>
-                          ) : (
-                            <TableCell
-                              key={cell.id}
-                              className="text-[#424242] text-sm"
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </TableCell>
+                              <div className="w-min -ml-3 flex items-center gap-2 transition-[background-color] duration-200 ease-in-out py-2 px-3 rounded-md data-[state=open]:bg-neutral-500 font-medium hover:bg-neutral-200 [&>svg]:transition-[opacity,transform] [&>svg]:duration-150 [&>svg]:ease-in-out [&>svg]:hover:opacity-100">
+                                {header.isPlaceholder ? null : (
+                                  <span className="font-semibold select-none whitespace-nowrap">
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
+                                  </span>
+                                )}
+                                {header.column.getIsSorted() ? (
+                                  {
+                                    asc: (
+                                      <LuArrowUp className="w-4 h-4 text-neutral-500 " />
+                                    ),
+                                    desc: (
+                                      <LuArrowUp className="w-4 h-4 -rotate-180 text-neutral-500 " />
+                                    ),
+                                    // prettier-ignore
+                                    // @ts-expect-error: Unreachable code error
+                                  }[header.column.getIsSorted()]
+                                ) : (
+                                  <LuArrowUp className="w-4 h-4 opacity-0 text-neutral-500" />
+                                )}
+                              </div>
+                            </TableHead>
                           )}
                         </>
                       );
                     })}
 
-                    <TableCell>
-                      <Popover>
-                        <PopoverTrigger
-                          id={row.original.id}
-                          className="data-[state=open]:bg-black/10 transition-[background-color] duration-300 ease-in-out py-2 px-3 rounded-md hover:bg-black/10 "
-                        >
-                          <BsThreeDots />
-                        </PopoverTrigger>
-                        <PopoverContent
-                          align="end"
-                          className="flex flex-col p-0"
-                        >
-                          <div className="w-full border-b border-black/10 p-[.25rem]">
-                            <Button
-                              size="sm"
-                              className=" w-full justify-between rounded-[4px] hover:bg-primary-400/20"
-                              variant="outline"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboardadmin/service/${row.original.id}`
-                                )
-                              }
-                            >
-                              <span>Edit</span>
-                              <MdEdit className="w-5 h-5 ml-4 text-primary-400 " />
-                            </Button>
-                          </div>
-                          <div className="w-full p-[.25rem]">
-                            <Dialog
-                              open={isModalOpen}
-                              onOpenChange={onOpenModalChange}
-                            >
+                    <TableHead className="w-[80px]"></TableHead>
+                  </TableRow>
+                );
+              })}
+            </TableHeader>
+            <TableBody className="w-full">
+              {isLoading && (
+                <div className="absolute flex flex-col w-full gap-1 py-1">
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                </div>
+              )}
+              {table.getRowModel().rows.map((row) => {
+                return (
+                  <>
+                    <TableRow
+                      key={row.id}
+                      isSelected={selectedServiceRow.includes(row.original.id)}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        return (
+                          <>
+                            {cell.column.id === "title" ? (
+                              <TableCell
+                                key={cell.id}
+                                className="flex ml-3 text-[#424242] text-sm"
+                              >
+                                <Checkbox
+                                  id={cell.id}
+                                  onChange={row.getToggleSelectedHandler()}
+                                  checked={row.getIsSelected()}
+                                  className="h-[38px]"
+                                />
+                                <label
+                                  htmlFor={cell.id}
+                                  className="flex self-center"
+                                >
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </label>
+                              </TableCell>
+                            ) : cell.column.id == "createdBy" ? (
+                              <CustomTableCellCreatedBy
+                                userID={cell.getValue() as string}
+                              />
+                            ) : cell.column.id === "createdAt" ? (
+                              <TableCell
+                                key={cell.id}
+                                className="text-[#424242] text-sm"
+                              >
+                                {formatDate(cell.getValue() as string)}
+                              </TableCell>
+                            ) : (
+                              <TableCell
+                                key={cell.id}
+                                className="text-[#424242] text-sm"
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </TableCell>
+                            )}
+                          </>
+                        );
+                      })}
+
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger
+                            id={row.original.id}
+                            className="data-[state=open]:bg-black/10 transition-[background-color] duration-300 ease-in-out py-2 px-3 rounded-md hover:bg-black/10 "
+                          >
+                            <BsThreeDots />
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align="end"
+                            className="flex flex-col p-0"
+                          >
+                            <div className="w-full border-b border-black/10 p-[.25rem]">
                               <Button
                                 size="sm"
-                                className="w-full justify-between rounded-[4px] hover:bg-red/10 "
+                                className=" w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="outline"
-                                onClick={onOpenModalChange}
+                                onClick={() =>
+                                  navigate(
+                                    `/dashboardadmin/service/${row.original.id}`
+                                  )
+                                }
                               >
-                                <span>Delete</span>
-                                <MdDeleteForever className="w-5 h-5 ml-6 text-red/70" />
+                                <span>Edit</span>
+                                <MdEdit className="w-5 h-5 ml-4 text-primary-400 " />
                               </Button>
-                              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                                <DialogHeader className="px-6 pt-8">
-                                  <DialogTitle className="text-2xl font-bold text-center">
-                                    Delete service
-                                  </DialogTitle>
-                                  <DialogDescription className="text-center text-neutral-600">
-                                    Are you sure you want to do this? <br />
-                                    <span className="font-semibold text-primary-600">
-                                      {`${row.original.title} `}
-                                    </span>
-                                    will be move to trash.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <DialogFooter className="px-6 py-4 bg-gray-100">
-                                  <div className="flex items-center justify-center w-full gap-4">
-                                    <Button
-                                      // variant="secondary"
-                                      // size="md"
-                                      className="rounded-md"
-                                      onClick={onOpenModalChange}
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      // variant="destructive"
-                                      // size="md"
-                                      className="rounded-md"
-                                      onClick={() =>
-                                        handleDeleteService({
-                                          serviceId: row.original.id,
-                                          title: row.original.title,
-                                        })
-                                      }
-                                    >
-                                      Delete
-                                    </Button>
-                                  </div>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                  </TableRow>
-                </>
-              );
-            })}
-          </TableBody>
-        </Table>
+                            </div>
+                            <div className="w-full p-[.25rem]">
+                              <Dialog
+                                open={isModalOpen}
+                                onOpenChange={onOpenModalChange}
+                              >
+                                <Button
+                                  size="sm"
+                                  className="w-full justify-between rounded-[4px] hover:bg-red/10 "
+                                  variant="outline"
+                                  onClick={onOpenModalChange}
+                                >
+                                  <span>Delete</span>
+                                  <MdDeleteForever className="w-5 h-5 ml-6 text-red/70" />
+                                </Button>
+                                <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                                  <DialogHeader className="px-6 pt-8">
+                                    <DialogTitle className="text-2xl font-bold text-center">
+                                      Delete service
+                                    </DialogTitle>
+                                    <DialogDescription className="text-center text-neutral-600">
+                                      Are you sure you want to do this? <br />
+                                      <span className="font-semibold text-primary-600">
+                                        {`${row.original.title} `}
+                                      </span>
+                                      will be move to trash.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <DialogFooter className="px-6 py-4 bg-gray-100">
+                                    <div className="flex items-center justify-center w-full gap-4">
+                                      <Button
+                                        // variant="secondary"
+                                        // size="md"
+                                        className="rounded-md"
+                                        onClick={onOpenModalChange}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        // variant="destructive"
+                                        // size="md"
+                                        className="rounded-md"
+                                        onClick={() =>
+                                          handleDeleteService({
+                                            serviceId: row.original.id,
+                                            title: row.original.title,
+                                          })
+                                        }
+                                      >
+                                        Delete
+                                      </Button>
+                                    </div>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
+                    </TableRow>
+                  </>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </Card>
       {/* =========== END TABLE ============= */}
       {!!allServices.length && (

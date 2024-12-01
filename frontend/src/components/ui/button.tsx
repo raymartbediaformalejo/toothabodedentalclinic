@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm rounded-full shadow-mui-shadow-1 duration-300 ease-in-out font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 ",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm rounded-full shadow-mui-shadow-1 duration-300 ease-in-out font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:select-none",
   {
     variants: {
       variant: {
@@ -18,7 +18,7 @@ const buttonVariants = cva(
           " [&_svg]:pointer-events-none [&_svg]:shrink-0	[&_svg]:hover:rotate-45 [&_svg]:focus:rotate-45 [&_svg]:duration-300 [&_svg]:ease-in-out [&_svg]:transition-[transform] bg-white text-primary-700 transition-[background-color,color] hover:bg-white/85 hover:text-primary-800 focus:bg-white/85 focus:text-primary-800",
         icon: "[&_svg]:h-4 [&_svg]:w-4",
         disabled:
-          "bg-neutral-100 text-neutral-400 cursor-not-allowed shadow-none",
+          "bg-neutral-100 text-neutral-400 cursor-not-allowed shadow-none pointer-events-none",
         db_default:
           "bg-primary-700 text-white transition-[background-color]  ease-in-out hover:bg-primary-700/85 focus:bg-primary-700/85 rounded-[8px]",
         db_outline:
@@ -53,7 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, className }), "sel")}
         ref={ref}
         {...props}
       />

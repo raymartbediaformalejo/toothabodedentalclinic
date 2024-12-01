@@ -106,7 +106,7 @@ export const deleteServiceAPI = async (id: TServiceId) => {
 };
 
 export const deleteAllServiceAPI = async (data: TServiceIds) => {
-  const { data: result } = await axiosInstance.delete(`/service/deleteAll`, {
+  const { data: result } = await axiosInstance.patch(`/service/delete/all`, {
     data,
   });
   return result;
