@@ -3,6 +3,7 @@ import {
   TCreateService,
   TEditService,
   TLoginUser,
+  TSaveSortedService,
   TServiceId,
   TServiceIds,
 } from "@/types/types";
@@ -18,6 +19,7 @@ import {
   loginUserAPI,
   logout,
   removeHeaderToken,
+  saveSortedServiceAPI,
   setHeaderToken,
 } from "./api";
 
@@ -108,6 +110,19 @@ export const useEditService = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/service"] });
       navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      return error;
+    },
+  });
+};
+
+export const useSaveSortedService = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TSaveSortedService[]) => saveSortedServiceAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/service"] });
     },
     onSettled: (_, error) => {
       return error;

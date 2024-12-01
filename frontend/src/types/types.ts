@@ -4,6 +4,7 @@ import {
   createServiceSchema,
   editServiceSchema,
   loginUserSchema,
+  saveSortedServiceSchema,
   serviceSchema,
   userSchema,
 } from "./schema";
@@ -42,5 +43,6 @@ export type TUser = z.infer<typeof userSchema>;
 export type TService = z.infer<typeof serviceSchema>;
 export type TCreateService = z.infer<typeof createServiceSchema>;
 export type TEditService = z.infer<typeof editServiceSchema>;
+export type TSaveSortedService = z.infer<typeof saveSortedServiceSchema>;
 export type TServiceId = string;
 export type TServiceIds = { ids: TServiceId[] };

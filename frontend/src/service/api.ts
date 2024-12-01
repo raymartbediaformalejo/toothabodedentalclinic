@@ -6,6 +6,7 @@ import {
   TCreateService,
   TEditService,
   TLoginUser,
+  TSaveSortedService,
   TServiceId,
   TServiceIds,
 } from "@/types/types";
@@ -93,6 +94,10 @@ export const editServiceAPI = async (data: TEditService) => {
     visible: data.visible,
     updatedBy: data.updatedBy,
   });
+};
+
+export const saveSortedServiceAPI = async (data: TSaveSortedService[]) => {
+  await axiosInstance.patch("/service/save/sortedService", data);
 };
 
 export const deleteServiceAPI = async (id: TServiceId) => {

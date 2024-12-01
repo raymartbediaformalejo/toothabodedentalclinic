@@ -20,6 +20,7 @@ class Service {
         s.updated_by "updatedBy"
       FROM tbl_service s 
       WHERE s.id = $1 AND s.deleted = false
+      ORDER BY s.order_no ASC
       `;
       const result = await client.query(queryGetService, [serviceId]);
       return result.rows;
@@ -59,7 +60,7 @@ class Service {
   };
 
   static createService = async (values) => {
-    if (!values.dentistId | !values.title) {
+    if (!values.title) {
       throw new Error("Title and order number are required");
     }
 
@@ -86,6 +87,15 @@ class Service {
         };
       }
 
+      const queryGetMaxOrderNo = `
+      SELECT COALESCE(MAX(order_no), 0) AS maxOrderNo 
+      FROM tbl_service 
+      WHERE deleted = false
+      `;
+
+      const resultMaxOrderNo = await client.query(queryGetMaxOrderNo);
+      const newOrderNo = resultMaxOrderNo.rows[0].maxorderno + 1;
+
       const queryInsertService = `
       INSERT INTO tbl_service (
       id,
@@ -102,7 +112,7 @@ class Service {
         serviceId,
         values.title,
         values.description,
-        values.orderNo,
+        newOrderNo,
         values.visible,
         values.createdBy,
       ]);
@@ -150,6 +160,7 @@ class Service {
       ]);
 
       await client.query("COMMIT");
+
       return {
         status: 200,
         message: `Successfully updated ${values.title} service.`,
@@ -242,6 +253,42 @@ class Service {
       await client.query("ROLLBACK");
       throw new Error(
         `Internal Server Error (Deleting multiple services): ${error.message}`
+      );
+    } finally {
+      client.release();
+    }
+  };
+
+  static saveSortedService = async (values) => {
+    const client = await pool.connect();
+    console.log("eme");
+
+    try {
+      const querySaveSortedService = `
+      UPDATE tbl_service 
+      SET order_no = $1
+      WHERE id = $2
+      `;
+
+      for (let i = 0; i < values.length; i++) {
+        const { id } = values[i];
+        console.log("id: ", id);
+        if (!id) {
+          throw new Error("Invalid service ID in sortedServices array");
+        }
+        await client.query(querySaveSortedService, [i + 1, id]);
+      }
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: `Successfully updated sorted service`,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(
+        `Internal Server Error (Updating service): ${error.message}`
       );
     } finally {
       client.release();

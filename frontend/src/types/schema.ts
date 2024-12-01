@@ -154,3 +154,8 @@ export const editServiceSchema = serviceSchema.pick({
   visible: true,
   updatedBy: true,
 });
+
+export const saveSortedServiceSchema = serviceSchema.pick({
+  id: true,
+  title: true,
+});

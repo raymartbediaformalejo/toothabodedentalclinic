@@ -19,9 +19,10 @@ const getServices = async (req, res) => {
     return res.status(200).send({ data, ok: true });
   } catch (error) {
     console.log("Error Products Controller", error);
-    return res
-      .status(500)
-      .send({ message: "Internal Server Error", ok: false });
+    return res.status(500).send({
+      message: `Internal Server Error (All Service): ${error}`,
+      ok: false,
+    });
   }
 };
 
@@ -32,7 +33,7 @@ const createService = async (req, res) => {
     return res.status(201).send({ data, ok: true });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Service Controller): ${error}`,
+      message: `Internal Server Error(Create Service Controller): ${error}`,
       ok: false,
     });
   }
@@ -58,7 +59,7 @@ const updateService = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Service Controller): ${error}`,
+      message: `Internal Server Error(Update Service Controller): ${error}`,
       ok: false,
     });
   }
@@ -74,7 +75,7 @@ const deleteService = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Service Controller): ${error}`,
+      message: `Internal Server Error(Delete Service Controller): ${error}`,
       ok: false,
     });
   }
@@ -97,7 +98,31 @@ const deleteAllServices = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Service Controller): ${error.message}`,
+      message: `Internal Server Error(Delete All Service Controller): ${error.message}`,
+      ok: false,
+    });
+  }
+};
+
+const saveSortedService = async (req, res) => {
+  try {
+    const sortedServices = req.body;
+    if (!Array.isArray(sortedServices) || sortedServices.length === 0) {
+      return res.status(400).send({
+        message: "Invalid or missing sortedServices array",
+        ok: false,
+      });
+    }
+
+    const data = await Service.saveSortedService(sortedServices);
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error(Save Service Controller): ${error.message}`,
       ok: false,
     });
   }
@@ -110,4 +135,5 @@ module.exports = {
   updateService,
   deleteService,
   deleteAllServices,
+  saveSortedService,
 };

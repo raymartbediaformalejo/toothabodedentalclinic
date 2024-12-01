@@ -20,7 +20,7 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { TCreateService, TService } from "@/types/types";
+import { TCreateService, TSaveSortedService, TService } from "@/types/types";
 import { createServiceSchema } from "@/types/schema";
 import {
   Form,
@@ -29,24 +29,43 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useCreateService } from "@/service/mutation";
+import { useCreateService, useSaveSortedService } from "@/service/mutation";
 import useAuth from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 
 import { useGetAllServices } from "@/service/queries";
 import { DraggableServiceItem } from "./components/DraggableServiceItem";
+import { Label } from "@/components/ui/label";
+
+// type TServiceToOrder = {
+//   id: string;
+//   title: string;
+// };
 
 const AddNewService = () => {
   const { userId } = useAuth();
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const navigate = useNavigate();
   const createService = useCreateService();
+  const saveSortedService = useSaveSortedService();
   const { data, isLoading: isServicesLoading } = useGetAllServices();
   const allServices: TService[] = useMemo(() => data?.data || [], [data]);
-  const [servicesToSort, setServicesToSort] = useState<
-    { id: UniqueIdentifier; title: string }[]
-  >([]);
+  const [servicesToSort, setServicesToSort] = useState<TSaveSortedService[]>(
+    []
+  );
   const getServicePosition = (id: UniqueIdentifier) =>
     servicesToSort.findIndex((service) => service.id === id);
   const handleDragEnd = (event: DragEndEvent) => {
@@ -61,11 +80,22 @@ const AddNewService = () => {
       return arrayMove(service, originalPos, newPos);
     });
   };
-  useEffect(() => {
-    if (!isServicesLoading)
-      setServicesToSort(allServices.map(({ id, title }) => ({ id, title })));
-  }, [allServices]);
-  console.log("servicesToSort: ", servicesToSort);
+
+  const areArrayOrderIsTheSame = (
+    array1: TSaveSortedService[],
+    array2: TSaveSortedService[]
+  ) => {
+    return array1.every((item, i) => {
+      // console.log(
+      //   `array 1: ${item.id} | array 2: ${array2[i]?.id} = ${
+      //     item.id === array2[i]?.id
+      //   }`
+      // );
+      // console.log(`array 1: ${item.id} | array 2: ${array2[i]?.id}`);
+      return item?.id === array2[i]?.id;
+    });
+  };
+
   const form = useForm<TCreateService>({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
@@ -77,8 +107,33 @@ const AddNewService = () => {
     },
   });
   useEffect(() => {
+    if (!isServicesLoading) {
+      setServicesToSort(allServices.map(({ id, title }) => ({ id, title })));
+    }
+  }, [allServices, isServicesLoading]);
+
+  useEffect(() => {
+    const isOrderSame = areArrayOrderIsTheSame(
+      allServices.map(({ id, title }) => ({ id, title })),
+      servicesToSort
+    );
+
+    setIsSaveDisabled(isOrderSame);
+  }, [servicesToSort, allServices]);
+  console.log(
+    "allServices: ",
+    allServices.map(({ id, title }) => ({ id, title }))
+  );
+  console.log("serviceToSort: ", servicesToSort);
+  console.log("isSaveDisabled: ", isSaveDisabled);
+
+  useEffect(() => {
     form.setValue("createdBy", userId!);
   }, [form, userId]);
+
+  const handleSaveSortedService = async (data: TSaveSortedService[]) => {
+    saveSortedService.mutate(data);
+  };
 
   const handleCreateService: SubmitHandler<TCreateService> = async (data) => {
     createService.mutate(data);
@@ -95,7 +150,7 @@ const AddNewService = () => {
     <div>
       <header className=" text-black/80">
         <h1 className="text-neutral-800 leading-[43.2px] font-bold text-[36px]">
-          Services
+          Add Service
         </h1>
       </header>
       <div className="flex gap-4 mt-4">
@@ -122,81 +177,140 @@ const AddNewService = () => {
                       serviceId={id}
                       title={title}
                     />
-                    // <div
-                    //   key={id}
-                    //   className="border border-neutral-200 flex items-center gap-2 rounded-[6px] bg-neutral-100 p-3"
-                    // >
-                    //   <RiDraggable className="text-[28px]" />
-                    //   <p className="overflow-hidden text-nowrap text-ellipsis">
-                    //     {title}
-                    //   </p>
-                    // </div>
                   ))}
               </SortableContext>
             </DndContext>
           </CardContent>
+          <CardFooter>
+            <div className="flex justify-center gap-3 mb-20 ">
+              <Button
+                type="submit"
+                size="lg"
+                className="rounded-md"
+                variant={isSaveDisabled ? "disabled" : "default"}
+                onClick={() => handleSaveSortedService(servicesToSort)}
+              >
+                Save
+              </Button>
+            </div>
+          </CardFooter>
         </Card>
-        <Card className="p-3 w-[70%]">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleCreateService)}
-              className="flex flex-col justify-between h-full mt-12"
-            >
-              <div>
-                <div className="flex flex-col gap-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            id="title"
-                            type="text"
-                            placeholder="Enter service name"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            id="description"
-                            placeholder="Description"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+        <Card className="w-[70%]">
+          <CardHeader>Add Service</CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleCreateService)}
+                className="flex flex-col justify-between h-full"
+              >
+                <div>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field, fieldState }) => {
+                          return (
+                            <FormItem className="flex flex-col ">
+                              <Label isRequired htmlFor="title">
+                                Title
+                              </Label>
+                              <FormControl>
+                                <Input
+                                  id="title"
+                                  type="text"
+                                  placeholder="Enter the title"
+                                  dirty={fieldState?.isDirty}
+                                  invalid={fieldState?.invalid}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="visible"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col w-[40%]">
+                            <Label isRequired htmlFor="visible">
+                              Visibility
+                            </Label>
+                            <Select onValueChange={field.onChange}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Visible" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <FormMessage />
+                              <SelectContent>
+                                <SelectItem
+                                  id="visible"
+                                  key="visible"
+                                  value="visible"
+                                >
+                                  Visible
+                                </SelectItem>
+                                <SelectItem
+                                  id="hidden"
+                                  key="hidden"
+                                  value="hidden"
+                                >
+                                  Hidden
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field, fieldState }) => {
+                        return (
+                          <FormItem className="flex flex-col ">
+                            <Label isRequired htmlFor="description">
+                              Description
+                            </Label>
+                            <FormControl>
+                              <Input
+                                id="description"
+                                type="text"
+                                placeholder="Enter the description"
+                                dirty={fieldState?.isDirty}
+                                invalid={fieldState?.invalid}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
 
-                <div className="flex justify-center gap-3 mb-20 ">
-                  <Button asChild variant="outline" size="lg">
-                    <Link to="/dashboardadmin/service">Cancel</Link>
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="rounded-md"
-                    variant={
-                      form.formState.isSubmitting ? "disabled" : "default"
-                    }
-                  >
-                    Submit
-                  </Button>
+                  <div className="flex justify-center gap-3 mb-20 ">
+                    <Button asChild variant="outline" size="lg">
+                      <Link to="/dashboardadmin/service">Cancel</Link>
+                    </Button>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="rounded-md"
+                      variant={
+                        form.formState.isSubmitting ? "disabled" : "default"
+                      }
+                    >
+                      Submit
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </CardContent>
         </Card>
       </div>
     </div>
