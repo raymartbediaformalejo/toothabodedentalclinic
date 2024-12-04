@@ -53,7 +53,7 @@ const routes: TRoute[] = [
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/service/:serviceId",
+    path: "/dashboardadmin/service/:id",
     component: EditService,
     isAuthenticated: true,
   },

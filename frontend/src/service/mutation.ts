@@ -116,12 +116,7 @@ export const useEditService = () => {
     mutationFn: (data: TEditService) => editServiceAPI(data),
     onSuccess: (data) => {
       // @ts-ignore
-      if (data?.data?.data.status === 409) {
-        // @ts-ignore
-        toast.error(data?.data?.data.message);
-      }
-      // @ts-ignore
-      if (data?.data?.data.status === 201) {
+      if (data?.data?.data.status === 200) {
         // @ts-ignore
         toast.success(data?.data?.data?.message);
       }
@@ -129,6 +124,9 @@ export const useEditService = () => {
       navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
+      console.log("error useEditService: ", error);
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
       return error;
     },
   });
@@ -138,19 +136,11 @@ export const useSaveSortedService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TSaveSortedService[]) => saveSortedServiceAPI(data),
-    onSuccess: (data, variables, context) => {
-      console.log("data useSaveSortedService: ", data);
-      console.log("variables useSaveSortedService: ", variables);
-      console.log("context useSaveSortedService: ", context);
-      // @ts-ignore
-      if (data?.data?.data.status === 200) {
-        // @ts-ignore
-        toast.success(data?.data?.data?.message);
-      }
+    onSuccess: () => {
+      toast.success(`Successfully sorted the services`);
       queryClient.invalidateQueries({ queryKey: ["/service"] });
     },
     onError: (_, error) => {
-      console.log("error useSaveSortedService: ", error);
       if (error) {
         // @ts-ignore
         toast.error(error?.response?.data.message);
@@ -158,7 +148,6 @@ export const useSaveSortedService = () => {
       return error;
     },
     onSettled: (_, error) => {
-      console.log("error useSaveSortedService: ", error);
       if (error) {
         // @ts-ignore
         toast.error(error?.response?.data.message);

@@ -87,13 +87,15 @@ export const createServiceAPI = async (data: TCreateService) =>
   await axiosInstance.post("/service", data);
 
 export const editServiceAPI = async (data: TEditService) => {
-  await axiosInstance.patch(`/service/${data.id}`, {
+  const result = await axiosInstance.patch(`/service/${data.id}`, {
     title: data.title,
     description: data.description,
     orderNo: data.orderNo,
     visible: data.visible,
     updatedBy: data.updatedBy,
   });
+
+  return result;
 };
 
 export const saveSortedServiceAPI = async (data: TSaveSortedService[]) => {

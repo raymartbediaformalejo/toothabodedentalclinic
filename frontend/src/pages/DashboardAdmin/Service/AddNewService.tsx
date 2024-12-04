@@ -94,7 +94,6 @@ const AddNewService = () => {
       createdBy: "",
     },
   });
-  console.log("state: ", form.watch());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -137,7 +136,6 @@ const AddNewService = () => {
   const handleCreateService: SubmitHandler<TCreateService> = async (data) => {
     await createService.mutate(data);
   };
-  console.log("error: ", form.formState.errors);
   return (
     <div>
       <header className=" text-black/80">

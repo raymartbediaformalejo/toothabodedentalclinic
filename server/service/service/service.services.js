@@ -4,7 +4,6 @@ const pool = require("../../config/conn.js");
 
 class Service {
   static getService = async (serviceId) => {
-    console.log("getService");
     const client = await pool.connect();
 
     try {
@@ -33,7 +32,6 @@ class Service {
     }
   };
   static getServices = async () => {
-    console.log("getServices");
     const client = await pool.connect();
 
     try {
@@ -62,7 +60,6 @@ class Service {
   };
 
   static createService = async (values) => {
-    console.log("createService");
     if (!values.title) {
       throw new Error("Title is required");
     }
@@ -136,22 +133,25 @@ class Service {
   };
 
   static updateService = async (values) => {
-    console.log("updateService");
     const client = await pool.connect();
     const updatedAt = new Date();
     const serviceId = values.serviceId;
 
     try {
+      if (!values.title) {
+        await client.query("ROLLBACK");
+        throw new Error(`Service title is required`);
+      }
+
       const updateServiceQuery = `
       UPDATE tbl_service
-      SET title = $1, description = $2, order_no = $3, visible = $4, updated_at = $5, updated_by = $6
-      WHERE id = $7
+      SET title = $1, description = $2, visible = $3, updated_at = $4, updated_by = $5
+      WHERE id = $6
       `;
 
       await client.query(updateServiceQuery, [
         values.title,
         values.description,
-        values.orderNo,
         values.visible,
         updatedAt,
         values.updatedBy,
@@ -166,14 +166,13 @@ class Service {
       };
     } catch (error) {
       await client.query("ROLLBACK");
-      throw new Error(`Internal Server Error: ${error.message}`);
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }
   };
 
   static deleteService = async (serviceId) => {
-    console.log("deleteService");
     const client = await pool.connect();
 
     try {
@@ -187,8 +186,6 @@ class Service {
 
       const serviceName = (await client.query(queryGetTitle, [serviceId]))
         .rows[0].title;
-
-      console.log("serviceName: ", serviceName);
 
       const deleteServiceQuery = `
         UPDATE tbl_service
@@ -222,7 +219,6 @@ class Service {
   };
 
   static deleteAllService = async (ids) => {
-    console.log("deleteAllService");
     const client = await pool.connect();
 
     try {
@@ -271,7 +267,6 @@ class Service {
 
       for (let i = 0; i < values.length; i++) {
         const { id } = values[i];
-        console.log("id: ", id);
         if (!id) {
           throw new Error("Invalid service ID in services");
         }

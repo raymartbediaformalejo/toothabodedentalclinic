@@ -1,7 +1,6 @@
 const Service = require("./service.services.js");
 
 const getService = async (req, res) => {
-  console.log("controller getService");
   try {
     const { serviceId } = req.params;
     const data = await Service.getService(serviceId);
@@ -15,13 +14,10 @@ const getService = async (req, res) => {
 };
 
 const getServices = async (req, res) => {
-  console.log("controller getServices");
-
   try {
     const data = await Service.getServices();
     return res.status(200).send({ data, ok: true });
   } catch (error) {
-    console.log("Error Products Controller", error);
     return res.status(500).send({
       message: `${error}`,
       ok: false,
@@ -30,7 +26,6 @@ const getServices = async (req, res) => {
 };
 
 const createService = async (req, res) => {
-  console.log("controller createService");
   try {
     const serviceData = req.body;
     const data = await Service.createService(serviceData);
@@ -46,7 +41,6 @@ const createService = async (req, res) => {
 };
 
 const updateService = async (req, res) => {
-  console.log("controller updateService");
   try {
     const { serviceId } = req.params;
 
@@ -60,13 +54,12 @@ const updateService = async (req, res) => {
       visible,
       updatedBy,
     });
-    return res.status(data.status).send({
-      message: data.message,
-      ok: data.status === 200 || data.status === 201,
-    });
+    return res
+      .status(data.status)
+      .send({ data, ok: data.status === 200 || data.status === 201 });
   } catch (error) {
     return res.status(500).send({
-      message: `Internal Server Error(Update Service Controller): ${error}`,
+      message: `${error}`,
       ok: false,
     });
   }
@@ -110,7 +103,6 @@ const deleteAllServices = async (req, res) => {
 };
 
 const saveSortedService = async (req, res) => {
-  console.log("controller saveSortedService: ", req.body);
   try {
     const sortedServices = req.body;
     if (!Array.isArray(sortedServices) || sortedServices.length === 0) {

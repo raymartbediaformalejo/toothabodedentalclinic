@@ -7,7 +7,6 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 import {
@@ -213,7 +212,7 @@ const Services = () => {
                 <div className="flex items-center justify-center w-full gap-4">
                   <Button
                     size="lg"
-                    className="rounded-md"
+                    variant="db_outline"
                     onClick={onOpenDeleteAllModalChange}
                   >
                     Cancel
@@ -410,13 +409,13 @@ const Services = () => {
                           </PopoverTrigger>
                           <PopoverContent
                             align="end"
-                            className="flex flex-col p-0"
+                            className="flex flex-col p-0 w-[150px]"
                           >
-                            <div className="w-full border-b border-black/10 p-[.25rem]">
+                            <div className="px-3 pt-3 pb-2 border-b border-black/10">
                               <Button
                                 size="sm"
                                 className=" w-full justify-between rounded-[4px] hover:bg-primary-400/20"
-                                variant="outline"
+                                variant="db_outline"
                                 onClick={() =>
                                   navigate(
                                     `/dashboardadmin/service/${row.original.id}`
@@ -427,7 +426,7 @@ const Services = () => {
                                 <MdEdit className="w-5 h-5 ml-4 text-primary-400 " />
                               </Button>
                             </div>
-                            <div className="w-full p-[.25rem]">
+                            <div className="w-full px-3 pt-3 pb-2">
                               <Dialog
                                 open={isModalOpen}
                                 onOpenChange={onOpenModalChange}
@@ -435,7 +434,7 @@ const Services = () => {
                                 <Button
                                   size="sm"
                                   className="w-full justify-between rounded-[4px] hover:bg-red/10 "
-                                  variant="outline"
+                                  variant="db_outline"
                                   onClick={onOpenModalChange}
                                 >
                                   <span>Delete</span>
