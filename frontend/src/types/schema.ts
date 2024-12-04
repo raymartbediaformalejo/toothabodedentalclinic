@@ -7,7 +7,7 @@ const passwordPattern =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{}|;:',.<>/?~])[A-Za-z\d!@#$%^&*()_+\-=[\]{}|;:',.<>/?~]{8,}$/;
 
 export const userSchema = z.object({
-  userId: z.string().min(1),
+  id: z.string().min(1),
   lastName: z
     .string()
     .min(1, "Last name is required")
@@ -91,11 +91,6 @@ export const patientSchema = userSchema.extend({
   zipCode: z.number(),
 });
 
-export const dentistSchema = userSchema.extend({
-  dentistId: z.string(),
-  bio: z.string(),
-});
-
 export const createPatientSchema = patientSchema.pick({
   email: true,
   password: true,
@@ -124,6 +119,8 @@ export const loginUserSchema = userSchema.pick({
   email: true,
   password: true,
 });
+
+// ============ || SERVICE || ===========
 
 export const serviceSchema = z.object({
   id: z.string(),
@@ -162,4 +159,47 @@ export const deleteServiceSchema = serviceSchema.pick({
 export const saveSortedServiceSchema = serviceSchema.pick({
   id: true,
   title: true,
+});
+
+// ============ || DENTIST || ===========
+
+export const dentistSchema = userSchema;
+
+export const createDentistSchema = dentistSchema.pick({
+  lastName: true,
+  firstName: true,
+  middleName: true,
+  email: true,
+  suffix: true,
+  password: true,
+  profilePicUrl: true,
+  roleIds: true,
+  createdBy: true,
+});
+
+export const editDentistSchema = dentistSchema.pick({
+  id: true,
+  lastName: true,
+  firstName: true,
+  middleName: true,
+  suffix: true,
+  email: true,
+  password: true,
+  profilePicUrl: true,
+  roleIds: true,
+  updatedBy: true,
+});
+
+export const deleteDentistSchema = dentistSchema.pick({
+  id: true,
+  lastName: true,
+  firstName: true,
+  middleName: true,
+});
+
+export const saveSortedDentistSchema = dentistSchema.pick({
+  id: true,
+  lastName: true,
+  firstName: true,
+  middleName: true,
 });

@@ -1,8 +1,13 @@
+import { TDentistIds } from "./../types/types";
 import {
+  TCreateDentist,
   TCreatePatient,
   TCreateService,
+  TDentistId,
+  TEditDentist,
   TEditService,
   TLoginUser,
+  TSaveSortedDentist,
   TSaveSortedService,
   TServiceId,
   TServiceIds,
@@ -11,14 +16,19 @@ import { jwtDecode } from "jwt-decode";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
+  createDentistAPI,
   createPatientAPI,
   createServiceAPI,
+  deleteAllDentistAPI,
   deleteAllServiceAPI,
+  deleteDentistAPI,
   deleteServiceAPI,
+  editDentistAPI,
   editServiceAPI,
   loginUserAPI,
   logout,
   removeHeaderToken,
+  saveSortedDentistAPI,
   saveSortedServiceAPI,
   setHeaderToken,
 } from "./api";
@@ -96,7 +106,7 @@ export const useCreateService = () => {
       if (data?.data?.data.status === 201) {
         toast.success(data?.data?.data?.message);
       }
-      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      queryClient.invalidateQueries({ queryKey: ["service"] });
     },
     onSettled: (_, error) => {
       console.log("error: ", error);
@@ -120,7 +130,7 @@ export const useEditService = () => {
         // @ts-ignore
         toast.success(data?.data?.data?.message);
       }
-      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      queryClient.invalidateQueries({ queryKey: ["service"] });
       navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
@@ -138,7 +148,7 @@ export const useSaveSortedService = () => {
     mutationFn: (data: TSaveSortedService[]) => saveSortedServiceAPI(data),
     onSuccess: () => {
       toast.success(`Successfully sorted the services`);
-      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      queryClient.invalidateQueries({ queryKey: ["service"] });
     },
     onError: (_, error) => {
       if (error) {
@@ -165,7 +175,7 @@ export const useDeleteService = () => {
     onSuccess: (data) => {
       console.log("data useDeleteService: ", data);
       toast.success(`${data.message}`);
-      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      queryClient.invalidateQueries({ queryKey: ["service"] });
       navigate("/dashboardadmin/service");
     },
     onSettled: (_, error) => {
@@ -186,8 +196,118 @@ export const useDeleteAllService = () => {
     onSuccess: (data) => {
       console.log("data useDeleteAllService: ", data);
       toast.success(`${data.message}`);
-      queryClient.invalidateQueries({ queryKey: ["/service"] });
+      queryClient.invalidateQueries({ queryKey: ["service"] });
       navigate("/dashboardadmin/service");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+// ============ || SERVICE || ===========
+
+export const useCreateDentist = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TCreateDentist) => createDentistAPI(data),
+    onSuccess: (data) => {
+      if (data?.data?.data.status === 201) {
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
+    },
+    onSettled: (_, error) => {
+      console.log("error: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useEditDentist = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TEditDentist) => editDentistAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
+      navigate("/dashboardadmin/dentist");
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useSaveSortedDentist = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TSaveSortedDentist[]) => saveSortedDentistAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully sorted the dentitst`);
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
+    },
+    onError: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useDeleteDentist = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TDentistId) => deleteDentistAPI(data),
+    onSuccess: (data) => {
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
+      navigate("/dashboardadmin/dentist");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useDeleteAllDentist = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TDentistIds) => deleteAllDentistAPI(data),
+    onSuccess: (data) => {
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
+      navigate("/dashboardadmin/dentist");
     },
     onSettled: (_, error) => {
       if (error) {

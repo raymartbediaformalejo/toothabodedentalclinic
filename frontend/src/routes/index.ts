@@ -42,6 +42,7 @@ const routes: TRoute[] = [
     component: Dentists,
     isAuthenticated: true,
   },
+  // DASHBOARD SERVICE
   {
     path: "/dashboardadmin/service",
     component: Services,
@@ -54,6 +55,23 @@ const routes: TRoute[] = [
   },
   {
     path: "/dashboardadmin/service/:id",
+    component: EditService,
+    isAuthenticated: true,
+  },
+
+  // DASHBOARD DENTIST
+  {
+    path: "/dashboardadmin/dentists",
+    component: Dentists,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/dentist/new",
+    component: AddNewService,
+    isAuthenticated: true,
+  },
+  {
+    path: "/dashboardadmin/dentist/:id",
     component: EditService,
     isAuthenticated: true,
   },

@@ -3,12 +3,14 @@ const User = require("./user.services");
 const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
+
+    console.log("getUser: ", userId);
     const data = await User.getUser(userId);
     return res.status(200).send({ data, ok: true });
   } catch (error) {
     return res
       .status(500)
-      .send({ message: "Internal Server Error", ok: false });
+      .send({ message: `Internal Server Error: ${error}`, ok: false });
   }
 };
 

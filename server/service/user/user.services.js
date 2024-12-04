@@ -27,7 +27,7 @@ class User {
     try {
       const queryGetUser = `
       SELECT 
-        u.user_id "userId",
+        u.id,
         u.last_name "lastName",
         u.first_name "firstName",
         u.middle_name "middleName",
@@ -47,7 +47,7 @@ class User {
         u.updated_at "updatedAt",
         u.updated_by "updatedBy"
       FROM tbl_user u
-      WHERE u.user_id = $1
+      WHERE u.id = $1
       `;
 
       const result = await client.query(queryGetUser, [userId]);
@@ -98,7 +98,7 @@ class User {
 
       const queryInsertUser = `
       INSERT INTO tbl_user (
-      user_id,
+      id,
       last_name,
       first_name,
       middle_name,
@@ -115,7 +115,7 @@ class User {
       religion
       ) VALUES (
        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15 
-      ) RETURNING user_id
+      ) RETURNING id
       `;
 
       const userResult = await client.query(queryInsertUser, [
@@ -136,24 +136,9 @@ class User {
         values.religion,
       ]);
 
-      const hasDentistRole = values.roleIds.includes(
-        "241e4ec4-c535-4202-8e01-f53ac71372b6"
-      );
       const hasPatientRole = values.roleIds.includes(
         "92b73582-0dc5-4b3d-a17d-20523d7e0a82"
       );
-
-      if (hasDentistRole) {
-        const queryInsertDentist = `
-        INSERT INTO tbl_dentist (
-          dentist_id,
-          bio
-        ) VALUES (
-          $1, $2
-        )`;
-
-        await client.query(queryInsertDentist, [userId, values.bio || ""]);
-      }
 
       if (hasPatientRole) {
         const queryInsertPatient = `

@@ -7,8 +7,10 @@ import {
   getUserAPI,
   provincesCitiesAPI,
   regionsAPI,
+  getAllDentistAPI,
+  getDentistAPI,
 } from "./api";
-import { TServiceId } from "@/types/types";
+import { TDentistId, TServiceId } from "@/types/types";
 
 export const useGetAllRegions = () => {
   return useQuery({
@@ -32,23 +34,40 @@ export const useGetBarangays = (id: string) => {
 };
 
 export const useGetUser = (id: string) => {
-  console.log("id: ", id);
   return useQuery({
-    queryKey: ["/user", id],
+    queryKey: ["user", id],
     queryFn: getUserAPI,
   });
 };
 
+// ============ || SERVICE || ===========
+
 export const useGetAllServices = () => {
   return useQuery({
-    queryKey: ["/service"],
+    queryKey: ["service"],
     queryFn: getAllServicesAPI,
   });
 };
 
 export const useGetService = (serviceId: TServiceId) => {
   return useQuery({
-    queryKey: ["/service", serviceId],
+    queryKey: ["service", serviceId],
     queryFn: getServiceAPI,
+  });
+};
+
+// ============ || DENTIST || ===========
+
+export const useGetAllDentist = () => {
+  return useQuery({
+    queryKey: ["dentist"],
+    queryFn: getAllDentistAPI,
+  });
+};
+
+export const useGetDentist = (dentistId: TDentistId) => {
+  return useQuery({
+    queryKey: ["dentist", dentistId],
+    queryFn: getDentistAPI,
   });
 };

@@ -1,10 +1,13 @@
 import { z } from "zod";
 import {
+  createDentistSchema,
   createPatientSchema,
   createServiceSchema,
-  deleteServiceSchema,
+  dentistSchema,
+  editDentistSchema,
   editServiceSchema,
   loginUserSchema,
+  saveSortedDentistSchema,
   saveSortedServiceSchema,
   serviceSchema,
   userSchema,
@@ -41,9 +44,20 @@ export type TUsername = {
 
 export type TUser = z.infer<typeof userSchema>;
 
+// ============ || SERVICE || ===========
+
 export type TService = z.infer<typeof serviceSchema>;
 export type TCreateService = z.infer<typeof createServiceSchema>;
 export type TEditService = z.infer<typeof editServiceSchema>;
 export type TSaveSortedService = z.infer<typeof saveSortedServiceSchema>;
 export type TServiceId = string;
 export type TServiceIds = { ids: TServiceId[] };
+
+// ============ || DENTIST || ===========
+
+export type TDentist = z.infer<typeof dentistSchema>;
+export type TCreateDentist = z.infer<typeof createDentistSchema>;
+export type TEditDentist = z.infer<typeof editDentistSchema>;
+export type TSaveSortedDentist = z.infer<typeof saveSortedDentistSchema>;
+export type TDentistId = string;
+export type TDentistIds = { ids: TDentistId[] };

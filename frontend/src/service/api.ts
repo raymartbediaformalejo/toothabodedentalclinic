@@ -2,10 +2,15 @@ import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 
 import {
+  TCreateDentist,
   TCreatePatient,
   TCreateService,
+  TDentistId,
+  TDentistIds,
+  TEditDentist,
   TEditService,
   TLoginUser,
+  TSaveSortedDentist,
   TSaveSortedService,
   TServiceId,
   TServiceIds,
@@ -109,6 +114,50 @@ export const deleteServiceAPI = async (id: TServiceId) => {
 
 export const deleteAllServiceAPI = async (data: TServiceIds) => {
   const { data: result } = await axiosInstance.patch(`/service/delete/all`, {
+    data,
+  });
+  return result;
+};
+
+// ============ || DENTIST || ===========
+
+export const getAllDentistAPI = async () => {
+  const { data } = await axiosInstance.get("/dentist");
+  return data;
+};
+
+export const getDentistAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(`/dentist/${queryKey[1]}`);
+  return data;
+};
+
+export const createDentistAPI = async (data: TCreateDentist) =>
+  await axiosInstance.post("/dentist", data);
+
+export const editDentistAPI = async (data: TEditDentist) => {
+  const result = await axiosInstance.patch(`/dentist/${data.id}`, {
+    firstName: data.firstName,
+    middleName: data.middleName,
+    lastName: data.lastName,
+    suffix: data.suffix,
+    updatedBy: data.updatedBy,
+  });
+
+  return result;
+};
+
+export const saveSortedDentistAPI = async (data: TSaveSortedDentist[]) => {
+  await axiosInstance.patch("/dentist/save/sortedDentist", data);
+};
+
+export const deleteDentistAPI = async (id: TDentistId) => {
+  const { data } = await axiosInstance.patch(`/dentist/delete/${id}`);
+  return data;
+};
+
+export const deleteAllDentistAPI = async (data: TDentistIds) => {
+  const { data: result } = await axiosInstance.patch(`/dentist/delete/all`, {
     data,
   });
   return result;
