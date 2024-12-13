@@ -38,8 +38,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { LuArrowUp } from "react-icons/lu";
 import { cn, createUsername } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import CustomTableCellCreatedBy from "@/components/CustomTableCellCreatedBy";
-import { formatDate } from "@/lib/utils";
 import { BsThreeDots } from "react-icons/bs";
 import {
   Popover,
@@ -67,7 +65,7 @@ import { Card } from "@/components/ui/card";
 import DentistName from "./components/DentistName";
 import AvailabilityCell from "./components/AvailabilityCell";
 
-const columnService = [
+const columnDentist = [
   {
     header: "name",
     accessorKey: "firstName",
@@ -94,7 +92,7 @@ const Dentists = () => {
   const deleteDentist = useDeleteDentist();
   const table = useReactTable({
     data: allDentists,
-    columns: columnService,
+    columns: columnDentist,
     initialState: {
       pagination: {
         pageSize: rowPerPage,
@@ -191,10 +189,10 @@ const Dentists = () => {
             <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
               <DialogHeader className="px-6 pt-8">
                 <DialogTitle className="text-2xl font-bold text-center">
-                  Delete service
+                  Delete dentist
                 </DialogTitle>
                 <DialogDescription className="text-center text-neutral-600">
-                  Are you sure you want to delete all the selected services?
+                  Are you sure you want to delete all the selected dentists?
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter className="px-6 py-4 bg-gray-100">
@@ -228,7 +226,7 @@ const Dentists = () => {
         {allDentists.length === 0 && !isLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
-              There are no records to display for Service
+              There are no records to display for Dentists
             </p>
           </div>
         )}
@@ -431,9 +429,7 @@ const Dentists = () => {
                                 className=" w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(
-                                    `/dashboardadmin/service/${row.original.id}`
-                                  )
+                                  navigate(`/dentists/${row.original.id}`)
                                 }
                               >
                                 <span>Edit</span>
@@ -457,7 +453,7 @@ const Dentists = () => {
                                 <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
                                   <DialogHeader className="px-6 pt-8">
                                     <DialogTitle className="text-2xl font-bold text-center">
-                                      Delete service
+                                      Delete dentist
                                     </DialogTitle>
                                     <DialogDescription className="text-center text-neutral-600">
                                       Are you sure you want to do this? <br />

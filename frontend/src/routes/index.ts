@@ -7,6 +7,7 @@ import Services from "@/pages/DashboardAdmin/Service";
 import AddNewService from "@/pages/DashboardAdmin/Service/AddNewService";
 import EditService from "@/pages/DashboardAdmin/Service/EditService";
 import AddNewDentist from "@/pages/DashboardAdmin/Dentist/AddNewDentist";
+import EditDentist from "@/pages/DashboardAdmin/Dentist/EditDentist";
 
 type TRoute = {
   path: string;
@@ -68,7 +69,7 @@ const routes: TRoute[] = [
   },
   {
     path: "/dentists/:id",
-    component: EditService,
+    component: EditDentist,
     isAuthenticated: true,
   },
 ];

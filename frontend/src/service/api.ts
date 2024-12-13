@@ -129,6 +129,7 @@ export const getAllDentistAPI = async () => {
 export const getDentistAPI = async (args: { queryKey: string[] }) => {
   const { queryKey } = args;
   const { data } = await axiosInstance.get(`/dentist/${queryKey[1]}`);
+  console.log("getDentistAPI: ", data);
   return data;
 };
 
@@ -141,6 +142,18 @@ export const editDentistAPI = async (data: TEditDentist) => {
     middleName: data.middleName,
     lastName: data.lastName,
     suffix: data.suffix,
+    email: data.email,
+    password: data.password,
+    newPassword: data.newPassword,
+    profilePicUrl: data.profilePicUrl,
+    roleIds: data.roleIds,
+    sunday: data.sunday,
+    monday: data.monday,
+    tuesday: data.tuesday,
+    wednesday: data.wednesday,
+    thursday: data.thursday,
+    friday: data.friday,
+    saturday: data.saturday,
     updatedBy: data.updatedBy,
   });
 

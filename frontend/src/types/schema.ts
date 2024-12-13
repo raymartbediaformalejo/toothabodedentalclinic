@@ -49,15 +49,15 @@ export const userSchema = z.object({
     .optional(),
   password: z
     .string()
-    .min(8, {
-      message:
-        "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
+    .min(6, {
+      message: "Password must be at least 6 characters long.",
     })
     .refine((value) => passwordPattern.test(value), {
       message:
         "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
-    }),
-  profilePicUrl: z.string(),
+    })
+    .optional(),
+  profilePicUrl: z.string().optional(),
   accountStatus: z.string().optional(),
   nationality: z.string().optional(),
   religion: z.string().optional(),
@@ -68,16 +68,6 @@ export const userSchema = z.object({
   createdBy: z.string(),
   updatedAt: z.string(),
   updatedBy: z.string(),
-  cPassword: z
-    .string()
-    .min(8, {
-      message:
-        "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
-    })
-    .refine((value) => passwordPattern.test(value), {
-      message:
-        "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
-    }),
 });
 
 export const patientSchema = userSchema.extend({
@@ -94,7 +84,6 @@ export const patientSchema = userSchema.extend({
 export const createPatientSchema = patientSchema.pick({
   email: true,
   password: true,
-  cPassword: true,
   mobileNo: true,
   firstName: true,
   middleName: true,
@@ -241,25 +230,52 @@ export const createDentistSchema = dentistSchema.pick({
   saturday: true,
 });
 
-export const editDentistSchema = dentistSchema.pick({
-  id: true,
-  lastName: true,
-  firstName: true,
-  middleName: true,
-  suffix: true,
-  email: true,
-  password: true,
-  profilePicUrl: true,
-  roleIds: true,
-  updatedBy: true,
-  sunday: true,
-  monday: true,
-  tuesday: true,
-  wednesday: true,
-  thursday: true,
-  friday: true,
-  saturday: true,
-});
+export const editDentistSchema = dentistSchema
+  .pick({
+    id: true,
+    lastName: true,
+    firstName: true,
+    middleName: true,
+    suffix: true,
+    email: true,
+    password: true,
+    profilePicUrl: true,
+    roleIds: true,
+    updatedBy: true,
+    sunday: true,
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+    saturday: true,
+  })
+  .extend({
+    cPassword: z
+      .string()
+      .min(6, {
+        message: "Password must be at least 6 characters long.",
+      })
+      .refine((value) => passwordPattern.test(value), {
+        message:
+          "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
+      })
+      .optional(),
+    newPassword: z
+      .string()
+      .min(6, {
+        message: "Password must be at least 6 characters long.",
+      })
+      .refine((value) => passwordPattern.test(value), {
+        message:
+          "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
+      })
+      .optional(),
+  })
+  .refine((data) => data.newPassword === data.cPassword, {
+    message: "Password do not match",
+    path: ["cPassword"],
+  });
 
 export const deleteDentistSchema = dentistSchema.pick({
   id: true,

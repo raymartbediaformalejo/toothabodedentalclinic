@@ -4,6 +4,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaCamera } from "react-icons/fa";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { Input } from "@/components/ui/input";
 import { TCreateDentist } from "@/types/types";
@@ -40,6 +41,7 @@ import { Separator } from "@/components/ui/separator";
 const AddNewDentist = () => {
   const { userId } = useAuth();
   const createDentist = useCreateDentist();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -125,6 +127,9 @@ const AddNewDentist = () => {
       console.error("Failed to submit dentist data:", error);
     }
   };
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleClearAvailabiltiy = (name: keyof TCreateDentist) => {
     form.setValue(name, [{ startTime: "--|--", endTime: "--|--" }]);
@@ -175,7 +180,7 @@ const AddNewDentist = () => {
                           fieldState,
                         }) => {
                           return (
-                            <FormItem className="absolute bg-neutral-600 p-2 rounded-full outline-white outline top-[120px] right-[8px] flex flex-col hover:bg-neutral-500 trasition-[background-color] duration-200 ease-in-out">
+                            <FormItem className="absolute bg-neutral-600 p-2 rounded-full outline-white outline top-[110px] right-[10px] flex flex-col hover:bg-neutral-500 trasition-[background-color] duration-200 ease-in-out">
                               <FormControl>
                                 <div>
                                   <Label htmlFor="profilePicUrl">
@@ -334,15 +339,33 @@ const AddNewDentist = () => {
                                 Password
                               </Label>
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  autoComplete="current-password"
-                                  id="password"
-                                  type="password"
-                                  placeholder="Password"
-                                  dirty={fieldState?.isDirty}
-                                  invalid={fieldState?.invalid}
-                                />
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    autoComplete="current-password"
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    dirty={fieldState?.isDirty}
+                                    invalid={fieldState?.invalid}
+                                  />
+                                  <button
+                                    type="button"
+                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
+                                    onClick={togglePasswordVisibility}
+                                    aria-label={
+                                      showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                    }
+                                  >
+                                    {showPassword ? (
+                                      <LuEye className="w-5 h-5" />
+                                    ) : (
+                                      <LuEyeOff className="w-5 h-5" />
+                                    )}
+                                  </button>
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>

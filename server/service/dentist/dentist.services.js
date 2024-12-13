@@ -65,22 +65,61 @@ class Dentist {
 
     try {
       const queryGetDentist = `
-      SELECT 
-        u.id,
-        u.last_name "lastName",
-        u.first_name "firstName",
-        u.middle_name "middleName",
-        u.suffix,
-        u.created_at "createdAt",
-        u.created_by "createdBy",
-        u.updated_at "updatedAt",
-        u.updated_by "updatedBy"
-      FROM tbl_user u
-      WHERE u.id = $1 AND u.deleted = false
+        SELECT 
+          u.id,
+          u.last_name AS "lastName",
+          u.first_name AS "firstName",
+          u.middle_name AS "middleName",
+          u.suffix,
+          u.email,
+          u.profile_pic_url AS profilePicUrl,
+          u.updated_at AS "updatedAt",
+          u.updated_by AS "updatedBy",
+          -- Aggregate availability for each day of the week
+          jsonb_build_object(
+            'sunday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Sunday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Sunday'), '{"startTime": null, "endTime": null}'),
+            'monday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Monday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Monday'), '{"startTime": null, "endTime": null}'),
+            'tuesday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Tuesday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Tuesday'), '{"startTime": null, "endTime": null}'),
+            'wednesday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Wednesday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Wednesday'), '{"startTime": null, "endTime": null}'),
+            'thursday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Thursday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Thursday'), '{"startTime": null, "endTime": null}'),
+            'friday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Friday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Friday'), '{"startTime": null, "endTime": null}'),
+            'saturday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Saturday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Saturday'), '{"startTime": null, "endTime": null}')
+          ) AS availability,
+          -- Aggregate role IDs as an array of strings
+          COALESCE(
+            json_agg(DISTINCT r.id::text) FILTER (WHERE r.id IS NOT NULL),
+            '{}'
+          ) AS "roleIds"
+        FROM tbl_user u
+        LEFT JOIN tbl_availability a ON u.id = a.dentist_id
+        LEFT JOIN tbl_user_role ur ON u.id = ur.user_id
+        LEFT JOIN tbl_role r ON ur.role_id = r.id
+        WHERE u.id = $1 AND u.deleted = false
+        GROUP BY u.id, u.last_name, u.first_name, u.middle_name, u.suffix, u.email, u.profile_pic_url, u.updated_at, u.updated_by;
       `;
 
       const result = await client.query(queryGetDentist, [dentistId]);
-      return result.rows;
+
+      if (result.rows.length === 0) {
+        throw new Error("Dentist not found");
+      }
+
+      const dentist = result.rows[0];
+
+      console.log("DENTIST: ", dentist);
+      return {
+        id: dentist.id,
+        firstName: dentist.firstName,
+        middleName: dentist.middleName,
+        lastName: dentist.lastName,
+        suffix: dentist.suffix,
+        email: dentist.email,
+        profilePicUrl: dentist.profilePicUrl,
+        updatedAt: dentist.updatedAt,
+        updatedBy: dentist.updatedBy,
+        ...dentist.availability,
+        roleIds: dentist.roleIds,
+      };
     } catch (error) {
       throw error;
     } finally {
@@ -91,9 +130,6 @@ class Dentist {
   static createDentist = async (values) => {
     const dentistId = uuidv4();
     const hashPassword = await bcrypt.hash(values.password, 10);
-    console.log("====================================");
-    console.log("VALUES: ", values);
-    console.log("=====================================", values);
     const availability = [
       {
         dayOfWeek: "Sunday",
@@ -232,8 +268,30 @@ class Dentist {
     const updatedAt = new Date();
     const dentistId = values.id;
     const hashPassword = await bcrypt.hash(values.password, 10);
+    // console.log("========================");
+    // console.log("values: ", values);
+    // console.log("========================");
 
     try {
+      const queryDentist = `SELECT * FROM "tbl_user" WHERE email = $1`;
+      const dentistResult = await client.query(queryDentist, [values.email]);
+      if (dentistResult.rows.length === 0) {
+        throw new Error("No user found");
+      }
+      const foundDentist = dentistResult.rows[0];
+
+      if (values.password) {
+        const match = await bcrypt.compare(
+          values.password,
+          foundDentist.password
+        );
+        if (!match) {
+          throw new Error("Incorrect password");
+        }
+        if (!values.newPassword) {
+          throw new Error("New password required.");
+        }
+      }
       if (!values.firstName || !values.lastName || !values.email) {
         await client.query("ROLLBACK");
         throw new Error(
