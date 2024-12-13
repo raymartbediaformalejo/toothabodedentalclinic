@@ -45,3 +45,13 @@ export const formatDate = (rawDateString: string) => {
 
   return `${month} ${day}, ${year}`;
 };
+
+export const formatTimeTo12Hour = (time: string) => {
+  const [hour, _] = time.split(":").map(Number);
+
+  const period = hour >= 12 ? "PM" : "AM";
+
+  const hour12 = hour % 12 || 12;
+
+  return `${hour12}${period}`;
+};

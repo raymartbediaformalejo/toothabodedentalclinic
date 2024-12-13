@@ -6,6 +6,7 @@ import Dentists from "@/pages/DashboardAdmin/Dentist";
 import Services from "@/pages/DashboardAdmin/Service";
 import AddNewService from "@/pages/DashboardAdmin/Service/AddNewService";
 import EditService from "@/pages/DashboardAdmin/Service/EditService";
+import AddNewDentist from "@/pages/DashboardAdmin/Dentist/AddNewDentist";
 
 type TRoute = {
   path: string;
@@ -37,41 +38,36 @@ const routes: TRoute[] = [
     component: DashboardAdmin,
     isAuthenticated: true,
   },
-  {
-    path: "/dashboardadmin/dentist",
-    component: Dentists,
-    isAuthenticated: true,
-  },
   // DASHBOARD SERVICE
   {
-    path: "/dashboardadmin/service",
+    path: "/services",
     component: Services,
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/service/new",
+    path: "/services/add_new_service",
     component: AddNewService,
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/service/:id",
+    path: "/services/:id",
     component: EditService,
     isAuthenticated: true,
   },
 
   // DASHBOARD DENTIST
   {
-    path: "/dashboardadmin/dentists",
+    path: "/dentists",
     component: Dentists,
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/dentist/new",
-    component: AddNewService,
+    path: "/dentists/add_new_dentist",
+    component: AddNewDentist,
     isAuthenticated: true,
   },
   {
-    path: "/dashboardadmin/dentist/:id",
+    path: "/dentists/:id",
     component: EditService,
     isAuthenticated: true,
   },

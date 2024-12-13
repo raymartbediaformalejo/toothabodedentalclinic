@@ -76,7 +76,7 @@ const items = [
   },
   {
     title: "Dentists",
-    url: "/dashboardadmin/dentists",
+    url: "/dentists",
     icon: DentistsIcon,
   },
   {
@@ -86,7 +86,7 @@ const items = [
   },
   {
     title: "Services",
-    url: "/dashboardadmin/service",
+    url: "/services",
     icon: ServiceIcon,
   },
   {

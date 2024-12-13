@@ -131,7 +131,7 @@ export const useEditService = () => {
         toast.success(data?.data?.data?.message);
       }
       queryClient.invalidateQueries({ queryKey: ["service"] });
-      navigate("/dashboardadmin/service");
+      navigate("/services");
     },
     onSettled: (_, error) => {
       console.log("error useEditService: ", error);
@@ -176,7 +176,7 @@ export const useDeleteService = () => {
       console.log("data useDeleteService: ", data);
       toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["service"] });
-      navigate("/dashboardadmin/service");
+      navigate("/services");
     },
     onSettled: (_, error) => {
       if (error) {
@@ -197,7 +197,7 @@ export const useDeleteAllService = () => {
       console.log("data useDeleteAllService: ", data);
       toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["service"] });
-      navigate("/dashboardadmin/service");
+      navigate("/services");
     },
     onSettled: (_, error) => {
       if (error) {
@@ -212,14 +212,16 @@ export const useDeleteAllService = () => {
 // ============ || SERVICE || ===========
 
 export const useCreateDentist = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TCreateDentist) => createDentistAPI(data),
     onSuccess: (data) => {
       if (data?.data?.data.status === 201) {
         toast.success(data?.data?.data?.message);
+        navigate("/dentists");
+        queryClient.invalidateQueries({ queryKey: ["dentist"] });
       }
-      queryClient.invalidateQueries({ queryKey: ["dentist"] });
     },
     onSettled: (_, error) => {
       console.log("error: ", error);
@@ -244,7 +246,7 @@ export const useEditDentist = () => {
         toast.success(data?.data?.data?.message);
       }
       queryClient.invalidateQueries({ queryKey: ["dentist"] });
-      navigate("/dashboardadmin/dentist");
+      navigate("/dentists");
     },
     onSettled: (_, error) => {
       // @ts-ignore
@@ -287,7 +289,7 @@ export const useDeleteDentist = () => {
     onSuccess: (data) => {
       toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["dentist"] });
-      navigate("/dashboardadmin/dentist");
+      navigate("/dentists");
     },
     onSettled: (_, error) => {
       if (error) {
@@ -307,7 +309,7 @@ export const useDeleteAllDentist = () => {
     onSuccess: (data) => {
       toast.success(`${data.message}`);
       queryClient.invalidateQueries({ queryKey: ["dentist"] });
-      navigate("/dashboardadmin/dentist");
+      navigate("/dentists");
     },
     onSettled: (_, error) => {
       if (error) {

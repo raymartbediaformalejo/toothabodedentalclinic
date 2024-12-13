@@ -173,13 +173,8 @@ const Services = () => {
         </header>
 
         <div className="flex flex-row-reverse justify-between gap-3">
-          <Button
-            variant="db_default"
-            size="lg"
-            asChild
-            onClick={() => navigate("new")}
-          >
-            <Link to="new">
+          <Button variant="db_default" size="lg" asChild>
+            <Link to="add_new_service">
               <span>Add new service</span> <FiPlus className="w-4 h-4" />
             </Link>
           </Button>
@@ -417,9 +412,7 @@ const Services = () => {
                                 className=" w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(
-                                    `/dashboardadmin/service/${row.original.id}`
-                                  )
+                                  navigate(`/services/${row.original.id}`)
                                 }
                               >
                                 <span>Edit</span>

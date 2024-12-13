@@ -20,9 +20,9 @@ import {
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { useGetAllServices } from "@/service/queries";
-import { TService, TServiceId, TServiceIds } from "@/types/types";
-import { useDeleteAllService, useDeleteService } from "@/service/mutation";
+import { useGetAllDentist } from "@/service/queries";
+import { TDentist, TDentistId, TDentistIds } from "@/types/types";
+import { useDeleteAllDentist, useDeleteDentist } from "@/service/mutation";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";
 import {
@@ -36,7 +36,7 @@ import {
 import { MdDeleteForever } from "react-icons/md";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn } from "@/lib/utils";
+import { cn, createUsername } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import CustomTableCellCreatedBy from "@/components/CustomTableCellCreatedBy";
 import { formatDate } from "@/lib/utils";
@@ -64,23 +64,17 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
+import DentistName from "./components/DentistName";
+import AvailabilityCell from "./components/AvailabilityCell";
 
 const columnService = [
   {
-    header: "Title",
-    accessorKey: "title",
+    header: "name",
+    accessorKey: "firstName",
   },
   {
-    header: "Order no",
-    accessorKey: "orderNo",
-  },
-  {
-    header: "Visible",
-    accessorKey: "visible",
-  },
-  {
-    header: "Created at",
-    accessorKey: "createdAt",
+    header: "Workind days",
+    accessorKey: "monday",
   },
 ];
 
@@ -88,18 +82,18 @@ const Dentists = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "createdAt", desc: true },
+    { id: "firstName", desc: true },
   ]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetAllServices();
-  const allServices: TService[] = useMemo(() => data?.data || [], [data]);
-  const deleteAllService = useDeleteAllService();
-  const deleteService = useDeleteService();
+  const { data, isLoading } = useGetAllDentist();
+  const allDentists: TDentist[] = useMemo(() => data?.data || [], [data]);
+  const deleteAllDentist = useDeleteAllDentist();
+  const deleteDentist = useDeleteDentist();
   const table = useReactTable({
-    data: allServices,
+    data: allDentists,
     columns: columnService,
     initialState: {
       pagination: {
@@ -118,7 +112,7 @@ const Dentists = () => {
     onSortingChange: setSorting,
   });
 
-  const selectedServiceRow = Object.keys(table.getState().rowSelection);
+  const selectedDentistRow = Object.keys(table.getState().rowSelection);
 
   useEffect(() => {
     table.setPageSize(rowPerPage);
@@ -136,13 +130,13 @@ const Dentists = () => {
     setIsDeleteAllModalOpen((prev) => !prev);
   };
 
-  const handleDeleteService = async ({
-    serviceId,
+  const handleDeleteDentist = async ({
+    dentistId,
   }: {
-    serviceId: TServiceId;
+    dentistId: TDentistId;
   }) => {
     try {
-      await deleteService.mutate(serviceId);
+      await deleteDentist.mutate(dentistId);
       setIsModalOpen(false);
       navigate(location.pathname, { replace: true });
     } catch (error) {
@@ -150,16 +144,18 @@ const Dentists = () => {
     }
   };
 
-  const handleDeleteAllService = async (doctorIDs: TServiceIds) => {
+  const handleDeleteAllDentist = async (dentistIds: TDentistIds) => {
     try {
-      if (selectedServiceRow.length) {
+      if (selectedDentistRow.length) {
         setIsDeleteAllModalOpen(false);
-        await deleteAllService.mutate(doctorIDs);
+        await deleteAllDentist.mutate(dentistIds);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  console.log("allDentists: ", allDentists);
 
   return (
     <>
@@ -171,25 +167,20 @@ const Dentists = () => {
         </header>
 
         <div className="flex flex-row-reverse justify-between gap-3">
-          <Button
-            variant="db_default"
-            size="lg"
-            asChild
-            onClick={() => navigate("new")}
-          >
-            <Link to="new">
-              <span>Add new service</span> <FiPlus className="w-4 h-4" />
+          <Button variant="db_default" size="lg" asChild>
+            <Link to="add_new_dentist">
+              <span>Add new dentist</span> <FiPlus className="w-4 h-4" />
             </Link>
           </Button>
           <Dialog
             open={isDeleteAllModalOpen}
             onOpenChange={onOpenDeleteAllModalChange}
           >
-            {selectedServiceRow.length > 0 && (
+            {selectedDentistRow.length > 0 && (
               <Button
                 variant="db_outline"
                 size="lg"
-                disabled={!selectedServiceRow.length}
+                disabled={!selectedDentistRow.length}
                 onClick={onOpenDeleteAllModalChange}
                 className="flex gap-1 font-semibold "
               >
@@ -220,7 +211,7 @@ const Dentists = () => {
                     size="lg"
                     className="rounded-md"
                     onClick={() =>
-                      handleDeleteAllService({ ids: selectedServiceRow })
+                      handleDeleteAllDentist({ ids: selectedDentistRow })
                     }
                   >
                     Delete
@@ -234,23 +225,27 @@ const Dentists = () => {
 
       {/* =========== START TABLE ============= */}
       <Card className="bg-white shadow-sidebar-shadow overflow-hidden border-[rgba(46,32,0,0.1)]">
-        {allServices.length === 0 && !isLoading && (
+        {allDentists.length === 0 && !isLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
               There are no records to display for Service
             </p>
           </div>
         )}
-        {allServices.length > 0 && (
+        {allDentists.length > 0 && (
           <Table className="font-inter ">
             <TableHeader className="bg-neutral-100">
               {table.getHeaderGroups().map((headerGroup) => {
                 return (
-                  <TableRow key={headerGroup.id} className="h-auto">
+                  <TableRow
+                    key={headerGroup.id}
+                    id={headerGroup.id}
+                    className="h-auto"
+                  >
                     {headerGroup.headers.map((header) => {
                       return (
                         <>
-                          {header.id === "title" && (
+                          {header.id === "firstName" && (
                             <TableHead
                               key={header.id}
                               className="flex items-center ml-3"
@@ -291,7 +286,7 @@ const Dentists = () => {
                             </TableHead>
                           )}
 
-                          {header.id !== "title" && (
+                          {header.id !== "firstName" && (
                             <TableHead
                               key={header.id}
                               onClick={header.column.getToggleSortingHandler()}
@@ -345,12 +340,12 @@ const Dentists = () => {
                   <>
                     <TableRow
                       key={row.id}
-                      isSelected={selectedServiceRow.includes(row.original.id)}
+                      isSelected={selectedDentistRow.includes(row.original.id)}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <>
-                            {cell.column.id === "title" ? (
+                            {cell.column.id === "firstName" ? (
                               <TableCell
                                 key={cell.id}
                                 className="flex ml-3 text-[#424242] text-sm"
@@ -361,26 +356,47 @@ const Dentists = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <label
-                                  htmlFor={cell.id}
-                                  className="flex self-center"
-                                >
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext()
-                                  )}
-                                </label>
+                                <DentistName dentistId={cell.row.original.id} />
                               </TableCell>
-                            ) : cell.column.id == "createdBy" ? (
-                              <CustomTableCellCreatedBy
-                                userID={cell.getValue() as string}
-                              />
-                            ) : cell.column.id === "createdAt" ? (
-                              <TableCell
-                                key={cell.id}
-                                className="text-[#424242] text-sm"
-                              >
-                                {formatDate(cell.getValue() as string)}
+                            ) : cell.column.id === "monday" ? (
+                              <TableCell key={cell.id} className="">
+                                <div className="flex gap-1">
+                                  <AvailabilityCell
+                                    key="sunday"
+                                    dayOfWeek="Sunday"
+                                    availability={cell.row.original?.sunday}
+                                  />
+                                  <AvailabilityCell
+                                    key="monday"
+                                    dayOfWeek="Monday"
+                                    availability={cell.row.original?.monday}
+                                  />
+                                  <AvailabilityCell
+                                    key="tuesday"
+                                    dayOfWeek="Tuesday"
+                                    availability={cell.row.original?.tuesday}
+                                  />
+                                  <AvailabilityCell
+                                    key="wednesday"
+                                    dayOfWeek="Wednesday"
+                                    availability={cell.row.original?.wednesday}
+                                  />
+                                  <AvailabilityCell
+                                    key="thursday"
+                                    dayOfWeek="Thursday"
+                                    availability={cell.row.original?.thursday}
+                                  />
+                                  <AvailabilityCell
+                                    key="friday"
+                                    dayOfWeek="Friday"
+                                    availability={cell.row.original?.friday}
+                                  />
+                                  <AvailabilityCell
+                                    key="saturday"
+                                    dayOfWeek="Saturday"
+                                    availability={cell.row.original?.saturday}
+                                  />
+                                </div>
                               </TableCell>
                             ) : (
                               <TableCell
@@ -446,7 +462,11 @@ const Dentists = () => {
                                     <DialogDescription className="text-center text-neutral-600">
                                       Are you sure you want to do this? <br />
                                       <span className="font-semibold text-primary-600">
-                                        {`${row.original.title} `}
+                                        {`${createUsername({
+                                          firstname: row.original.firstName,
+                                          middlename: row.original.middleName,
+                                          lastname: row.original.lastName,
+                                        })} `}
                                       </span>
                                       will be move to trash.
                                     </DialogDescription>
@@ -454,20 +474,16 @@ const Dentists = () => {
                                   <DialogFooter className="px-6 py-4 bg-gray-100">
                                     <div className="flex items-center justify-center w-full gap-4">
                                       <Button
-                                        // variant="secondary"
-                                        // size="md"
                                         className="rounded-md"
                                         onClick={onOpenModalChange}
                                       >
                                         Cancel
                                       </Button>
                                       <Button
-                                        // variant="destructive"
-                                        // size="md"
                                         className="rounded-md"
                                         onClick={() =>
-                                          handleDeleteService({
-                                            serviceId: row.original.id,
+                                          handleDeleteDentist({
+                                            dentistId: row.original.id,
                                           })
                                         }
                                       >
@@ -490,15 +506,15 @@ const Dentists = () => {
         )}
       </Card>
       {/* =========== END TABLE ============= */}
-      {!!allServices.length && (
+      {!!allDentists.length && (
         <div className="flex justify-between my-8 text-sm ">
           <p
             className={cn(
               "flex transition-colors duration-100 ease-in-out place-items-center font-inter ",
-              selectedServiceRow.length ? "text-black" : "text-black/60"
+              selectedDentistRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedServiceRow.length} of ${allServices.length} row(s) selected.`}
+            {`${selectedDentistRow.length} of ${allDentists.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">

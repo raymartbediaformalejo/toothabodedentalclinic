@@ -23,7 +23,7 @@ function App() {
                 element={
                   <SidebarProvider>
                     <NavigationSidebarDashboard />
-                    <SidebarInset className="flex w-full bg-neutral-50">
+                    <SidebarInset className="flex w-full border bg-neutral-50">
                       <NavigationTopDashboard />
                       <div className="flex justify-center w-full ">
                         <div className="w-full mx-6  mt-12 max-w-[1400px]">

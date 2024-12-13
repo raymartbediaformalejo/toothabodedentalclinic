@@ -30,6 +30,8 @@
     "axios-auth-refresh": "^3.3.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "dotenv": "^16.4.7",
     "embla-carousel-autoplay": "^8.4.0",
     "embla-carousel-react": "^8.4.0",
     "jotai": "^2.10.2",

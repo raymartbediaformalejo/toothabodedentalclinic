@@ -8,20 +8,51 @@ class Dentist {
     const client = await pool.connect();
 
     try {
-      const queryGetDentists = `
-      SELECT 
-          u.id,
-          u.first_name,
-          u.last_name,
-          u.middle_name
-        FROM tbl_user u
-        INNER JOIN tbl_user_role ur ON u.id = ur.user_id
-        INNER JOIN tbl_role r ON r.id = ur.role_id
-        WHERE r.name = 'Dentist';
-      `;
-      const result = await client.query(queryGetDentists);
+      const client = await pool.connect();
 
-      return result.rows;
+      try {
+        const queryGetDentists = `
+       SELECT 
+        u.id,
+        u.first_name AS "firstName",
+        u.middle_name AS "middleName",
+        u.last_name AS "lastName",
+        u.email,
+        -- Aggregate availability for each day of the week
+        jsonb_build_object(
+          'sunday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Sunday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Sunday'), '{"startTime": null, "endTime": null}'),
+          'monday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Monday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Monday'), '{"startTime": null, "endTime": null}'),
+          'tuesday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Tuesday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Tuesday'), '{"startTime": null, "endTime": null}'),
+          'wednesday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Wednesday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Wednesday'), '{"startTime": null, "endTime": null}'),
+          'thursday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Thursday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Thursday'), '{"startTime": null, "endTime": null}'),
+          'friday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Friday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Friday'), '{"startTime": null, "endTime": null}'),
+          'saturday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Saturday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Saturday'), '{"startTime": null, "endTime": null}')
+        ) AS availability
+      FROM tbl_user u
+      INNER JOIN tbl_user_role ur ON u.id = ur.user_id
+      INNER JOIN tbl_role r ON r.id = ur.role_id
+      LEFT JOIN tbl_availability a ON u.id = a.dentist_id
+      WHERE r.name = 'Dentist' AND u.deleted = false
+      GROUP BY u.id, u.first_name, u.middle_name, u.last_name, u.email;
+      `;
+
+        const result = await client.query(queryGetDentists);
+
+        const formattedResult = result.rows.map((dentist) => ({
+          id: dentist.id,
+          firstName: dentist.firstName,
+          middleName: dentist.middleName,
+          lastName: dentist.lastName,
+          email: dentist.email,
+          ...dentist.availability,
+        }));
+
+        return formattedResult;
+      } catch (error) {
+        throw error;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -45,7 +76,7 @@ class Dentist {
         u.updated_at "updatedAt",
         u.updated_by "updatedBy"
       FROM tbl_user u
-      WHERE u.id = $1
+      WHERE u.id = $1 AND u.deleted = false
       `;
 
       const result = await client.query(queryGetDentist, [dentistId]);
@@ -60,6 +91,46 @@ class Dentist {
   static createDentist = async (values) => {
     const dentistId = uuidv4();
     const hashPassword = await bcrypt.hash(values.password, 10);
+    console.log("====================================");
+    console.log("VALUES: ", values);
+    console.log("=====================================", values);
+    const availability = [
+      {
+        dayOfWeek: "Sunday",
+        startTime: values?.sunday?.[0]?.startTime || "",
+        endTime: values?.sunday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Monday",
+        startTime: values?.monday?.[0]?.startTime || "",
+        endTime: values?.monday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Tuesday",
+        startTime: values?.tuesday?.[0]?.startTime || "",
+        endTime: values?.tuesday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Wednesday",
+        startTime: values?.wednesday?.[0]?.startTime || "",
+        endTime: values?.wednesday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Thursday",
+        startTime: values?.thursday?.[0]?.startTime || "",
+        endTime: values?.thursday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Friday",
+        startTime: values?.friday?.[0]?.startTime || "",
+        endTime: values?.friday?.[0]?.endTime || "",
+      },
+      {
+        dayOfWeek: "Saturday",
+        startTime: values?.saturday?.[0]?.startTime || "",
+        endTime: values?.saturday?.[0]?.endTime || "",
+      },
+    ];
 
     if (!values.password || !values.firstName || !values.lastName) {
       throw new Error(
@@ -89,7 +160,7 @@ class Dentist {
       `;
 
       const dentistResult = await client.query(queryInsertUser, [
-        userId,
+        dentistId,
         values.lastName,
         values.firstName,
         values.middleName,
@@ -104,15 +175,43 @@ class Dentist {
         INSERT INTO tbl_user_role (user_id, role_id)
         VALUES ($1, $2)`;
 
-      const roleInsertPromises = values.roleIds.map(async (roleId) => {
+      const roleInsertPromises = values.roleIds?.map(async (roleId) => {
         await client.query(queryInsertUserRole, [dentistId, roleId]);
       });
 
       await Promise.all(roleInsertPromises);
 
+      if (availability && availability?.length > 0) {
+        const queryInsertAvailability = `
+        INSERT INTO tbl_availability (
+          dentist_id,
+          day_of_week,
+          start_time,
+          end_time,
+          created_by
+        ) VALUES (
+          $1, $2, $3, $4, $5
+        )
+        `;
+
+        const availabilityInsertPromises = availability?.map(
+          async ({ dayOfWeek, startTime, endTime }) => {
+            await client.query(queryInsertAvailability, [
+              dentistId,
+              dayOfWeek,
+              startTime,
+              endTime,
+              values.createdBy,
+            ]);
+          }
+        );
+
+        await Promise.all(availabilityInsertPromises);
+      }
+
       await client.query("COMMIT");
 
-      if (userResult.rowCount > 0) {
+      if (dentistResult.rowCount > 0) {
         return {
           status: 201,
           message: `New dentist ${values.firstName} ${values.lastName} is created.`,

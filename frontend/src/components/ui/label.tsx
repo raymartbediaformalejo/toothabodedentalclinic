@@ -4,10 +4,14 @@ import { cn } from "@/lib/utils";
 
 interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
   isRequired?: boolean;
+  isOptional?: boolean;
 }
 
 const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
-  ({ className, children, isRequired = false, ...props }, ref) => (
+  (
+    { className, children, isRequired = false, isOptional = false, ...props },
+    ref
+  ) => (
     <>
       <label
         ref={ref}
@@ -21,11 +25,11 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
 
         {isRequired ? (
           <span className="ml-1 text-red-500">*</span>
-        ) : (
+        ) : isOptional ? (
           <span className="ml-1 text-xs text-neutral-400 md:text-sm text-black/50">
             (optional)
           </span>
-        )}
+        ) : null}
       </label>
     </>
   )

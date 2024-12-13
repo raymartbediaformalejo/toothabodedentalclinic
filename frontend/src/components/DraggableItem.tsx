@@ -4,13 +4,13 @@ import { RiDraggable } from "react-icons/ri";
 import { UniqueIdentifier } from "@dnd-kit/core";
 
 type DraggableServiceItemProp = React.HTMLAttributes<HTMLDivElement> & {
-  serviceId: UniqueIdentifier;
-  title: string;
+  id: UniqueIdentifier;
+  content: string;
 };
 
-export const DraggableServiceItem = ({
-  serviceId,
-  title,
+export const DraggableItem = ({
+  id,
+  content,
   className,
 }: DraggableServiceItemProp) => {
   const {
@@ -20,7 +20,7 @@ export const DraggableServiceItem = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: serviceId });
+  } = useSortable({ id });
 
   const style = {
     transition,
@@ -40,7 +40,7 @@ export const DraggableServiceItem = ({
       } ${className}`}
     >
       <RiDraggable className="h-[24px] w-[24px] absolute" />
-      <p className="relative top-0  left-[26px] ">{title}</p>
+      <p className="relative top-0  left-[26px] ">{content}</p>
     </div>
   );
 };

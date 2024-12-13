@@ -27,6 +27,7 @@ const buttonVariants = cva(
           "bg-transparent border border-neutral-500 text-neutral-500 transition-[background-color] hover:bg-neutral-500/10 focus:bg-neutral-500/10 rounded-[8px]",
         db_disabled:
           "border border-neutral-300 text-neutral-300 cursor-not-allowed shadow-none rounded-[8px]",
+        multi_select_btn: "",
       },
       size: {
         default: "h-[40.9px] px-4 py-2",

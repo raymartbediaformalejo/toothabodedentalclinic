@@ -18,7 +18,7 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 const selectTriggerVariants = cva(
-  "flex w-full border items-center justify-between placeholder:text-neutral-900/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full border items-center justify-between placeholder:text-neutral-900/50 trasition-[border-color] duration-300 ease-in-out hover:border-primary-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
   {
     variants: {
       variant: {

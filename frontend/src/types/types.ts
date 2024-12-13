@@ -61,3 +61,4 @@ export type TEditDentist = z.infer<typeof editDentistSchema>;
 export type TSaveSortedDentist = z.infer<typeof saveSortedDentistSchema>;
 export type TDentistId = string;
 export type TDentistIds = { ids: TDentistId[] };
+export type TAvailability = [{}];

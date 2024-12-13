@@ -28,18 +28,18 @@ const login = async (req, res) => {
         .json({ message: "Unauthorized: Incorrect password" });
 
     const queryRoleIds = `
-    SELECT r.role_name
+    SELECT r.name
     FROM "tbl_role" r
-    INNER JOIN "tbl_user_role" ur ON r.role_id = ur.role_id
+    INNER JOIN "tbl_user_role" ur ON r.id = ur.role_id
     WHERE ur.user_id = $1`;
 
-    const roleResult = await client.query(queryRoleIds, [foundUser.user_id]);
-    const roles = roleResult.rows.map((row) => row.role_name);
+    const roleResult = await client.query(queryRoleIds, [foundUser.id]);
+    const roles = roleResult.rows.map((row) => row.name);
 
     const accessToken = jwt.sign(
       {
         UserInfo: {
-          userId: foundUser.user_id,
+          userId: foundUser.id,
           email: foundUser.email,
           roles,
         },
@@ -67,7 +67,7 @@ const login = async (req, res) => {
 
     res.json({ accessToken });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: `Internal Server Error: ${error}` });
   } finally {
     client.release();
   }
@@ -98,15 +98,13 @@ const refresh = (req, res) => {
         const foundUser = result.rows[0];
 
         const queryRoleIds = `
-        SELECT r.role_name
+        SELECT r.name
         FROM "tbl_role" r
-        INNER JOIN "tbl_user_role" ur ON r.role_id = ur.role_id
+        INNER JOIN "tbl_user_role" ur ON r.id = ur.role_id
         WHERE ur.user_id = $1`;
 
-        const roleResult = await client.query(queryRoleIds, [
-          foundUser.user_id,
-        ]);
-        const roles = roleResult.rows.map((row) => row.role_name);
+        const roleResult = await client.query(queryRoleIds, [foundUser.id]);
+        const roles = roleResult.rows.map((row) => row.name);
 
         const accessToken = jwt.sign(
           {

@@ -57,11 +57,11 @@ export const userSchema = z.object({
       message:
         "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
     }),
-  profilePicUrl: z.string().optional(),
+  profilePicUrl: z.string(),
   accountStatus: z.string().optional(),
   nationality: z.string().optional(),
   religion: z.string().optional(),
-  roleIds: z.array(z.string()),
+  roleIds: z.array(z.string()).min(1, "Role is required"),
   deleted: z.boolean(),
   civilStatus: z.string().optional(),
   createdAt: z.string(),
@@ -163,7 +163,64 @@ export const saveSortedServiceSchema = serviceSchema.pick({
 
 // ============ || DENTIST || ===========
 
-export const dentistSchema = userSchema;
+export const dentistSchema = userSchema.extend({
+  sunday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  monday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  tuesday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  wednesday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  thursday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  friday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+  saturday: z
+    .array(
+      z.object({
+        startTime: z.string(),
+        endTime: z.string(),
+      })
+    )
+    .optional(),
+});
 
 export const createDentistSchema = dentistSchema.pick({
   lastName: true,
@@ -175,6 +232,13 @@ export const createDentistSchema = dentistSchema.pick({
   profilePicUrl: true,
   roleIds: true,
   createdBy: true,
+  sunday: true,
+  monday: true,
+  tuesday: true,
+  wednesday: true,
+  thursday: true,
+  friday: true,
+  saturday: true,
 });
 
 export const editDentistSchema = dentistSchema.pick({
@@ -188,6 +252,13 @@ export const editDentistSchema = dentistSchema.pick({
   profilePicUrl: true,
   roleIds: true,
   updatedBy: true,
+  sunday: true,
+  monday: true,
+  tuesday: true,
+  wednesday: true,
+  thursday: true,
+  friday: true,
+  saturday: true,
 });
 
 export const deleteDentistSchema = dentistSchema.pick({

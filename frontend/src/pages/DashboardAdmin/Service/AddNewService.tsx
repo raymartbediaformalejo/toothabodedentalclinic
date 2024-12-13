@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/card";
 
 import { useGetAllServices } from "@/service/queries";
-import { DraggableServiceItem } from "./components/DraggableServiceItem";
+import { DraggableItem } from "@/components/DraggableItem";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -140,7 +140,7 @@ const AddNewService = () => {
     <div>
       <header className=" text-black/80">
         <h1 className="text-neutral-800 leading-[43.2px] font-bold text-[36px]">
-          Add Service
+          Add New Service
         </h1>
       </header>
       <div className="flex gap-4 mt-4">
@@ -165,11 +165,11 @@ const AddNewService = () => {
                 >
                   {!isServicesLoading &&
                     servicesToSort.map(({ id, title }) => (
-                      <DraggableServiceItem
+                      <DraggableItem
                         className="border border-neutral-200 flex items-center gap-2 rounded-[6px] bg-neutral-100 p-3"
                         key={id}
-                        serviceId={id}
-                        title={title}
+                        id={id}
+                        content={title}
                       />
                     ))}
                 </SortableContext>
@@ -292,7 +292,7 @@ const AddNewService = () => {
 
                 <div className="flex content-end justify-center gap-3 mt-10 ">
                   <Button asChild variant="db_outline" size="lg">
-                    <Link to="/dashboardadmin/service">Cancel</Link>
+                    <Link to="/services">Cancel</Link>
                   </Button>
                   <Button
                     type="submit"
