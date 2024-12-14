@@ -55,7 +55,6 @@ const AddNewDentist = () => {
       lastName: "",
       email: "",
       suffix: "",
-      password: "",
       profilePicUrl: "",
       roleIds: [DENTIST_ROLE_ID],
       sunday: [{ startTime: "", endTime: "" }],

@@ -1,4 +1,4 @@
-import { TDentistIds } from "./../types/types";
+import { TChangePassword, TDentistIds } from "./../types/types";
 import {
   TCreateDentist,
   TCreatePatient,
@@ -16,6 +16,7 @@ import { jwtDecode } from "jwt-decode";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
+  changePasswordAPI,
   createDentistAPI,
   createPatientAPI,
   createServiceAPI,
@@ -247,6 +248,27 @@ export const useEditDentist = () => {
       }
       queryClient.invalidateQueries({ queryKey: ["dentist"] });
       navigate("/dentists");
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useChangeDentistPassword = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TChangePassword) => changePasswordAPI(data),
+    onSuccess: (data) => {
+      console.log("useChangeDentistPassword: ", data);
+      // @ts-ignore
+      if (data?.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["dentist"] });
     },
     onSettled: (_, error) => {
       // @ts-ignore

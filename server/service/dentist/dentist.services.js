@@ -286,7 +286,7 @@ class Dentist {
           foundDentist.password
         );
         if (!match) {
-          throw new Error("Incorrect password");
+          throw new Error("Incorrect email or password");
         }
         if (!values.newPassword) {
           throw new Error("New password required.");
@@ -300,18 +300,18 @@ class Dentist {
       }
 
       const updateDentistQuery = `
-      UPDATE tbl_user
-      SET 
-        first_name = $1, 
-        middle_name = $2, 
-        last_name = $3, 
-        suffix = $4, 
-        email = $5, 
-        password = $6,
-        profile_pic_url = $7,
-        updated_at = $8,
-        updated_by = $9
-      WHERE id = $10
+        UPDATE tbl_user
+        SET 
+          first_name = $1, 
+          middle_name = $2, 
+          last_name = $3, 
+          suffix = $4, 
+          email = $5, 
+          password = $6,
+          profile_pic_url = $7,
+          updated_at = $8,
+          updated_by = $9
+        WHERE id = $10
       `;
 
       await client.query(updateDentistQuery, [
@@ -436,6 +436,66 @@ class Dentist {
       return {
         status: 200,
         message: `Successfully sorted dentists`,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  };
+
+  static changePassword = async (values) => {
+    if (!values.id || !values.oldPassword || !values.newPassword) {
+      throw new Error("Old password and new password are required.");
+    }
+
+    console.log("values change password: ", values);
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const verifyDentistQuery = `
+        SELECT u.password 
+        FROM tbl_user u
+        INNER JOIN tbl_user_role ur ON u.id = ur.user_id
+        INNER JOIN tbl_role r ON ur.role_id = r.id
+        WHERE u.id = $1 AND r.name = 'Dentist' AND u.deleted = false
+      `;
+      const dentistResult = await client.query(verifyDentistQuery, [values.id]);
+
+      if (dentistResult.rows.length === 0) {
+        throw new Error("Dentist not found or user is not a dentist.");
+      }
+
+      const dentist = dentistResult.rows[0];
+
+      console.log("dentist password: ", dentist.password);
+
+      const isMatchPassword = await bcrypt.compare(
+        values.oldPassword,
+        dentist.password
+      );
+      if (!isMatchPassword) {
+        throw new Error("Current password is incorrect.");
+      }
+
+      const hashedNewPassword = await bcrypt.hash(values.newPassword, 10);
+
+      const updatePasswordQuery = `
+        UPDATE tbl_user
+        SET password = $1, updated_at = NOW()
+        WHERE id = $2
+      `;
+      await client.query(updatePasswordQuery, [hashedNewPassword, values.id]);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: "Password updated successfully.",
       };
     } catch (error) {
       await client.query("ROLLBACK");

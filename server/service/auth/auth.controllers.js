@@ -25,7 +25,7 @@ const login = async (req, res) => {
     if (!match)
       return res
         .status(401)
-        .json({ message: "Unauthorized: Incorrect password" });
+        .json({ message: "Unauthorized: Incorrect email or password" });
 
     const queryRoleIds = `
     SELECT r.name

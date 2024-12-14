@@ -38,6 +38,7 @@ import {
 } from "@/lib/variables";
 import { Separator } from "@/components/ui/separator";
 import { useGetDentist } from "@/service/queries";
+import ChangePassword from "./components/ChangePassword";
 
 const EditDentist = () => {
   const { userId } = useAuth();
@@ -46,10 +47,6 @@ const EditDentist = () => {
   console.log("data: ", isFetched && dentistData);
   const currentDentist: TDentist | undefined = dentistData?.data;
   const editDentist = useEditDentist();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showCPassword, setShowCPassword] = useState(false);
-
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
@@ -63,9 +60,6 @@ const EditDentist = () => {
       lastName: "",
       email: "",
       suffix: "",
-      password: "",
-      newPassword: "",
-      cPassword: "",
       profilePicUrl: "",
       roleIds: [DENTIST_ROLE_ID],
       sunday: [{ startTime: "", endTime: "" }],
@@ -118,15 +112,6 @@ const EditDentist = () => {
     currentDentist?.saturday,
     isFetched,
   ]);
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
-  };
-  const toggleNewPasswordVisibility = () => {
-    setShowNewPassword((prev) => !prev);
-  };
-  const toggleCPasswordVisibility = () => {
-    setShowCPassword((prev) => !prev);
-  };
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
     setImageUploading(true);
@@ -189,10 +174,11 @@ const EditDentist = () => {
 
   return (
     <div>
-      <header className=" text-black/80">
+      <header className="flex items-center justify-between text-black/80">
         <h1 className="text-neutral-800 leading-[43.2px] font-bold text-[36px]">
           Edit Dentist
         </h1>
+        <ChangePassword />
       </header>
       <div className="flex gap-4 mt-4">
         <Card className="w-full pb-6 mb-6">
@@ -209,51 +195,53 @@ const EditDentist = () => {
                   </CardHeader>
                   <div className="flex justify-center w-full gap-6 my-4 ">
                     <div className="relative">
-                      <div className=" border shadow-mui-shadow-1 rounded-full overflow-hidden select-none h-[150px] w-[150px]">
-                        <img
-                          src={
-                            imagePreview
-                              ? imagePreview
-                              : DEFAULT_USER_PROFILE_IMG_URL
-                          }
-                          alt="Image Preview"
-                          className="h-auto max-w-full rounded-md select-none"
+                      <div>
+                        <div className=" border shadow-mui-shadow-1 rounded-full overflow-hidden select-none h-[150px] w-[150px]">
+                          <img
+                            src={
+                              imagePreview
+                                ? imagePreview
+                                : DEFAULT_USER_PROFILE_IMG_URL
+                            }
+                            alt="Image Preview"
+                            className="h-auto max-w-full rounded-md select-none"
+                          />
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="profilePicUrl"
+                          render={({
+                            field: { value, onChange, ...fieldProps },
+                            fieldState,
+                          }) => {
+                            return (
+                              <FormItem className="absolute bg-neutral-600 p-2 rounded-full outline-white outline top-[110px] right-[10px] flex flex-col hover:bg-neutral-500 trasition-[background-color] duration-200 ease-in-out">
+                                <FormControl>
+                                  <div>
+                                    <Label htmlFor="profilePicUrl">
+                                      <FaCamera className="w-5 h-5 text-white" />
+                                      <Input
+                                        {...fieldProps}
+                                        id="profilePicUrl"
+                                        type="file"
+                                        className="hidden"
+                                        hidden
+                                        placeholder="Upload image"
+                                        accept="image/*"
+                                        dirty={fieldState?.isDirty}
+                                        invalid={fieldState?.invalid}
+                                        onChange={handleImageChange}
+                                        disabled={imageUploading}
+                                      />
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
                         />
                       </div>
-                      <FormField
-                        control={form.control}
-                        name="profilePicUrl"
-                        render={({
-                          field: { value, onChange, ...fieldProps },
-                          fieldState,
-                        }) => {
-                          return (
-                            <FormItem className="absolute bg-neutral-600 p-2 rounded-full outline-white outline top-[110px] right-[10px] flex flex-col hover:bg-neutral-500 trasition-[background-color] duration-200 ease-in-out">
-                              <FormControl>
-                                <div>
-                                  <Label htmlFor="profilePicUrl">
-                                    <FaCamera className="w-5 h-5 text-white" />
-                                    <Input
-                                      {...fieldProps}
-                                      id="profilePicUrl"
-                                      type="file"
-                                      className="hidden"
-                                      hidden
-                                      placeholder="Upload image"
-                                      accept="image/*"
-                                      dirty={fieldState?.isDirty}
-                                      invalid={fieldState?.invalid}
-                                      onChange={handleImageChange}
-                                      disabled={imageUploading}
-                                    />
-                                  </Label>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
                     </div>
                     <div className="max-w-[50%]  w-[500px] justify-center flex flex-col gap-5">
                       <FormField
@@ -409,139 +397,6 @@ const EditDentist = () => {
                                   animation={4}
                                   maxCount={2}
                                 />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <CardHeader className="w-full text-center border-t">
-                    Change Password
-                  </CardHeader>
-                  <div className="flex justify-center w-full gap-6 my-4 ">
-                    <div className="max-w-[50%] justify-center w-[500px] flex flex-col gap-5">
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field, fieldState }) => {
-                          return (
-                            <FormItem className="flex flex-col w-full">
-                              <Label htmlFor="password">Current password</Label>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input
-                                    {...field}
-                                    autoComplete="current-password"
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Current password"
-                                    dirty={fieldState?.isDirty}
-                                    invalid={fieldState?.invalid}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
-                                    onClick={togglePasswordVisibility}
-                                    aria-label={
-                                      showPassword
-                                        ? "Hide password"
-                                        : "Show password"
-                                    }
-                                  >
-                                    {showPassword ? (
-                                      <LuEye className="w-5 h-5" />
-                                    ) : (
-                                      <LuEyeOff className="w-5 h-5" />
-                                    )}
-                                  </button>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="newPassword"
-                        render={({ field, fieldState }) => {
-                          return (
-                            <FormItem className="flex flex-col ">
-                              <Label htmlFor="newPassword">New password</Label>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input
-                                    {...field}
-                                    autoComplete="current-password"
-                                    id="newPassword"
-                                    type={showNewPassword ? "text" : "password"}
-                                    placeholder="New password"
-                                    dirty={fieldState?.isDirty}
-                                    invalid={fieldState?.invalid}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
-                                    onClick={toggleNewPasswordVisibility}
-                                    aria-label={
-                                      showNewPassword
-                                        ? "Hide password"
-                                        : "Show password"
-                                    }
-                                  >
-                                    {showNewPassword ? (
-                                      <LuEye className="w-5 h-5" />
-                                    ) : (
-                                      <LuEyeOff className="w-5 h-5" />
-                                    )}
-                                  </button>
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="cPassword"
-                        render={({ field, fieldState }) => {
-                          return (
-                            <FormItem className="flex flex-col ">
-                              <Label htmlFor="cPassword">
-                                Re-type password
-                              </Label>
-                              <FormControl>
-                                <div className="relative">
-                                  <Input
-                                    {...field}
-                                    autoComplete="current-password"
-                                    id="cPassword"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Re-type password"
-                                    dirty={fieldState?.isDirty}
-                                    invalid={fieldState?.invalid}
-                                  />
-                                  <button
-                                    type="button"
-                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
-                                    onClick={toggleCPasswordVisibility}
-                                    aria-label={
-                                      showCPassword
-                                        ? "Hide password"
-                                        : "Show password"
-                                    }
-                                  >
-                                    {showCPassword ? (
-                                      <LuEye className="w-5 h-5" />
-                                    ) : (
-                                      <LuEyeOff className="w-5 h-5" />
-                                    )}
-                                  </button>
-                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>

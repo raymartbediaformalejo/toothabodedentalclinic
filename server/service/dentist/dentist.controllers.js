@@ -135,6 +135,29 @@ const saveSortedDentist = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    const data = await Dentist.changePassword({
+      id,
+      oldPassword,
+      newPassword,
+    });
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
 module.exports = {
   getDentist,
   getDentists,
@@ -143,4 +166,5 @@ module.exports = {
   deleteDentist,
   deleteAllDentists,
   saveSortedDentist,
+  changePassword,
 };

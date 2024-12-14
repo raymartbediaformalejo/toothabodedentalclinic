@@ -12,7 +12,7 @@ import { Toaster } from "sonner";
 function App() {
   return (
     <div>
-      <Toaster richColors position="bottom-right" />
+      <Toaster richColors position="top-right" />
       <Router>
         <Routes>
           {routes.map((route, index) => {

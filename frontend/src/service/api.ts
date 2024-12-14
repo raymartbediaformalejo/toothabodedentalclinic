@@ -2,6 +2,7 @@ import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 
 import {
+  TChangePassword,
   TCreateDentist,
   TCreatePatient,
   TCreateService,
@@ -143,8 +144,6 @@ export const editDentistAPI = async (data: TEditDentist) => {
     lastName: data.lastName,
     suffix: data.suffix,
     email: data.email,
-    password: data.password,
-    newPassword: data.newPassword,
     profilePicUrl: data.profilePicUrl,
     roleIds: data.roleIds,
     sunday: data.sunday,
@@ -173,5 +172,18 @@ export const deleteAllDentistAPI = async (data: TDentistIds) => {
   const { data: result } = await axiosInstance.patch(`/dentist/delete/all`, {
     data,
   });
+  return result;
+};
+
+export const changePasswordAPI = async (data: TChangePassword) => {
+  const result = await axiosInstance.patch(
+    `/dentist/changepassword/${data.id}`,
+    {
+      oldPassword: data.password,
+      newPassword: data.newPassword,
+    }
+  );
+
+  console.log("changePasswordAPI: ", changePasswordAPI);
   return result;
 };
