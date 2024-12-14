@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useGetAllDentist } from "@/service/queries";
 import { TDentist, TDentistId, TDentistIds } from "@/types/types";
 import { useDeleteAllDentist, useDeleteDentist } from "@/service/mutation";
@@ -242,7 +242,7 @@ const Dentists = () => {
                   >
                     {headerGroup.headers.map((header) => {
                       return (
-                        <>
+                        <React.Fragment key={header.id}>
                           {header.id === "firstName" && (
                             <TableHead
                               key={header.id}
@@ -315,7 +315,7 @@ const Dentists = () => {
                               </div>
                             </TableHead>
                           )}
-                        </>
+                        </React.Fragment>
                       );
                     })}
 
@@ -335,14 +335,14 @@ const Dentists = () => {
               )}
               {table.getRowModel().rows.map((row) => {
                 return (
-                  <>
+                  <React.Fragment key={row.id}>
                     <TableRow
                       key={row.id}
                       isSelected={selectedDentistRow.includes(row.original.id)}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
-                          <>
+                          <React.Fragment key={cell.id}>
                             {cell.column.id === "firstName" ? (
                               <TableCell
                                 key={cell.id}
@@ -407,7 +407,7 @@ const Dentists = () => {
                                 )}
                               </TableCell>
                             )}
-                          </>
+                          </React.Fragment>
                         );
                       })}
 
@@ -460,7 +460,7 @@ const Dentists = () => {
                                       <span className="font-semibold text-primary-600">
                                         {`${createUsername({
                                           firstname: row.original.firstName,
-                                          middlename: row.original.middleName,
+                                          middlename: row.original.middleName!,
                                           lastname: row.original.lastName,
                                         })} `}
                                       </span>
@@ -494,7 +494,7 @@ const Dentists = () => {
                         </Popover>
                       </TableCell>
                     </TableRow>
-                  </>
+                  </React.Fragment>
                 );
               })}
             </TableBody>

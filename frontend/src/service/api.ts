@@ -146,6 +146,7 @@ export const editDentistAPI = async (data: TEditDentist) => {
     email: data.email,
     profilePicUrl: data.profilePicUrl,
     roleIds: data.roleIds,
+    services: data.services,
     sunday: data.sunday,
     monday: data.monday,
     tuesday: data.tuesday,

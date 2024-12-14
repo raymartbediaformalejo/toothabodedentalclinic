@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaCamera } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { Input } from "@/components/ui/input";
-import { TDentist, TEditDentist } from "@/types/types";
+import { TDentist, TEditDentist, TService } from "@/types/types";
 import { editDentistSchema } from "@/types/schema";
 import {
   Form,
@@ -31,13 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  TIME_LIST,
-  DENTIST_ROLE_ID,
-  DEFAULT_USER_PROFILE_IMG_URL,
-} from "@/lib/variables";
+import { TIME_LIST, DEFAULT_USER_PROFILE_IMG_URL } from "@/lib/variables";
 import { Separator } from "@/components/ui/separator";
-import { useGetDentist } from "@/service/queries";
+import { useGetAllServices, useGetDentist } from "@/service/queries";
 import ChangePassword from "./components/ChangePassword";
 
 const EditDentist = () => {
@@ -46,10 +42,18 @@ const EditDentist = () => {
   const { data: dentistData, isFetched } = useGetDentist(id!);
   console.log("data: ", isFetched && dentistData);
   const currentDentist: TDentist | undefined = dentistData?.data;
+  const defaultRoles = currentDentist?.roleIds!;
+  const defaultServices = currentDentist?.services!;
   const editDentist = useEditDentist();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
+  const { data, isLoading: isLoadingServices } = useGetAllServices();
+  const allServices: TService[] = useMemo(() => data?.data || [], [data]);
+  const servicesOptions = allServices.map((service) => ({
+    value: service.id,
+    label: service.title,
+  }));
 
   const form = useForm<TEditDentist>({
     resolver: zodResolver(editDentistSchema),
@@ -61,7 +65,8 @@ const EditDentist = () => {
       email: "",
       suffix: "",
       profilePicUrl: "",
-      roleIds: [DENTIST_ROLE_ID],
+      roleIds: [],
+      services: [],
       sunday: [{ startTime: "", endTime: "" }],
       monday: [{ startTime: "", endTime: "" }],
       tuesday: [{ startTime: "", endTime: "" }],
@@ -82,7 +87,8 @@ const EditDentist = () => {
       form.setValue("suffix", currentDentist.suffix);
       form.setValue("email", currentDentist.email);
       form.setValue("profilePicUrl", currentDentist.profilePicUrl);
-      form.setValue("roleIds", currentDentist.roleIds);
+      form.setValue("roleIds", currentDentist.roleIds || []);
+      form.setValue("services", currentDentist.services || []);
       form.setValue("sunday", currentDentist.sunday);
       form.setValue("monday", currentDentist.monday);
       form.setValue("tuesday", currentDentist.tuesday);
@@ -103,6 +109,7 @@ const EditDentist = () => {
     currentDentist?.email,
     currentDentist?.profilePicUrl,
     currentDentist?.roleIds,
+    currentDentist?.services,
     currentDentist?.sunday,
     currentDentist?.monday,
     currentDentist?.tuesday,
@@ -171,6 +178,10 @@ const EditDentist = () => {
   console.log("errors: ", form.formState.errors);
   console.log("state: ", form.watch());
   console.log("currect dentist: ", currentDentist);
+  console.log("currect dentist services: ", form.watch("services"));
+  console.log("currect dentist roles: ", form.watch("roleIds"));
+  console.log("currect dentist roles default: ", defaultRoles);
+  console.log("currect dentist services default: ", defaultServices);
 
   return (
     <div>
@@ -303,12 +314,13 @@ const EditDentist = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
                                   id="middleName"
                                   type="text"
                                   placeholder="Middle name"
+                                  value={field.value || undefined}
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -327,12 +339,13 @@ const EditDentist = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
                                   id="suffix"
                                   type="text"
                                   placeholder="Suffix"
+                                  value={field.value || undefined}
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -365,44 +378,70 @@ const EditDentist = () => {
                           );
                         }}
                       />
-
-                      <FormField
-                        control={form.control}
-                        name="roleIds"
-                        render={({ field }) => {
-                          return (
-                            <FormItem className="flex flex-col ">
-                              <Label isRequired htmlFor="roles">
-                                Role
-                              </Label>
-                              <FormControl>
-                                <MultiSelect
-                                  options={[
-                                    {
-                                      value:
-                                        "2957f726-3a0f-40ff-afe4-c86718aecf66",
-                                      label: "Admin",
-                                    },
-                                    {
-                                      value:
-                                        "241e4ec4-c535-4202-8e01-f53ac71372b6",
-                                      label: "Dentist",
-                                    },
-                                  ]}
-                                  onValueChange={field.onChange}
-                                  defaultValue={[
-                                    "241e4ec4-c535-4202-8e01-f53ac71372b6",
-                                  ]}
-                                  placeholder="Select role"
-                                  animation={4}
-                                  maxCount={2}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
+                      {isFetched && (
+                        <FormField
+                          control={form.control}
+                          name="roleIds"
+                          render={({ field }) => {
+                            return (
+                              <FormItem className="flex flex-col ">
+                                <Label isRequired htmlFor="roles">
+                                  Role
+                                </Label>
+                                <FormControl>
+                                  <MultiSelect
+                                    options={[
+                                      {
+                                        value:
+                                          "2957f726-3a0f-40ff-afe4-c86718aecf66",
+                                        label: "Admin",
+                                      },
+                                      {
+                                        value:
+                                          "241e4ec4-c535-4202-8e01-f53ac71372b6",
+                                        label: "Dentist",
+                                      },
+                                    ]}
+                                    onValueChange={field.onChange}
+                                    defaultValue={defaultRoles}
+                                    placeholder="Select role"
+                                    animation={4}
+                                    maxCount={2}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      )}
+                      {!isLoadingServices && (
+                        <FormField
+                          control={form.control}
+                          name="services"
+                          render={({ field }) => {
+                            return (
+                              <FormItem className="flex flex-col ">
+                                <Label isRequired htmlFor="services">
+                                  Services
+                                </Label>
+                                <FormControl>
+                                  <MultiSelect
+                                    id="services"
+                                    options={servicesOptions}
+                                    defaultValue={defaultServices}
+                                    onValueChange={field.onChange}
+                                    placeholder="Select service"
+                                    animation={4}
+                                    maxCount={2}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                   <CardHeader className="w-full text-center border-t">
@@ -1288,7 +1327,7 @@ const EditDentist = () => {
 
                 <div className="flex content-end justify-center gap-3 mt-10 ">
                   <Button asChild variant="db_outline" size="lg">
-                    <Link to="/dashboardadmin/dentist">Cancel</Link>
+                    <Link to="/dentists">Cancel</Link>
                   </Button>
                   <Button
                     type="submit"

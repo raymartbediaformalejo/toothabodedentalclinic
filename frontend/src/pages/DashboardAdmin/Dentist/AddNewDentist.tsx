@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaCamera } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { Input } from "@/components/ui/input";
-import { TCreateDentist } from "@/types/types";
+import { TCreateDentist, TService } from "@/types/types";
 import { createDentistSchema } from "@/types/schema";
 import {
   Form,
@@ -37,16 +37,23 @@ import {
   DEFAULT_USER_PROFILE_IMG_URL,
 } from "@/lib/variables";
 import { Separator } from "@/components/ui/separator";
+import { useGetAllServices } from "@/service/queries";
 
 const AddNewDentist = () => {
   const { userId } = useAuth();
   const createDentist = useCreateDentist();
   const [showPassword, setShowPassword] = useState(false);
-
+  const { data, isLoading: isLoadingServices } = useGetAllServices();
+  const allServices: TService[] = useMemo(() => data?.data || [], [data]);
+  const servicesOptions = allServices.map((service) => ({
+    value: service.id,
+    label: service.title,
+  }));
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
-
+  console.log("services: ", allServices);
+  console.log("servicesOptions: ", servicesOptions);
   const form = useForm<TCreateDentist>({
     resolver: zodResolver(createDentistSchema),
     defaultValues: {
@@ -57,6 +64,7 @@ const AddNewDentist = () => {
       suffix: "",
       profilePicUrl: "",
       roleIds: [DENTIST_ROLE_ID],
+      services: [],
       sunday: [{ startTime: "", endTime: "" }],
       monday: [{ startTime: "", endTime: "" }],
       tuesday: [{ startTime: "", endTime: "" }],
@@ -266,12 +274,13 @@ const AddNewDentist = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
                                   id="middleName"
                                   type="text"
                                   placeholder="Middle name"
+                                  value={field.value || undefined}
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -290,12 +299,13 @@ const AddNewDentist = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
                                   id="suffix"
                                   type="text"
                                   placeholder="Suffix"
+                                  value={field.value || undefined}
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -382,6 +392,7 @@ const AddNewDentist = () => {
                               </Label>
                               <FormControl>
                                 <MultiSelect
+                                  id="roles"
                                   options={[
                                     {
                                       value:
@@ -395,9 +406,7 @@ const AddNewDentist = () => {
                                     },
                                   ]}
                                   onValueChange={field.onChange}
-                                  defaultValue={[
-                                    "241e4ec4-c535-4202-8e01-f53ac71372b6",
-                                  ]}
+                                  defaultValue={[DENTIST_ROLE_ID]}
                                   placeholder="Select role"
                                   animation={4}
                                   maxCount={2}
@@ -408,6 +417,32 @@ const AddNewDentist = () => {
                           );
                         }}
                       />
+                      {!isLoadingServices && (
+                        <FormField
+                          control={form.control}
+                          name="services"
+                          render={({ field }) => {
+                            return (
+                              <FormItem className="flex flex-col ">
+                                <Label isRequired htmlFor="services">
+                                  Services
+                                </Label>
+                                <FormControl>
+                                  <MultiSelect
+                                    id="services"
+                                    options={servicesOptions}
+                                    onValueChange={field.onChange}
+                                    placeholder="Select service"
+                                    animation={4}
+                                    maxCount={2}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
 
@@ -1290,477 +1325,11 @@ const AddNewDentist = () => {
                       </div>
                     </div>
                   </div>
-                  {/* <FormField
-                    control={form.control}
-                    name="monday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="monday">Monday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("monday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="monday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="monday">Monday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("monday"),
-                                  endTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tuesday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="tuesday">Tuesday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("tuesday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tuesday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="tuesday">Tuesday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("tuesday"),
-                                  endTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="wednesday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="wednesday">Wednesday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("wednesday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="wednesday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="wednesday">Wednesday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("wednesday"),
-                                  endTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="thursday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="thursday">Thursday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("thursday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="thursday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="thursday">Thursday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("thursday"),
-                                  endTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="friday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="friday">Friday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("friday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="saturday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="saturday">Saturday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("saturday"),
-                                  startTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="saturday"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-col ">
-                          <Label htmlFor="saturday">Saturday</Label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                return field.onChange({
-                                  ...form.watch("saturday"),
-                                  endTime: value,
-                                });
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="--:--" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                {TIME_LIST.map((time) => {
-                                  return (
-                                    <SelectItem
-                                      id={time.value}
-                                      key={time.value}
-                                      value={time.value}
-                                    >
-                                      {time.label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  /> */}
-
-                  {/* {imagePreview && ( */}
-
-                  {/* )} */}
                 </div>
 
                 <div className="flex content-end justify-center gap-3 mt-10 ">
                   <Button asChild variant="db_outline" size="lg">
-                    <Link to="/dashboardadmin/dentist">Cancel</Link>
+                    <Link to="/dentists">Cancel</Link>
                   </Button>
                   <Button
                     type="submit"

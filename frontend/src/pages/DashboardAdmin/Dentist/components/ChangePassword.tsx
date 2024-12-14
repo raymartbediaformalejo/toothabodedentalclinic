@@ -67,8 +67,6 @@ const ChangePassword = () => {
     }
   };
 
-  console.log("values: ", form.watch());
-
   return (
     <Dialog>
       <DialogTrigger asChild>

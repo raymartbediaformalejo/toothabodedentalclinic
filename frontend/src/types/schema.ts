@@ -20,20 +20,8 @@ export const userSchema = z.object({
     .refine((value) => letterOnlyRegex.test(value), {
       message: "First name should only contain letters",
     }),
-  middleName: z
-    .string()
-    .optional()
-    .default("")
-    .refine((value) => letterOnlyRegex.test(value) || value.trim() === "", {
-      message: "Middle name should only contain letters",
-    }),
-  suffix: z
-    .string()
-    .optional()
-    .default("")
-    .refine((value) => letterOnlyRegex.test(value) || value.trim() === "", {
-      message: "Suffix should only contain letters",
-    }),
+  middleName: z.string().optional().nullable(),
+  suffix: z.string().optional().nullable(),
   birthDay: z.string().min(1, "Birthday is required").date(),
   age: z.number().min(1, "Age is required"),
   sex: z.string().min(1, "Sex is required"),
@@ -77,7 +65,7 @@ export const userSchema = z.object({
         "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
     })
     .optional(),
-  profilePicUrl: z.string().optional(),
+  profilePicUrl: z.string().optional().nullable(),
   accountStatus: z.string().optional(),
   nationality: z.string().optional(),
   religion: z.string().optional(),
@@ -229,6 +217,7 @@ export const dentistSchema = userSchema.extend({
       })
     )
     .optional(),
+  services: z.array(z.string()),
 });
 
 export const createDentistSchema = dentistSchema.pick({
@@ -240,6 +229,7 @@ export const createDentistSchema = dentistSchema.pick({
   password: true,
   profilePicUrl: true,
   roleIds: true,
+  services: true,
   createdBy: true,
   sunday: true,
   monday: true,
@@ -259,6 +249,7 @@ export const editDentistSchema = dentistSchema.pick({
   email: true,
   profilePicUrl: true,
   roleIds: true,
+  services: true,
   updatedBy: true,
   sunday: true,
   monday: true,

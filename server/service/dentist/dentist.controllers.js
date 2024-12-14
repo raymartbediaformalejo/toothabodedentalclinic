@@ -50,8 +50,14 @@ const updateDentist = async (req, res) => {
       lastName,
       suffix,
       email,
-      password,
       profilePicUrl,
+      sunday,
+      monday,
+      tuesday,
+      wednesday,
+      thursday,
+      friday,
+      saturday,
       updatedBy,
     } = req.body;
 
@@ -62,8 +68,15 @@ const updateDentist = async (req, res) => {
       lastName,
       suffix,
       email,
-      password,
+      sunday,
+      monday,
+      tuesday,
+      wednesday,
+      thursday,
+      friday,
+      saturday,
       profilePicUrl,
+
       updatedBy,
     });
     return res

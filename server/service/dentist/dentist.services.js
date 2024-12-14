@@ -8,16 +8,19 @@ class Dentist {
     const client = await pool.connect();
 
     try {
-      const client = await pool.connect();
-
-      try {
-        const queryGetDentists = `
-       SELECT 
+      const queryGetDentists = `
+      SELECT 
         u.id,
+        u.last_name AS "lastName",
         u.first_name AS "firstName",
         u.middle_name AS "middleName",
-        u.last_name AS "lastName",
+        u.suffix,
         u.email,
+        u.profile_pic_url AS "profilePicUrl",
+        u.updated_at AS "updatedAt",
+        u.updated_by AS "updatedBy",
+        u.created_at AS "createdAt",
+        u.created_by AS "createdBy",
         -- Aggregate availability for each day of the week
         jsonb_build_object(
           'sunday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Sunday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Sunday'), '{"startTime": null, "endTime": null}'),
@@ -27,32 +30,41 @@ class Dentist {
           'thursday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Thursday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Thursday'), '{"startTime": null, "endTime": null}'),
           'friday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Friday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Friday'), '{"startTime": null, "endTime": null}'),
           'saturday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Saturday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Saturday'), '{"startTime": null, "endTime": null}')
-        ) AS availability
+        ) AS availability,
+        -- Aggregate associated service IDs as an array of strings
+        COALESCE(json_agg(DISTINCT s.id::text) FILTER (WHERE s.id IS NOT NULL), '[]') AS "services",
+        -- Aggregate roles as an array of strings
+        COALESCE(json_agg(DISTINCT ur.role_id::text) FILTER (WHERE ur.role_id IS NOT NULL), '[]') AS "roleIds"
       FROM tbl_user u
       INNER JOIN tbl_user_role ur ON u.id = ur.user_id
       INNER JOIN tbl_role r ON r.id = ur.role_id
       LEFT JOIN tbl_availability a ON u.id = a.dentist_id
+      LEFT JOIN tbl_dentist_service ds ON u.id = ds.dentist_id
+      LEFT JOIN tbl_service s ON ds.service_id = s.id
       WHERE r.name = 'Dentist' AND u.deleted = false
       GROUP BY u.id, u.first_name, u.middle_name, u.last_name, u.email;
-      `;
+    `;
 
-        const result = await client.query(queryGetDentists);
+      const result = await client.query(queryGetDentists);
 
-        const formattedResult = result.rows.map((dentist) => ({
-          id: dentist.id,
-          firstName: dentist.firstName,
-          middleName: dentist.middleName,
-          lastName: dentist.lastName,
-          email: dentist.email,
-          ...dentist.availability,
-        }));
+      const formattedResult = result.rows.map((dentist) => ({
+        id: dentist.id,
+        firstName: dentist.firstName,
+        middleName: dentist.middleName,
+        lastName: dentist.lastName,
+        suffix: dentist.suffix,
+        email: dentist.email,
+        profilePicUrl: dentist.profilePicUrl,
+        createdAt: dentist.createdAt,
+        createdBy: dentist.createdBy,
+        updatedAt: dentist.updatedAt,
+        updatedBy: dentist.updatedBy,
+        ...dentist.availability,
+        services: dentist.services,
+        roleIds: dentist.roleIds,
+      }));
 
-        return formattedResult;
-      } catch (error) {
-        throw error;
-      } finally {
-        client.release();
-      }
+      return formattedResult;
     } catch (error) {
       throw error;
     } finally {
@@ -72,7 +84,7 @@ class Dentist {
           u.middle_name AS "middleName",
           u.suffix,
           u.email,
-          u.profile_pic_url AS profilePicUrl,
+          u.profile_pic_url AS "profilePicUrl",
           u.updated_at AS "updatedAt",
           u.updated_by AS "updatedBy",
           -- Aggregate availability for each day of the week
@@ -85,15 +97,16 @@ class Dentist {
             'friday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Friday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Friday'), '{"startTime": null, "endTime": null}'),
             'saturday', COALESCE(jsonb_agg(CASE WHEN a.day_of_week = 'Saturday' THEN jsonb_build_object('startTime', a.start_time, 'endTime', a.end_time) END) FILTER (WHERE a.day_of_week = 'Saturday'), '{"startTime": null, "endTime": null}')
           ) AS availability,
-          -- Aggregate role IDs as an array of strings
-          COALESCE(
-            json_agg(DISTINCT r.id::text) FILTER (WHERE r.id IS NOT NULL),
-            '{}'
-          ) AS "roleIds"
+          -- Aggregate associated service IDs as an array of strings
+          COALESCE(json_agg(DISTINCT s.id::text) FILTER (WHERE s.id IS NOT NULL), '[]') AS "services",
+          -- Aggregate roles as an array of strings
+          COALESCE(json_agg(DISTINCT ur.role_id::text) FILTER (WHERE ur.role_id IS NOT NULL), '[]') AS "roleIds"
         FROM tbl_user u
-        LEFT JOIN tbl_availability a ON u.id = a.dentist_id
         LEFT JOIN tbl_user_role ur ON u.id = ur.user_id
-        LEFT JOIN tbl_role r ON ur.role_id = r.id
+        LEFT JOIN tbl_role r ON r.id = ur.role_id
+        LEFT JOIN tbl_availability a ON u.id = a.dentist_id
+        LEFT JOIN tbl_dentist_service ds ON u.id = ds.dentist_id
+        LEFT JOIN tbl_service s ON ds.service_id = s.id
         WHERE u.id = $1 AND u.deleted = false
         GROUP BY u.id, u.last_name, u.first_name, u.middle_name, u.suffix, u.email, u.profile_pic_url, u.updated_at, u.updated_by;
       `;
@@ -106,7 +119,6 @@ class Dentist {
 
       const dentist = result.rows[0];
 
-      console.log("DENTIST: ", dentist);
       return {
         id: dentist.id,
         firstName: dentist.firstName,
@@ -118,6 +130,7 @@ class Dentist {
         updatedAt: dentist.updatedAt,
         updatedBy: dentist.updatedBy,
         ...dentist.availability,
+        services: dentist.services,
         roleIds: dentist.roleIds,
       };
     } catch (error) {
@@ -245,6 +258,19 @@ class Dentist {
         await Promise.all(availabilityInsertPromises);
       }
 
+      if (values.services && values.services.length > 0) {
+        const queryInsertDentistService = `
+          INSERT INTO tbl_dentist_service (dentist_id, service_id)
+          VALUES ($1, $2)
+        `;
+
+        const serviceInsertPromises = values.services.map(async (serviceId) => {
+          await client.query(queryInsertDentistService, [dentistId, serviceId]);
+        });
+
+        await Promise.all(serviceInsertPromises);
+      }
+
       await client.query("COMMIT");
 
       if (dentistResult.rowCount > 0) {
@@ -266,37 +292,23 @@ class Dentist {
   static updateDentist = async (values) => {
     const client = await pool.connect();
     const updatedAt = new Date();
-    const dentistId = values.id;
-    const hashPassword = await bcrypt.hash(values.password, 10);
-    // console.log("========================");
-    // console.log("values: ", values);
-    // console.log("========================");
+    const dentistId = values.dentistId;
+
+    const availability = [
+      { dayOfWeek: "Sunday", data: values.sunday },
+      { dayOfWeek: "Monday", data: values.monday },
+      { dayOfWeek: "Tuesday", data: values.tuesday },
+      { dayOfWeek: "Wednesday", data: values.wednesday },
+      { dayOfWeek: "Thursday", data: values.thursday },
+      { dayOfWeek: "Friday", data: values.friday },
+      { dayOfWeek: "Saturday", data: values.saturday },
+    ];
 
     try {
-      const queryDentist = `SELECT * FROM "tbl_user" WHERE email = $1`;
-      const dentistResult = await client.query(queryDentist, [values.email]);
-      if (dentistResult.rows.length === 0) {
-        throw new Error("No user found");
-      }
-      const foundDentist = dentistResult.rows[0];
+      await client.query("BEGIN");
 
-      if (values.password) {
-        const match = await bcrypt.compare(
-          values.password,
-          foundDentist.password
-        );
-        if (!match) {
-          throw new Error("Incorrect email or password");
-        }
-        if (!values.newPassword) {
-          throw new Error("New password required.");
-        }
-      }
       if (!values.firstName || !values.lastName || !values.email) {
-        await client.query("ROLLBACK");
-        throw new Error(
-          `First name, last name, email and password is required`
-        );
+        throw new Error("First name, last name, and email are required");
       }
 
       const updateDentistQuery = `
@@ -307,11 +319,10 @@ class Dentist {
           last_name = $3, 
           suffix = $4, 
           email = $5, 
-          password = $6,
-          profile_pic_url = $7,
-          updated_at = $8,
-          updated_by = $9
-        WHERE id = $10
+          profile_pic_url = $6,
+          updated_at = $7,
+          updated_by = $8
+        WHERE id = $9
       `;
 
       await client.query(updateDentistQuery, [
@@ -320,18 +331,67 @@ class Dentist {
         values.lastName,
         values.suffix,
         values.email,
-        hashPassword,
         values.profilePicUrl,
         updatedAt,
         values.updatedBy,
         dentistId,
       ]);
 
+      const deleteAvailabilityQuery = `
+        DELETE FROM tbl_availability WHERE dentist_id = $1
+      `;
+      await client.query(deleteAvailabilityQuery, [dentistId]);
+
+      const insertAvailabilityQuery = `
+        INSERT INTO tbl_availability (
+          dentist_id, 
+          day_of_week, 
+          start_time, 
+          end_time, 
+          created_by
+        ) VALUES ($1, $2, $3, $4, $5)
+      `;
+
+      const availabilityInsertPromises = availability.map(
+        async ({ dayOfWeek, data }) => {
+          if (data && data.length > 0) {
+            const { startTime, endTime } = data[0];
+            await client.query(insertAvailabilityQuery, [
+              dentistId,
+              dayOfWeek,
+              startTime,
+              endTime,
+              values.updatedBy,
+            ]);
+          }
+        }
+      );
+
+      await Promise.all(availabilityInsertPromises);
+
+      if (values.services && values.services.length > 0) {
+        const deleteServicesQuery = `
+          DELETE FROM tbl_dentist_service WHERE dentist_id = $1
+        `;
+        await client.query(deleteServicesQuery, [dentistId]);
+
+        const insertServicesQuery = `
+          INSERT INTO tbl_dentist_service (dentist_id, service_id)
+          VALUES ($1, $2)
+        `;
+
+        const serviceInsertPromises = values.services.map(async (serviceId) => {
+          await client.query(insertServicesQuery, [dentistId, serviceId]);
+        });
+
+        await Promise.all(serviceInsertPromises);
+      }
+
       await client.query("COMMIT");
 
       return {
         status: 200,
-        message: `Successfully updated dentist.`,
+        message: `Successfully updated dentist, availability, and services.`,
       };
     } catch (error) {
       await client.query("ROLLBACK");
@@ -348,12 +408,29 @@ class Dentist {
     try {
       await client.query("BEGIN");
 
+      const deleteServicesQuery = `
+        DELETE FROM tbl_dentist_service
+        WHERE dentist_id = $1
+      `;
+      await client.query(deleteServicesQuery, [dentistId]);
+
+      const deleteRolesQuery = `
+        DELETE FROM tbl_user_role
+        WHERE user_id = $1
+      `;
+      await client.query(deleteRolesQuery, [dentistId]);
+
+      const deleteAvailabilityQuery = `
+        DELETE FROM tbl_availability
+        WHERE dentist_id = $1
+      `;
+      await client.query(deleteAvailabilityQuery, [dentistId]);
+
       const deleteDentistQuery = `
         UPDATE tbl_user
         SET deleted = true, updated_at = $1
         WHERE id = $2
       `;
-
       const result = await client.query(deleteDentistQuery, [
         updatedAt,
         dentistId,
@@ -362,12 +439,13 @@ class Dentist {
       await client.query("COMMIT");
 
       if (result.rowCount === 0) {
-        throw new Error("Dentist not found or already move to trash.");
+        throw new Error("Dentist not found or already moved to trash.");
       }
 
       return {
         status: 200,
-        message: `Dentist has been move to trash.`,
+        message:
+          "Dentist has been moved to trash, services, roles, and availability deleted.",
       };
     } catch (error) {
       await client.query("ROLLBACK");
@@ -384,12 +462,29 @@ class Dentist {
     try {
       await client.query("BEGIN");
 
+      const deleteServicesQuery = `
+        DELETE FROM tbl_dentist_service
+        WHERE dentist_id = ANY($1)
+      `;
+      await client.query(deleteServicesQuery, [ids]);
+
+      const deleteRolesQuery = `
+        DELETE FROM tbl_user_role
+        WHERE user_id = ANY($1)
+      `;
+      await client.query(deleteRolesQuery, [ids]);
+
+      const deleteAvailabilityQuery = `
+        DELETE FROM tbl_availability
+        WHERE dentist_id = ANY($1)
+      `;
+      await client.query(deleteAvailabilityQuery, [ids]);
+
       const deleteAllDentistQuery = `
         UPDATE tbl_user
         SET deleted = true, updated_at = $1
         WHERE id = ANY($2)
       `;
-
       const result = await client.query(deleteAllDentistQuery, [
         updatedAt,
         ids,
@@ -403,7 +498,7 @@ class Dentist {
 
       return {
         status: 200,
-        message: `Successfully moved ${result.rowCount} dentist(s) to trash.`,
+        message: `Successfully moved ${result.rowCount} dentist(s) to trash, deleted services, roles, and availability.`,
       };
     } catch (error) {
       await client.query("ROLLBACK");
