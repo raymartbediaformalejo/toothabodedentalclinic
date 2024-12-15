@@ -1,8 +1,6 @@
 import { z } from "zod";
 
 const letterOnlyRegex = /^[a-zA-Z]+$/;
-const numberOnlyRegex = /^\d+$/;
-// const addressRegex = /^[a-zA-Z0-9\s,.]+$/;
 const passwordPattern =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{}|;:',.<>/?~])[A-Za-z\d!@#$%^&*()_+\-=[\]{}|;:',.<>/?~]{8,}$/;
 
@@ -28,27 +26,27 @@ export const userSchema = z.object({
   email: z.string().min(1, "Email is required").email(),
   mobileNo: z
     .string()
+    .transform((value) => value.trim())
     .refine((value) => /^[0-9]+$/.test(value), {
-      message: "Mobile number must be 11 digits and only contain numbers.",
+      message: "Mobile number must contain only numbers.",
     })
-    .refine((value) => numberOnlyRegex.test(value.replace(/\s/g, "")), {
-      message: "Invalid phone number",
-    })
-    .optional(),
+    .refine((value) => value.length === 10 || value.length === 11, {
+      message: "Mobile number must be 10 or 11 digits long.",
+    }),
   password: z
     .string()
-    .min(6, {
-      message: "Password must be at least 6 characters long.",
+    .min(8, {
+      message: "Password must be at least 8 characters long.",
     })
     .refine((value) => passwordPattern.test(value), {
       message:
-        "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 6 characters long",
+        "Password must start with an uppercase letter, include lowercase letters, numbers, and special characters, and be at least 8 characters long",
     })
     .optional(),
   cPassword: z
     .string()
-    .min(6, {
-      message: "Password must be at least 6 characters long.",
+    .min(8, {
+      message: "Password must be at least 8 characters long.",
     })
     .refine((value) => passwordPattern.test(value), {
       message:
@@ -57,8 +55,8 @@ export const userSchema = z.object({
     .optional(),
   newPassword: z
     .string()
-    .min(6, {
-      message: "Password must be at least 6 characters long.",
+    .min(8, {
+      message: "Password must be at least 8 characters long.",
     })
     .refine((value) => passwordPattern.test(value), {
       message:
@@ -80,8 +78,8 @@ export const userSchema = z.object({
 
 export const patientSchema = userSchema.extend({
   patientId: z.string(),
-  nickname: z.string(),
-  occupation: z.string(),
+  nickname: z.string().min(1, "Nickname is required"),
+  occupation: z.string().min(1, "Occupation is required"),
   address: z.string(),
   barangay: z.string(),
   city: z.string(),
@@ -89,28 +87,34 @@ export const patientSchema = userSchema.extend({
   zipCode: z.number(),
 });
 
-export const createPatientSchema = patientSchema.pick({
-  email: true,
-  password: true,
-  mobileNo: true,
-  firstName: true,
-  middleName: true,
-  lastName: true,
-  nickname: true,
-  birthDay: true,
-  sex: true,
-  age: true,
-  occupation: true,
-  religion: true,
-  nationality: true,
-  civilStatus: true,
-  address: true,
-  region: true,
-  city: true,
-  barangay: true,
-  zipCode: true,
-  roleIds: true,
-});
+export const createPatientSchema = patientSchema
+  .pick({
+    email: true,
+    password: true,
+    cPassword: true,
+    mobileNo: true,
+    firstName: true,
+    middleName: true,
+    lastName: true,
+    nickname: true,
+    birthDay: true,
+    sex: true,
+    age: true,
+    occupation: true,
+    religion: true,
+    nationality: true,
+    civilStatus: true,
+    address: true,
+    region: true,
+    city: true,
+    barangay: true,
+    zipCode: true,
+    roleIds: true,
+  })
+  .refine((data) => data.password === data.cPassword, {
+    message: "Password do not mathch.",
+    path: ["cPassword"],
+  });
 
 export const loginUserSchema = userSchema.pick({
   email: true,

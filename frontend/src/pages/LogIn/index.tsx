@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import {
   Form,
   FormControl,
@@ -6,6 +6,7 @@ import {
   FormField,
   FormMessage,
 } from "@/components/ui/form";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +20,7 @@ import { TLoginUser } from "@/types/types";
 import { useLoginUser } from "@/service/mutation";
 
 const LogIn = () => {
+  const [showPassword, setShowPassword] = useState(false);
   const login = useLoginUser();
   const form = useForm<TLoginUser>({
     resolver: zodResolver(loginUserSchema),
@@ -27,6 +29,16 @@ const LogIn = () => {
       password: "",
     },
   });
+
+  const isCredentialValid =
+    !form.formState.errors.email && !form.formState.errors.password;
+
+  const isCredentialTouched =
+    form.formState.touchedFields.email && form.formState.touchedFields.password;
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const onSubmit: SubmitHandler<TLoginUser> = async (data) => {
     login.mutate(data);
@@ -57,6 +69,13 @@ const LogIn = () => {
                       control={form.control}
                       name="email"
                       render={({ field, fieldState }) => {
+                        const handleChange = (
+                          e: ChangeEvent<HTMLInputElement>
+                        ) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("email");
+                        };
                         return (
                           <FormItem className="flex flex-col ">
                             <Label isRequired htmlFor="email">
@@ -64,12 +83,13 @@ const LogIn = () => {
                             </Label>
                             <FormControl>
                               <Input
+                                {...field}
+                                onChange={handleChange}
                                 id="email"
                                 type="email"
                                 placeholder="Enter your email"
                                 dirty={fieldState?.isDirty}
                                 invalid={fieldState?.invalid}
-                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -81,27 +101,45 @@ const LogIn = () => {
                       control={form.control}
                       name="password"
                       render={({ field, fieldState }) => {
-                        const changeHandler = (
+                        const hangleChange = (
                           e: ChangeEvent<HTMLInputElement>
                         ) => {
+                          field.onBlur();
                           field.onChange(e);
                           form.trigger("password");
                         };
                         return (
                           <FormItem className="flex flex-col ">
-                            <Label isRequired htmlFor="password">
-                              Password
-                            </Label>
+                            <Label htmlFor="password">Password</Label>
                             <FormControl>
-                              <Input
-                                id="password"
-                                type="password"
-                                onChange={changeHandler}
-                                placeholder="Enter your password"
-                                value={field.value}
-                                dirty={fieldState?.isDirty}
-                                invalid={fieldState?.invalid}
-                              />
+                              <div className="relative">
+                                <Input
+                                  {...field}
+                                  onChange={hangleChange}
+                                  autoComplete="current-password"
+                                  id="password"
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="Password"
+                                  dirty={fieldState?.isDirty}
+                                  invalid={fieldState?.invalid}
+                                />
+                                <button
+                                  type="button"
+                                  className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
+                                  onClick={togglePasswordVisibility}
+                                  aria-label={
+                                    showPassword
+                                      ? "Hide password"
+                                      : "Show password"
+                                  }
+                                >
+                                  {showPassword ? (
+                                    <LuEye className="w-5 h-5" />
+                                  ) : (
+                                    <LuEyeOff className="w-5 h-5" />
+                                  )}
+                                </button>
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -122,7 +160,16 @@ const LogIn = () => {
                     "grid w-full   md:flex-row justify-center gap-2 grid-cols-[35%] md:grid-cols-[50%]"
                   )}
                 >
-                  <Button type="submit">Login</Button>
+                  <Button
+                    type="submit"
+                    variant={
+                      isCredentialTouched && isCredentialValid
+                        ? "default"
+                        : "disabled"
+                    }
+                  >
+                    Login
+                  </Button>
                 </div>
               </div>
             </div>

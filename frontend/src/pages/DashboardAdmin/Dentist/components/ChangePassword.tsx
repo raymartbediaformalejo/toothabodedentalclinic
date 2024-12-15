@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -130,6 +130,12 @@ const ChangePassword = () => {
                   control={form.control}
                   name="newPassword"
                   render={({ field, fieldState }) => {
+                    const changeHandler = (
+                      e: ChangeEvent<HTMLInputElement>
+                    ) => {
+                      field.onChange(e);
+                      form.trigger("newPassword"); // Validate both password and cPassword
+                    };
                     return (
                       <FormItem className="flex flex-col ">
                         <Label htmlFor="newPassword">New password</Label>
@@ -141,6 +147,7 @@ const ChangePassword = () => {
                               id="newPassword"
                               type={showNewPassword ? "text" : "password"}
                               placeholder="New password"
+                              onChange={changeHandler}
                               dirty={fieldState?.isDirty}
                               invalid={fieldState?.invalid}
                             />
@@ -171,6 +178,12 @@ const ChangePassword = () => {
                   control={form.control}
                   name="cPassword"
                   render={({ field, fieldState }) => {
+                    const changeHandler = (
+                      e: ChangeEvent<HTMLInputElement>
+                    ) => {
+                      field.onChange(e);
+                      form.trigger("cPassword");
+                    };
                     return (
                       <FormItem className="flex flex-col ">
                         <Label htmlFor="cPassword">Re-type password</Label>
@@ -182,6 +195,7 @@ const ChangePassword = () => {
                               id="cPassword"
                               type={showRetypePassword ? "text" : "password"}
                               placeholder="Re-type password"
+                              onChange={changeHandler}
                               dirty={fieldState?.isDirty}
                               invalid={fieldState?.invalid}
                             />

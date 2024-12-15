@@ -30,15 +30,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <input
         type={type}
-        className={cn(
-          inputVariants({ inputSize, className }),
-          dirty
-            ? invalid
-              ? " focus:border-red border-red"
-              : "focus:border-green border-green"
-            : "focus:border-sky-400 border-black",
-          invalid && "border-red "
-        )}
+        className={cn(inputVariants({ inputSize, className }))}
         ref={ref}
         {...props}
       />

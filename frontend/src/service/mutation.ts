@@ -55,10 +55,12 @@ export const useLoginUser = () => {
   return useMutation({
     mutationFn: (data: TLoginUser) => loginUserAPI(data),
     onSuccess: (response) => {
+      console.log("useLoginUser: ", response);
       const {
         data: { accessToken },
       } = response;
       if (accessToken) {
+        toast.success("Successfully login.");
         setHeaderToken(accessToken);
         localStorage.setItem("jwt", accessToken);
         const token = localStorage.getItem("jwt");
@@ -76,9 +78,13 @@ export const useLoginUser = () => {
         console.error("No access token received from the server.");
       }
     },
-    onError: (_, error) => {
-      console.log("Error Creation", error);
-      return "error";
+    onSettled: (_, error) => {
+      console.log("error: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
     },
   });
 };

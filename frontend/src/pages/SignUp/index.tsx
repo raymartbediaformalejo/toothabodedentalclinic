@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 import { createPatientSchema } from "@/types/schema";
@@ -40,8 +41,11 @@ import { CITY_OF_MANILA_CODE, DEFAULT_ROLE_ID } from "@/lib/variables";
 import { useCreatePatient } from "@/service/mutation";
 
 const SignUp = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
   const createPatient = useCreatePatient();
   const form = useForm<TCreatePatient>({
+    mode: "all",
     resolver: zodResolver(createPatientSchema),
     defaultValues: {
       email: "",
@@ -71,6 +75,44 @@ const SignUp = () => {
   const [agree, setAgree] = useState<boolean>(false);
   const isFirstStep = step === 1;
 
+  const isMatchPassword = form.watch("password") === form.watch("cPassword");
+  const isFirstStepValid =
+    !form.formState.errors.email &&
+    !form.formState.errors.password &&
+    !form.formState.errors.cPassword &&
+    !form.formState.errors.mobileNo;
+
+  const isFirstStepTouched =
+    form.formState.touchedFields.email &&
+    form.formState.touchedFields.password &&
+    form.formState.touchedFields.cPassword &&
+    form.formState.touchedFields.mobileNo;
+
+  const isSecondStepValid =
+    !form.formState.errors.firstName &&
+    !form.formState.errors.middleName &&
+    !form.formState.errors.lastName &&
+    !form.formState.errors.nickname &&
+    !form.formState.errors.birthDay &&
+    !form.formState.errors.age &&
+    !form.formState.errors.occupation &&
+    !form.formState.errors.religion &&
+    !form.formState.errors.nationality &&
+    !form.formState.errors.sex &&
+    !form.formState.errors.civilStatus;
+
+  const isSecondStepTouched =
+    form.formState.touchedFields.firstName &&
+    form.formState.touchedFields.middleName &&
+    form.formState.touchedFields.lastName &&
+    form.formState.touchedFields.nickname &&
+    form.formState.touchedFields.birthDay &&
+    form.formState.touchedFields.age &&
+    form.formState.touchedFields.occupation &&
+    form.formState.touchedFields.religion &&
+    form.formState.touchedFields.sex &&
+    form.formState.touchedFields.civilStatus;
+
   const hasSelectRegion = !!form.watch("region");
   const hasSelectCity = !!form.watch("city");
   const hasSelectBrgy = !!form.watch("barangay");
@@ -83,6 +125,13 @@ const SignUp = () => {
   const { data: brgys, isLoading: barangayIsLoading } = useGetBarangays(
     `${hasSelectCity && form.watch("city").toString()}`
   );
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+  const toggleCPasswordVisibility = () => {
+    setShowCPassword((prev) => !prev);
+  };
 
   const handleNext = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
@@ -152,6 +201,13 @@ const SignUp = () => {
                         control={form.control}
                         name="email"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("email");
+                          };
                           return (
                             <FormItem className="flex flex-col ">
                               <Label isRequired htmlFor="email">
@@ -159,12 +215,13 @@ const SignUp = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="email"
                                   type="email"
                                   placeholder="Enter your email"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -176,27 +233,45 @@ const SignUp = () => {
                         control={form.control}
                         name="password"
                         render={({ field, fieldState }) => {
-                          const changeHandler = (
+                          const hangleChange = (
                             e: ChangeEvent<HTMLInputElement>
                           ) => {
+                            field.onBlur();
                             field.onChange(e);
                             form.trigger("password");
                           };
                           return (
                             <FormItem className="flex flex-col ">
-                              <Label isRequired htmlFor="password">
-                                Password
-                              </Label>
+                              <Label htmlFor="password">Password</Label>
                               <FormControl>
-                                <Input
-                                  id="password"
-                                  type="password"
-                                  onChange={changeHandler}
-                                  placeholder="Enter your password"
-                                  value={field.value}
-                                  dirty={fieldState?.isDirty}
-                                  invalid={fieldState?.invalid}
-                                />
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    onChange={hangleChange}
+                                    autoComplete="current-password"
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    dirty={fieldState?.isDirty}
+                                    invalid={fieldState?.invalid}
+                                  />
+                                  <button
+                                    type="button"
+                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
+                                    onClick={togglePasswordVisibility}
+                                    aria-label={
+                                      showPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                    }
+                                  >
+                                    {showPassword ? (
+                                      <LuEye className="w-5 h-5" />
+                                    ) : (
+                                      <LuEyeOff className="w-5 h-5" />
+                                    )}
+                                  </button>
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -207,30 +282,73 @@ const SignUp = () => {
                         control={form.control}
                         name="cPassword"
                         render={({ field, fieldState }) => {
+                          const hangleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("cPassword");
+                          };
                           return (
                             <FormItem className="flex flex-col ">
-                              <Label isRequired htmlFor="cPassword">
-                                Confirm password
+                              <Label htmlFor="cPassword">
+                                Re-type password
                               </Label>
                               <FormControl>
-                                <Input
-                                  id="cPassword"
-                                  type="cPassword"
-                                  placeholder="Confirm your password"
-                                  dirty={fieldState?.isDirty}
-                                  invalid={fieldState?.invalid}
-                                  {...field}
-                                />
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    onChange={hangleChange}
+                                    autoComplete="current-password"
+                                    id="cPassword"
+                                    type={showCPassword ? "text" : "password"}
+                                    placeholder="Re-type password"
+                                    dirty={fieldState?.isDirty}
+                                    invalid={fieldState?.invalid}
+                                  />
+                                  <button
+                                    type="button"
+                                    className="absolute top-[50%] right-4 translate-y-[-50%] rounded-full p-2 text-neutral-400"
+                                    onClick={toggleCPasswordVisibility}
+                                    aria-label={
+                                      showCPassword
+                                        ? "Hide password"
+                                        : "Show password"
+                                    }
+                                  >
+                                    {showCPassword ? (
+                                      <LuEye className="w-5 h-5" />
+                                    ) : (
+                                      <LuEyeOff className="w-5 h-5" />
+                                    )}
+                                  </button>
+                                </div>
                               </FormControl>
-                              <FormMessage />
+                              {!isMatchPassword &&
+                              field.value &&
+                              field.value.length > 0 ? (
+                                <FormMessage>
+                                  Password did not match
+                                </FormMessage>
+                              ) : (
+                                <FormMessage />
+                              )}
                             </FormItem>
                           );
                         }}
                       />
+
                       <FormField
                         control={form.control}
                         name="mobileNo"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("mobileNo");
+                          };
                           return (
                             <FormItem className="flex flex-col ">
                               <Label isRequired htmlFor="phoneNumber">
@@ -248,12 +366,13 @@ const SignUp = () => {
                                   </div>
                                   <div className="w-full">
                                     <Input
+                                      {...field}
                                       id="phoneNumber"
+                                      onChange={handleChange}
                                       type="tel"
                                       placeholder="Enter your phone number"
                                       dirty={fieldState?.isDirty}
                                       invalid={fieldState?.invalid}
-                                      {...field}
                                     />
                                   </div>
                                 </div>
@@ -279,6 +398,13 @@ const SignUp = () => {
                       control={form.control}
                       name="firstName"
                       render={({ field, fieldState }) => {
+                        const handleChange = (
+                          e: ChangeEvent<HTMLInputElement>
+                        ) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("firstName");
+                        };
                         return (
                           <FormItem className="flex flex-col ">
                             <Label isRequired htmlFor="firstName">
@@ -286,12 +412,13 @@ const SignUp = () => {
                             </Label>
                             <FormControl>
                               <Input
+                                {...field}
+                                onChange={handleChange}
                                 id="firstName"
                                 type="text"
                                 placeholder="Enter your firstname"
                                 dirty={fieldState?.isDirty}
                                 invalid={fieldState?.invalid}
-                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -303,17 +430,28 @@ const SignUp = () => {
                       control={form.control}
                       name="middleName"
                       render={({ field, fieldState }) => {
+                        const hangleChange = (
+                          e: ChangeEvent<HTMLInputElement>
+                        ) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("middleName");
+                        };
                         return (
                           <FormItem className="flex flex-col ">
-                            <Label htmlFor="middlename">Middle Name</Label>
+                            <Label isRequired htmlFor="middlename">
+                              Middle Name
+                            </Label>
                             <FormControl>
                               <Input
+                                {...field}
+                                onChange={hangleChange}
                                 id="middlename"
                                 type="text"
                                 placeholder="Enter your middlename"
+                                value={field.value || undefined}
                                 dirty={fieldState?.isDirty}
                                 invalid={fieldState?.invalid}
-                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -326,6 +464,13 @@ const SignUp = () => {
                         control={form.control}
                         name="lastName"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("lastName");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[60%] ">
                               <Label isRequired htmlFor="lastname">
@@ -333,12 +478,13 @@ const SignUp = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="lastname"
                                   type="text"
                                   placeholder="Enter your lastname"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -350,17 +496,27 @@ const SignUp = () => {
                         control={form.control}
                         name="nickname"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("nickname");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[40%] ">
-                              <Label htmlFor="nickname">Nickname</Label>
+                              <Label isRequired htmlFor="nickname">
+                                Nickname
+                              </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="nickname"
                                   type="text"
                                   placeholder="Enter your nickname"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -374,6 +530,13 @@ const SignUp = () => {
                         control={form.control}
                         name="birthDay"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("birthDay");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[60%] ">
                               <Label isRequired htmlFor="birthDate">
@@ -381,12 +544,13 @@ const SignUp = () => {
                               </Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="birthDate"
                                   type="date"
                                   className="uppercase"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -397,27 +561,31 @@ const SignUp = () => {
                       <FormField
                         control={form.control}
                         name="age"
-                        render={({ field }) => (
-                          <FormItem className="w-[40%] flex flex-col">
-                            <Label isRequired htmlFor="age">
-                              Age
-                            </Label>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                id="age"
-                                type="number"
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  field.onChange(
-                                    value ? parseInt(value) : value
-                                  );
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        render={({ field }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(parseInt(e.target.value));
+                            form.trigger("age");
+                          };
+                          return (
+                            <FormItem className="w-[40%] flex flex-col">
+                              <Label isRequired htmlFor="age">
+                                Age
+                              </Label>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  onChange={handleChange}
+                                  id="age"
+                                  type="number"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
                       />
                     </div>
                     <div className="flex gap-[12.08px] md:gap-[17.68px] lg:gap-5 ">
@@ -425,17 +593,25 @@ const SignUp = () => {
                         control={form.control}
                         name="occupation"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("occupation");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[60%] ">
                               <Label htmlFor="occupation">Occupation</Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="occupation"
                                   type="text"
                                   placeholder="Enter your occupation"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -447,17 +623,25 @@ const SignUp = () => {
                         control={form.control}
                         name="religion"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("religion");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[40%] ">
                               <Label htmlFor="religion">Religion</Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="religion"
                                   type="text"
                                   placeholder="Enter your religion"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -471,17 +655,25 @@ const SignUp = () => {
                         control={form.control}
                         name="nationality"
                         render={({ field, fieldState }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("nationality");
+                          };
                           return (
                             <FormItem className="flex flex-col w-[60%] ">
                               <Label htmlFor="nationality">Nationality</Label>
                               <FormControl>
                                 <Input
+                                  {...field}
+                                  onChange={handleChange}
                                   id="nationality"
                                   type="text"
                                   placeholder="Enter your nationality"
                                   dirty={fieldState?.isDirty}
                                   invalid={fieldState?.invalid}
-                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -492,83 +684,97 @@ const SignUp = () => {
                       <FormField
                         control={form.control}
                         name="sex"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col w-[40%]">
-                            <Label isRequired htmlFor="sex">
-                              Sex
-                            </Label>
-                            <Select onValueChange={field.onChange}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="M/F" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              <SelectContent>
-                                <SelectItem id="Male" key="Male" value="Male">
-                                  Male
-                                </SelectItem>
-                                <SelectItem
-                                  id="Female"
-                                  key="Female"
-                                  value="Female"
-                                >
-                                  Female
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
+                        render={({ field }) => {
+                          const handleChange = (e: string) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("sex");
+                          };
+                          return (
+                            <FormItem className="flex flex-col w-[40%]">
+                              <Label isRequired htmlFor="sex">
+                                Sex
+                              </Label>
+                              <Select onValueChange={handleChange}>
+                                <FormControl onBlur={field.onBlur}>
+                                  <SelectTrigger onBlur={field.onBlur}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <FormMessage />
+                                <SelectContent>
+                                  <SelectItem id="Male" key="Male" value="Male">
+                                    Male
+                                  </SelectItem>
+                                  <SelectItem
+                                    id="Female"
+                                    key="Female"
+                                    value="Female"
+                                  >
+                                    Female
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          );
+                        }}
                       />
                     </div>
                     <FormField
                       control={form.control}
                       name="civilStatus"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col ">
-                          <Label isRequired htmlFor="civilStatus">
-                            Civil Status
-                          </Label>
-                          <Select onValueChange={field.onChange}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Single" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <FormMessage />
-                            <SelectContent>
-                              <SelectItem
-                                id="Single"
-                                key="Single"
-                                value="Single"
-                              >
-                                Single
-                              </SelectItem>
-                              <SelectItem
-                                id="Married"
-                                key="Married"
-                                value="Married"
-                              >
-                                Married
-                              </SelectItem>
-                              <SelectItem
-                                id="Widowed"
-                                key="Widowed"
-                                value="Widowed"
-                              >
-                                Widowed
-                              </SelectItem>
-                              <SelectItem
-                                id="Separated"
-                                key="Separated"
-                                value="Separated"
-                              >
-                                Separated
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const handleChange = (e: string) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("sex");
+                        };
+                        return (
+                          <FormItem className="flex flex-col ">
+                            <Label isRequired htmlFor="civilStatus">
+                              Civil Status
+                            </Label>
+                            <Select onValueChange={handleChange}>
+                              <FormControl onBlur={field.onBlur}>
+                                <SelectTrigger onBlur={field.onBlur}>
+                                  <SelectValue placeholder="Single" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <FormMessage />
+                              <SelectContent>
+                                <SelectItem
+                                  id="Single"
+                                  key="Single"
+                                  value="Single"
+                                >
+                                  Single
+                                </SelectItem>
+                                <SelectItem
+                                  id="Married"
+                                  key="Married"
+                                  value="Married"
+                                >
+                                  Married
+                                </SelectItem>
+                                <SelectItem
+                                  id="Widowed"
+                                  key="Widowed"
+                                  value="Widowed"
+                                >
+                                  Widowed
+                                </SelectItem>
+                                <SelectItem
+                                  id="Separated"
+                                  key="Separated"
+                                  value="Separated"
+                                >
+                                  Separated
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        );
+                      }}
                     />
                   </div>
                 </div>
@@ -584,6 +790,13 @@ const SignUp = () => {
                       control={form.control}
                       name="address"
                       render={({ field, fieldState }) => {
+                        const hangleChange = (
+                          e: ChangeEvent<HTMLInputElement>
+                        ) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("address");
+                        };
                         return (
                           <FormItem className="flex flex-col">
                             <Label isRequired htmlFor="address">
@@ -591,12 +804,13 @@ const SignUp = () => {
                             </Label>
                             <FormControl>
                               <Input
+                                {...field}
+                                onChange={hangleChange}
                                 id="address"
                                 type="text"
                                 placeholder="Enter your address"
                                 dirty={fieldState?.isDirty}
                                 invalid={fieldState?.invalid}
-                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -607,152 +821,179 @@ const SignUp = () => {
                     <FormField
                       control={form.control}
                       name="region"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col ">
-                          <Label isRequired htmlFor="regionID">
-                            Region
-                          </Label>
-                          <Select
-                            onValueChange={field.onChange}
-                            disabled={regionIsLoading ? true : false}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Region" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <FormMessage />
-                            <SelectContent>
-                              {regions?.data &&
-                                regions?.data?.map((r: TRegion) => (
-                                  <SelectItem
-                                    id={r?.code}
-                                    key={r?.code}
-                                    value={r?.code}
-                                  >
-                                    {r?.name}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const handleChange = (e: string) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("region");
+                        };
+                        return (
+                          <FormItem className="flex flex-col ">
+                            <Label isRequired htmlFor="regionID">
+                              Region
+                            </Label>
+                            <Select
+                              onValueChange={handleChange}
+                              disabled={regionIsLoading ? true : false}
+                            >
+                              <FormControl>
+                                <SelectTrigger onBlur={field.onBlur}>
+                                  <SelectValue placeholder="Region" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <FormMessage />
+                              <SelectContent>
+                                {regions?.data &&
+                                  regions?.data?.map((r: TRegion) => (
+                                    <SelectItem
+                                      id={r?.code}
+                                      key={r?.code}
+                                      value={r?.code}
+                                    >
+                                      {r?.name}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        );
+                      }}
                     />
                     <FormField
                       control={form.control}
                       name="city"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <Label isRequired htmlFor="cityID">
-                            City/Province
-                          </Label>
-                          <Select
-                            onValueChange={field.onChange}
-                            disabled={provincesCitiesIsLoading ? true : false}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Province / City" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <FormMessage />
-                            <SelectContent>
-                              {hasSelectRegion &&
-                                provincesCities?.data &&
-                                provincesCities?.data?.map((r: TProvince) => (
-                                  <SelectItem
-                                    id={r?.code}
-                                    key={r?.code}
-                                    value={r?.code}
-                                  >
-                                    {r?.name}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const handleChange = (e: string) => {
+                          field.onBlur();
+                          field.onChange(e);
+                          form.trigger("city");
+                        };
+                        return (
+                          <FormItem className="flex flex-col">
+                            <Label isRequired htmlFor="cityID">
+                              City/Province
+                            </Label>
+                            <Select
+                              onValueChange={handleChange}
+                              disabled={provincesCitiesIsLoading ? true : false}
+                            >
+                              <FormControl>
+                                <SelectTrigger onBlur={field.onBlur}>
+                                  <SelectValue placeholder="Province / City" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <FormMessage />
+                              <SelectContent>
+                                {hasSelectRegion &&
+                                  provincesCities?.data &&
+                                  provincesCities?.data?.map((r: TProvince) => (
+                                    <SelectItem
+                                      id={r?.code}
+                                      key={r?.code}
+                                      value={r?.code}
+                                    >
+                                      {r?.name}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        );
+                      }}
                     />
                     <div className="flex gap-[12.08px] md:gap-[17.68px] lg:gap-5">
                       <FormField
                         control={form.control}
                         name="barangay"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col w-full">
-                            <Label isRequired htmlFor="barangayID">
-                              Barangay
-                            </Label>
-                            <Select
-                              onValueChange={field.onChange}
-                              disabled={barangayIsLoading ? true : false}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Barangay" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <FormMessage />
-                              {form.watch("city") === CITY_OF_MANILA_CODE ? (
-                                <SelectContent>
-                                  {hasSelectCity &&
-                                    brgyOfManila &&
-                                    brgyOfManila.map((value: TBrgysManila) => {
-                                      return (
+                        render={({ field }) => {
+                          const handleChange = (e: string) => {
+                            field.onBlur();
+                            field.onChange(e);
+                            form.trigger("barangay");
+                          };
+                          return (
+                            <FormItem className="flex flex-col w-full">
+                              <Label isRequired htmlFor="barangayID">
+                                Barangay
+                              </Label>
+                              <Select
+                                onValueChange={handleChange}
+                                disabled={barangayIsLoading ? true : false}
+                              >
+                                <FormControl>
+                                  <SelectTrigger onBlur={field.onBlur}>
+                                    <SelectValue placeholder="Barangay" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <FormMessage />
+                                {form.watch("city") === CITY_OF_MANILA_CODE ? (
+                                  <SelectContent>
+                                    {hasSelectCity &&
+                                      brgyOfManila &&
+                                      brgyOfManila.map(
+                                        (value: TBrgysManila) => {
+                                          return (
+                                            <SelectItem
+                                              id={value.name}
+                                              key={value.name}
+                                              value={value.name}
+                                            >
+                                              {value.name}
+                                            </SelectItem>
+                                          );
+                                        }
+                                      )}
+                                  </SelectContent>
+                                ) : (
+                                  <SelectContent>
+                                    {hasSelectCity &&
+                                      brgys?.data &&
+                                      brgys?.data?.map((r: TBrgys) => (
                                         <SelectItem
-                                          id={value.name}
-                                          key={value.name}
-                                          value={value.name}
+                                          id={r?.code}
+                                          key={r?.code}
+                                          value={r?.code}
                                         >
-                                          {value.name}
+                                          {r?.name}
                                         </SelectItem>
-                                      );
-                                    })}
-                                </SelectContent>
-                              ) : (
-                                <SelectContent>
-                                  {hasSelectCity &&
-                                    brgys?.data &&
-                                    brgys?.data?.map((r: TBrgys) => (
-                                      <SelectItem
-                                        id={r?.code}
-                                        key={r?.code}
-                                        value={r?.code}
-                                      >
-                                        {r?.name}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              )}
-                            </Select>
-                          </FormItem>
-                        )}
+                                      ))}
+                                  </SelectContent>
+                                )}
+                              </Select>
+                            </FormItem>
+                          );
+                        }}
                       />
                       <FormField
                         control={form.control}
                         name="zipCode"
-                        render={({ field }) => (
-                          <FormItem className="w-[180px] flex flex-col">
-                            <Label isRequired htmlFor="zipCode">
-                              Zip Code
-                            </Label>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                id="zipCode"
-                                type="number"
-                                placeholder="0000"
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  field.onChange(
-                                    value ? parseInt(value) : value
-                                  );
-                                }}
-                                disabled={hasSelectBrgy ? false : true}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        render={({ field }) => {
+                          const handleChange = (
+                            e: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            field.onBlur();
+                            field.onChange(parseInt(e.target.value));
+                            form.trigger("nationality");
+                          };
+                          return (
+                            <FormItem className="w-[180px] flex flex-col">
+                              <Label isRequired htmlFor="zipCode">
+                                Zip Code
+                              </Label>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  onChange={handleChange}
+                                  id="zipCode"
+                                  type="number"
+                                  placeholder="0000"
+                                  disabled={hasSelectBrgy ? false : true}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
                       />
                     </div>
                   </div>
@@ -797,23 +1038,47 @@ const SignUp = () => {
                   )}
                 >
                   {!isFirstStep && (
-                    <Button onClick={handlePreviousStep}>Previous</Button>
+                    <Button variant="outline" onClick={handlePreviousStep}>
+                      Previous
+                    </Button>
                   )}
                   {step === 3 ? (
                     <Button
                       type="submit"
                       //   disabled={!agree ? agree : isSubmitting}
                       variant={
-                        !agree || form.formState.isSubmitting
-                          ? "disabled"
-                          : "default"
+                        agree &&
+                        !form.formState.isSubmitting &&
+                        !(Object.keys(form.formState.errors).length > 0)
+                          ? "default"
+                          : "disabled"
                       }
                     >
                       Submit
                     </Button>
-                  ) : (
-                    <Button onClick={handleNext}>Next</Button>
-                  )}
+                  ) : step === 1 ? (
+                    <Button
+                      variant={
+                        isFirstStepValid && isFirstStepTouched
+                          ? "default"
+                          : "disabled"
+                      }
+                      onClick={handleNext}
+                    >
+                      Next
+                    </Button>
+                  ) : step === 2 ? (
+                    <Button
+                      variant={
+                        isSecondStepValid && isSecondStepTouched
+                          ? "default"
+                          : "disabled"
+                      }
+                      onClick={handleNext}
+                    >
+                      Next
+                    </Button>
+                  ) : null}
                 </div>
               </div>
 

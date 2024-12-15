@@ -6,6 +6,7 @@ const useAuth = () => {
 
   if (token) {
     const decoded = jwtDecode(token);
+    console.log("decoded token: ", decoded);
     // @ts-expect-error: Unreachable code error
     const { userId, email, roles } = decoded.UserInfo;
 
