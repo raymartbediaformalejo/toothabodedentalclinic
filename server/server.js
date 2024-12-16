@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 
 const corsOptions = require("./config/corsOptions");
 
+const verifyRoutes = require("./service/verify/verify.routes");
 const authRoutes = require("./service/auth/auth.routes");
 const userRoutes = require("./service/user/user.routes.js");
 const regionRoutes = require("./service/region/region.routes.js");
@@ -21,6 +22,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use("/api", verifyRoutes);
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", regionRoutes);

@@ -1,32 +1,41 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const pool = require("../../config/conn");
+const Cookies = require("./../../utils/cookies.js");
+const Tokens = require("./../../utils/tokens.js");
+const { compare_password } = require("./../../utils/password_helper.js");
 
-const login = async (req, res) => {
-  const { email, password } = req.body;
+const loginUser = async (request, response) => {
+  const { email, password: UserPassword } = request.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+  // Check if email and password are provided
+  if (!email || !UserPassword) {
+    return response
+      .status(400)
+      .send({ message: "Email and Password are required", ok: false });
   }
 
-  const client = await pool.connect();
+  const client = await pool.connect(); // Connect to the database pool
 
   try {
-    const queryLogin = `SELECT * FROM  "tbl_user" WHERE email = $1`;
+    // Query to find the user based on the provided email
+    const queryLogin = `SELECT * FROM "tbl_user" WHERE email = $1`;
     const result = await client.query(queryLogin, [email]);
 
+    // Check if user is found
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: "Unauthorized: No user found" });
+      return response
+        .status(400)
+        .send({ message: "Wrong Credentials", ok: false });
     }
 
     const foundUser = result.rows[0];
-    const match = await bcrypt.compare(password, foundUser.password);
 
-    if (!match)
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: Incorrect email or password" });
-
+    // Compare the provided password with the stored hashed password
+    const isCorrect = compare_password(UserPassword, foundUser.password);
+    if (!isCorrect) {
+      return response
+        .status(400)
+        .send({ message: "Wrong Credentials", ok: false });
+    }
     const queryRoleIds = `
     SELECT r.name
     FROM "tbl_role" r
@@ -36,108 +45,69 @@ const login = async (req, res) => {
     const roleResult = await client.query(queryRoleIds, [foundUser.id]);
     const roles = roleResult.rows.map((row) => row.name);
 
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          userId: foundUser.id,
-          email: foundUser.email,
-          roles,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "10s" }
-      // { expiresIn: "35m" }
-    );
+    // Generate JWT tokens
+    const user = {
+      id: foundUser.id,
+      email: foundUser.email,
+      roles,
+    };
+    const ts = Tokens.gT(user); // Generate access and refresh tokens using the Tokens utility
 
-    const refreshToken = jwt.sign(
-      {
-        email: foundUser.email,
+    // Set cookies with the generated tokens
+    Cookies.sC({
+      rs: response,
+      ts: {
+        aT: ts?.aT || "", // Access token
+        rT: ts?.rT || "", // Refresh token
       },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "20s" }
-      // { expiresIn: "7d" }
-    );
-
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ accessToken });
+    // Send success response with the access token
+    return response.status(200).send({
+      message: "Logged In Successfully",
+      ok: true,
+      accessToken: ts?.aT,
+    });
   } catch (error) {
-    res.status(500).json({ message: `Internal Server Error: ${error}` });
+    console.log("Error in loginUser:", error);
+    return response
+      .status(500)
+      .send({ message: "Internal Server Error", ok: false });
   } finally {
+    // Release the client back to the pool
     client.release();
   }
 };
 
-const refresh = (req, res) => {
-  const cookies = req.cookies;
-
-  if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" });
-
-  const refreshToken = cookies.jwt;
-
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, decoded) => {
-      if (err) return res.status(403).json({ message: "Forbidden" });
-      const client = await pool.connect();
-
-      try {
-        const queryRefresh = `SELECT * FROM "tbl_user" WHERE email = $1`;
-        const result = await client.query(queryRefresh, [decoded.email]);
-
-        if (result.rows.length === 0) {
-          return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        const foundUser = result.rows[0];
-
-        const queryRoleIds = `
-        SELECT r.name
-        FROM "tbl_role" r
-        INNER JOIN "tbl_user_role" ur ON r.id = ur.role_id
-        WHERE ur.user_id = $1`;
-
-        const roleResult = await client.query(queryRoleIds, [foundUser.id]);
-        const roles = roleResult.rows.map((row) => row.name);
-
-        const accessToken = jwt.sign(
-          {
-            UserInfo: {
-              email: foundUser.email,
-              roles,
-            },
-          },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "10s" }
-          // { expiresIn: "35m" }
-        );
-
-        res.json({ accessToken });
-      } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-      } finally {
-        client.release();
-      }
-    }
-  );
-};
-
 const logout = (req, res) => {
   const cookies = req.cookies;
-  if (!cookies?.jwt) return res.sendStatus(204); // No content if no token is present
+  const isProduction = process.env.NODE_ENV === "production";
+  if (
+    !cookies?.tooth_abode_refresh_token ||
+    !cookies?.tooth_abode_access_token
+  ) {
+    return res.sendStatus(204); // No content if no token is present
+  }
 
-  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
-  res.json({ message: "Cookie cleared" });
+  // Clear the refresh token and access token cookies
+  res.clearCookie("tooth_abode_refresh_token", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: isProduction, // Only set secure if you are in production
+    path: "/",
+  });
+
+  res.clearCookie("tooth_abode_access_token", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: isProduction, // Only set secure if you are in production
+    path: "/",
+  });
+
+  res.json({ message: "Logout successful, cookies cleared" });
 };
 
 module.exports = {
-  login,
-  refresh,
+  loginUser,
   logout,
 };
