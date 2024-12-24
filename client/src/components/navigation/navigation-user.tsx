@@ -56,7 +56,7 @@ export function NavigationUser({ userId }: { userId: string }) {
                   src={user.profilePicUrl ? user.profilePicUrl : defaultAvatar}
                   alt={createUsername({
                     firstname: user.firstName,
-                    middlename: user.middleName,
+                    middlename: user.middleName || "",
                     lastname: user.lastName,
                   })}
                 />
@@ -66,7 +66,7 @@ export function NavigationUser({ userId }: { userId: string }) {
                 <span className="font-semibold truncate">
                   {createUsername({
                     firstname: user.firstName,
-                    middlename: user.middleName,
+                    middlename: user.middleName || "",
                     lastname: user.lastName,
                   })}
                 </span>
@@ -90,7 +90,7 @@ export function NavigationUser({ userId }: { userId: string }) {
                     }
                     alt={createUsername({
                       firstname: user.firstName,
-                      middlename: user.middleName,
+                      middlename: user.middleName || "",
                       lastname: user.lastName,
                     })}
                   />
@@ -100,7 +100,7 @@ export function NavigationUser({ userId }: { userId: string }) {
                   <span className="font-semibold truncate">
                     {createUsername({
                       firstname: user.firstName,
-                      middlename: user.middleName,
+                      middlename: user.middleName || "",
                       lastname: user.lastName,
                     })}
                   </span>

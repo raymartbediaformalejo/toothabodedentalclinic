@@ -93,7 +93,6 @@ const PaginationPrevious = ({
   disabled,
   ...props
 }: React.ComponentProps<typeof PaginationButton>) => {
-  console.log("PaginationPrevious: ", disabled);
   return (
     <PaginationButton
       aria-label="Go to previous page"

@@ -34,7 +34,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { MdDeleteForever } from "react-icons/md";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -8,7 +8,6 @@ type TRequireAuth = {
 const RequireAuth = ({ allowedRoles }: TRequireAuth) => {
   const location = useLocation();
   const { roles } = useAuth();
-
   const content = roles.some((role) => allowedRoles.includes(role)) ? (
     <Outlet />
   ) : (

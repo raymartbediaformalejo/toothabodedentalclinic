@@ -52,8 +52,6 @@ const AddNewDentist = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState<boolean>(false);
-  console.log("services: ", allServices);
-  console.log("servicesOptions: ", servicesOptions);
   const form = useForm<TCreateDentist>({
     resolver: zodResolver(createDentistSchema),
     defaultValues: {

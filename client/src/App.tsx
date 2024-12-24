@@ -1,15 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
-import routes from "./routes/index";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import { SidebarInset, SidebarProvider } from "./components/ui/sidebar";
-import { NavigationSidebarDashboard } from "./components/navigation/navigation-sidebar-dashboard";
-import ProtectedRoutes from "./pages/Auth/ProtectedRoutes";
-import UnprotectedRoutes from "./pages/Auth/UnprotectedRoutes";
-import NavigationTopDashboard from "./components/navigation/navigation-top-dashboard";
-import useAuth from "./hooks/useAuth";
 import Homepage from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
@@ -24,10 +15,10 @@ import EditDentist from "./pages/DashboardAdmin/Dentist/EditDentist";
 import Services from "./pages/DashboardAdmin/Service";
 import AddNewService from "./pages/DashboardAdmin/Service/AddNewService";
 import EditService from "./pages/DashboardAdmin/Service/EditService";
+import Appointment from "./pages/Appointment";
+import Calendar from "./pages/DashboardAdmin/Calendar";
 
 function App() {
-  // const { role } = useAuth();
-  // console.log("role: ", role);
   return (
     <>
       <Toaster richColors position="top-right" />
@@ -41,6 +32,18 @@ function App() {
           </Route>
 
           {/* PROTECTED ROUTES */}
+          <Route
+            element={
+              <RequireAuth
+                allowedRoles={[ROLES.Patient, ROLES.Dentist, ROLES.Admin]}
+              />
+            }
+          >
+            <Route element={<Layout />}>
+              <Route path="appointment" element={<Appointment />} />
+            </Route>
+          </Route>
+
           <Route
             element={
               <RequireAuth allowedRoles={[ROLES.Admin, ROLES.Dentist]} />
@@ -58,55 +61,13 @@ function App() {
                 <Route path="add_new_service" element={<AddNewService />} />
                 <Route path=":id" element={<EditService />} />
               </Route>
+              <Route path="calendar" element={<Calendar />} />
             </Route>
           </Route>
           <Route path="*" element={<p>Page Not Found</p>} />
         </Route>
       </Routes>
     </>
-
-    // <div>
-    //   <Toaster richColors position="top-right" />
-    //   <Router>
-    //     <Routes>
-    //       {routes.map((route, index) => {
-    //         return role === "Superadmin" ? (
-    //           <Route
-    //             key={index}
-    //             path={route.path}
-    //             element={
-    //               <ProtectedRoutes>
-    //                 <SidebarProvider>
-    //                   <NavigationSidebarDashboard />
-    //                   <SidebarInset className="flex w-full border bg-neutral-50">
-    //                     <NavigationTopDashboard />
-    //                     <div className="flex justify-center w-full ">
-    //                       <div className="w-full mx-6  mt-12 max-w-[1400px]">
-    //                         <route.component />
-    //                       </div>
-    //                     </div>
-    //                   </SidebarInset>
-    //                 </SidebarProvider>
-    //               </ProtectedRoutes>
-    //             }
-    //           />
-    //         ) : (
-    //           <Route
-    //             key={index}
-    //             path={route.path}
-    //             element={
-    //               <UnprotectedRoutes>
-    //                 {!route.isAdminPage ? <Header /> : ""}
-    //                 <route.component />
-    //                 {!route.isAdminPage ? <Footer /> : ""}
-    //               </UnprotectedRoutes>
-    //             }
-    //           />
-    //         );
-    //       })}
-    //     </Routes>
-    //   </Router>
-    // </div>
   );
 }
 

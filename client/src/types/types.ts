@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  appointmentInfoSchema,
   changePasswordSchema,
   createDentistSchema,
   createPatientSchema,
@@ -8,6 +9,9 @@ import {
   editDentistSchema,
   editServiceSchema,
   loginUserSchema,
+  medicalHistorySchema,
+  patientInfoSchema,
+  requestDateTimeSchema,
   saveSortedDentistSchema,
   saveSortedServiceSchema,
   serviceSchema,
@@ -64,3 +68,10 @@ export type TDentistId = string;
 export type TDentistIds = { ids: TDentistId[] };
 export type TAvailability = [{}];
 export type TChangePassword = z.infer<typeof changePasswordSchema>;
+
+// ============ || APPOINTMENT || ===========
+
+export type TAppointmentInfo = z.infer<typeof appointmentInfoSchema>;
+export type TPatientInfo = z.infer<typeof patientInfoSchema>;
+export type TRequestDateAndTime = z.infer<typeof requestDateTimeSchema>;
+export type TMedicalHistory = z.infer<typeof medicalHistorySchema>;

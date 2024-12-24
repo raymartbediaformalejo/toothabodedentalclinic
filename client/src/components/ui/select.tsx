@@ -18,16 +18,16 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 const selectTriggerVariants = cva(
-  "flex w-full border items-center justify-between placeholder:text-neutral-900/50 trasition-[border-color] duration-300 ease-in-out hover:border-primary-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full border items-center justify-between placeholder:text-neutral-500 trasition-[border-color] duration-200 ease-in-out hover:border-primary-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 rounded-md",
   {
     variants: {
       variant: {
-        default: "border-neutral-300 bg-white",
+        default: "border-neutral-300  bg-white",
         secondary: "rounded-md border-neutral-300",
       },
       size: {
         default:
-          "h-[50px] rounded-[3.02px] md:rounded-[4.42px] lg:rounded-[5px] border-[0.6px] md:border-[0.88px] lg:border-[1px] px-4 md:px-4 lg:px-4 py-3 md:py-3 lg:py-3 text-xs md:text-sm",
+          "h-[50px]  rounded-md md:rounded-[4.42px] lg:rounded-[5px] border-[0.6px] md:border-[0.88px] lg:border-[1px] px-4 md:px-4 lg:px-4 py-3 md:py-3 lg:py-3 text-[14px] placeholder:text-neutral-500",
         sm: "h-[32px] px-3",
       },
     },
@@ -63,7 +63,7 @@ const SelectTrigger = React.forwardRef<
         {arrowDesign === "up-and-down" ? (
           <LuChevronsLeftRight className="rotate-90 ml-3 w-[14px] h-[14px] text-black/70 " />
         ) : (
-          <LuChevronDown className="w-[13px] h-[13px] md:w-[14px] md:h-[14px] text-white rounded-sm opacity-50 bg-black" />
+          <LuChevronDown className="w-[18px] h-[18px] text-neutral-900 rounded-sm opacity-50 bg-black" />
         )}
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>

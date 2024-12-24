@@ -36,7 +36,7 @@ import {
 } from "@/service/queries";
 import brgyOfManila from "@/assets/manilaBrgy.json";
 import phFlag from "@/assets/phFlag.png";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/customCheckbox";
 import { CITY_OF_MANILA_CODE, DEFAULT_ROLE_ID } from "@/lib/variables";
 import { useCreatePatient } from "@/service/mutation";
 
@@ -807,7 +807,6 @@ const SignUp = () => {
                                 {...field}
                                 onChange={hangleChange}
                                 id="address"
-                                type="text"
                                 placeholder="Enter your address"
                                 dirty={fieldState?.isDirty}
                                 invalid={fieldState?.invalid}

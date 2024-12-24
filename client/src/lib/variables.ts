@@ -1,4 +1,4 @@
-export const CITY_OF_MANILA_CODE = "1380600000" as const;
+export const CITY_OF_MANILA_CODE = "City of Manila" as const;
 
 export const DEFAULT_ROLE_ID = "92b73582-0dc5-4b3d-a17d-20523d7e0a82" as const;
 
@@ -12,7 +12,6 @@ export const ROW_PER_PAGE_OPTIONS = [
 ] as const;
 
 export const TIME_LIST = [
-  { value: "--|--", label: "None" },
   { value: "9:00", label: "9:00 AM" },
   { value: "9:30", label: "9:30 AM" },
   { value: "10:00", label: "10:00 AM" },
@@ -34,10 +33,34 @@ export const TIME_LIST = [
 export const DENTIST_ROLE_ID = "241e4ec4-c535-4202-8e01-f53ac71372b6";
 
 export const DEFAULT_USER_PROFILE_IMG_URL =
-  "https://res.cloudinary.com/deklgilr5/image/upload/v1733336250/dentist_profiles/toothabodedentalclinic.jpg";
+  "https://res.cloudinary.com/deklgilr5/image/upload/v1734542540/dentist_profiles/lmnod6hyqtlgzb6gfbej.png";
+
+export const PEOPLE_PROFILE_IMG_URL =
+  "https://res.cloudinary.com/deklgilr5/image/upload/v1734542641/dentist_profiles/pmwp8kbioxpd6d9lkdya.png";
 
 export const ROLES = {
   Patient: "Patient",
   Dentist: "Dentist",
   Admin: "Admin",
 };
+
+export const WEEKDAYS = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+] as const;
+
+export const FEMALE = "Female" as const;
+
+export const RELATIONSHIP = [
+  { value: "Parent", label: "Parent" },
+  { value: "Spouse", label: "Spouse" },
+  { value: "Child", label: "Child" },
+  { value: "Guardian", label: "Guardian" },
+  { value: "Friend", label: "Friend" },
+  { value: "Other", label: "Other" },
+];

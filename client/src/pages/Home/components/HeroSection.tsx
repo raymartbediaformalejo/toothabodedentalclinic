@@ -1,4 +1,5 @@
 import { MdArrowOutward } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 
@@ -19,9 +20,11 @@ const HeroSection = () => {
           </p>
         </div>
         <div>
-          <Button size="lg">
-            Make an Appointment
-            <MdArrowOutward className="w-6 h-6 p-1 bg-white rounded-full text-primary-700" />
+          <Button asChild size="lg">
+            <Link to="/appointment">
+              Make an Appointment
+              <MdArrowOutward className="w-6 h-6 p-1 bg-white rounded-full text-primary-700" />
+            </Link>
           </Button>
         </div>
       </div>

@@ -91,7 +91,7 @@ const items = [
   },
   {
     title: "Callendar",
-    url: "#",
+    url: "/admin/calendar",
     icon: CallendarIcon,
   },
   {

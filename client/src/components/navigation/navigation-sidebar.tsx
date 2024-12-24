@@ -10,7 +10,6 @@ import { useLogout } from "@/service/mutation";
 
 const NavigationSidebar = () => {
   const { userId } = useAuth();
-  console.log("User ID: ", userId);
   const logout = useLogout();
   const handleLogout = () => {
     logout.mutate();

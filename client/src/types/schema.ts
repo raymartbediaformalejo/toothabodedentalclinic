@@ -21,14 +21,14 @@ export const userSchema = z.object({
   middleName: z.string().optional().nullable(),
   suffix: z.string().optional().nullable(),
   birthDay: z.string().min(1, "Birthday is required").date(),
-  age: z.number().min(1, "Age is required"),
+  age: z.string().min(1, "Age is required"),
   sex: z.string().min(1, "Sex is required"),
   email: z.string().min(1, "Email is required").email(),
   mobileNo: z
     .string()
     .transform((value) => value.trim())
     .refine((value) => /^[0-9]+$/.test(value), {
-      message: "Mobile number must contain only numbers.",
+      message: "Invalid mobile number",
     })
     .refine((value) => value.length === 10 || value.length === 11, {
       message: "Mobile number must be 10 or 11 digits long.",
@@ -289,3 +289,178 @@ export const changePasswordSchema = dentistSchema
     message: "Password do not mathch.",
     path: ["cPassword"],
   });
+
+// APPOINTMENT
+
+export const appointmentSchema = z.object({
+  appointmentId: z.string(),
+  patientId: z.string(),
+  appointmentPatientInfoId: z.string(),
+  dentistId: z.string(),
+  serviceIds: z.array(z.string().min(1, "Service is required.")),
+  schedule: z.string().min(1, "Schedule is required."),
+  appointmentStatus: z.string(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+  updatedAt: z.string(),
+  updatedBy: z.string(),
+});
+
+export const appointmentPatientInfoSchema = userSchema
+  .pick({
+    firstName: true,
+    middleName: true,
+    lastName: true,
+    birthDay: true,
+    age: true,
+    sex: true,
+    email: true,
+    mobileNo: true,
+    religion: true,
+    nationality: true,
+  })
+  .extend({
+    id: z.string(),
+    medicalHistoryId: z.string(),
+    nickname: z.string(),
+    occupation: z.string(),
+    address: z.string(),
+    city: z.string(),
+    barangay: z.string(),
+    region: z.string(),
+    zipCode: z.string(),
+    religion: z.string(),
+    isLoveOnes: z.boolean(),
+    relationship: z.string().optional().nullable(),
+    createdAt: z.string(),
+    createdBy: z.string(),
+    updatedAt: z.string(),
+    updatedBy: z.string(),
+  });
+
+export const appointmentInfoSchema = z.object({
+  serviceIds: z.string().array(),
+  dentistId: z.string().min(1, "Please select your dentist."),
+});
+
+export const requestDateTimeSchema = z.object({
+  date: z.string().min(1, "Date required."),
+  time: z.string().min(1, "Time required"),
+});
+
+export const patientInfoSchema = userSchema
+  .pick({
+    firstName: true,
+    middleName: true,
+    lastName: true,
+    birthDay: true,
+    age: true,
+    religion: true,
+    nationality: true,
+    email: true,
+    mobileNo: true,
+  })
+  .extend({
+    isLovedOne: z.boolean(),
+    relationship: z.string().min(1, "Reqiured"),
+    nickname: z.string(),
+    sex: z.string().min(1, "Required sex"),
+    occupation: z.string(),
+    address: z.string().min(1, "Adress required"),
+    city: z.string().min(1, "City/province required"),
+    barangay: z.string().min(1, "Barangay required"),
+    region: z.string().min(1, "Region required"),
+    zipCode: z.string().min(1, "Zip code required"),
+  });
+
+export const medicalHistorySchema = z.object({
+  physicianName: z.string().optional(),
+  physicianMobileNo: z.string().optional(),
+  question1: z.string().min(1, "Required"),
+  question2: z
+    .object({
+      answer: z.string().min(1, "Required"),
+      subAnswer: z.string().optional().nullable(),
+    })
+    .refine(
+      (data) => {
+        if (data.answer === "true") {
+          return !!data.subAnswer;
+        }
+        return true;
+      },
+      {
+        message: "Required",
+        path: ["subAnswer"],
+      }
+    ),
+  question3: z
+    .object({
+      answer: z.string().min(1, "Required"),
+      subAnswer: z.string().optional().nullable(),
+    })
+    .refine(
+      (data) => {
+        if (data.answer === "true") {
+          return !!data.subAnswer;
+        }
+        return true;
+      },
+      {
+        message: "Sub-answer is required if answer is true",
+        path: ["subAnswer"],
+      }
+    ),
+  question4: z
+    .object({
+      answer: z.string().min(1, "Required"),
+      subAnswer: z.string().optional().nullable(),
+    })
+    .refine(
+      (data) => {
+        if (data.answer === "true") {
+          return !!data.subAnswer;
+        }
+        return true;
+      },
+      {
+        message: "Required",
+        path: ["subAnswer"],
+      }
+    ),
+  question5: z
+    .object({
+      answer: z.string().min(1, "Required"),
+      subAnswer: z.string().optional().nullable(),
+    })
+    .refine(
+      (data) => {
+        if (data.answer === "true") {
+          return !!data.subAnswer;
+        }
+        return true;
+      },
+      {
+        message: "Required",
+        path: ["subAnswer"],
+      }
+    ),
+  question6: z.string().min(1, "Required"),
+  question7: z.string().min(1, "Required"),
+  question8: z.object({
+    localAnestheticDrug: z.boolean().optional().nullable(),
+    penicillin: z.boolean().optional().nullable(),
+    sulfaDrugs: z.boolean().optional().nullable(),
+    aspirin: z.boolean().optional().nullable(),
+    latex: z.boolean().optional().nullable(),
+    others: z.string().optional().nullable(),
+  }),
+  question9: z
+    .object({
+      areYouPregnant: z.string(),
+      areYouCurrentlyNursing: z.string(),
+      areYouTakingBirthControlPills: z.string(),
+    })
+    .optional()
+    .nullable(),
+});
