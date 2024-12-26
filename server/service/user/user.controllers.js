@@ -41,4 +41,41 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getUsers, createUser };
+const verifyEmail = async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({
+      success: false,
+      message: "Verification code is required",
+    });
+  }
+
+  try {
+    const result = await User.verifyEmail(code);
+
+    return res.status(result.status).json({
+      success: result.success,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Error in verifyEmail: ", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await User.deleteUser(userId);
+    res.status(result.status).json({ message: result.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getUser, getUsers, createUser, verifyEmail, deleteUser };
