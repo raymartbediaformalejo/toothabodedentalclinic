@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 import { TUsername } from "@/types/types";
+import { MONTHS } from "./variables";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,23 +24,9 @@ export const createUsername = (user: TUsername): string => {
 };
 
 export const formatDate = (rawDateString: string) => {
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
   const date = new Date(rawDateString);
 
-  const month = monthNames[date.getMonth()];
+  const month = MONTHS[date.getMonth()];
   const day = date.getDate();
   const year = date.getFullYear();
 
@@ -53,5 +40,5 @@ export const formatTimeTo12Hour = (time: string) => {
 
   const hour12 = hour % 12 || 12;
 
-  return `${hour12}${period}`;
+  return `${hour12} ${period}`;
 };

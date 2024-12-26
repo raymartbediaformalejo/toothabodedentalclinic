@@ -339,6 +339,7 @@ export const appointmentPatientInfoSchema = userSchema
   });
 
 export const appointmentInfoSchema = z.object({
+  patientId: z.string(),
   serviceIds: z.string().array(),
   dentistId: z.string().min(1, "Please select your dentist."),
 });

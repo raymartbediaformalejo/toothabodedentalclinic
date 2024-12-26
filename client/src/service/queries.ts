@@ -9,8 +9,9 @@ import {
   regionsAPI,
   getAllDentistAPI,
   getDentistAPI,
+  getServicesByIdAPI,
 } from "./api";
-import { TDentistId, TServiceId } from "@/types/types";
+import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
 export const useGetAllRegions = () => {
   return useQuery({
@@ -53,6 +54,14 @@ export const useGetService = (serviceId: TServiceId) => {
   return useQuery({
     queryKey: ["service", serviceId],
     queryFn: getServiceAPI,
+  });
+};
+
+export const useGetServicesById = (serviceIds: TServiceIds) => {
+  return useQuery({
+    queryKey: ["servicesById", serviceIds],
+    queryFn: () => getServicesByIdAPI(serviceIds),
+    enabled: !!serviceIds,
   });
 };
 

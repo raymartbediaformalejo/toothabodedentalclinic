@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multiselect";
+import useAuth from "@/hooks/useAuth";
 import { cn, createUsername } from "@/lib/utils";
 import { DEFAULT_USER_PROFILE_IMG_URL } from "@/lib/variables";
 import { useGetAllDentist, useGetAllServices } from "@/service/queries";
@@ -12,6 +13,7 @@ type TAppointmentInfoProps = {
   onSaveAppointmentInfoData: (enteredAppointmentInfo: TAppointmentInfo) => void;
 };
 const AppointmentInfo = (props: TAppointmentInfoProps) => {
+  const { userId } = useAuth();
   const { data } = useGetAllServices();
   const allServices: TService[] = useMemo(() => data?.data || [], [data]);
   const servicesOption: TServicesOption[] = allServices.map((service) => ({
@@ -28,13 +30,18 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
   const { watch, setValue, register, trigger, formState } =
     useFormContext<TAppointmentInfo>();
 
+  const patientId = watch("patientId");
   const serviceIds = watch("serviceIds");
   const dentistId = watch("dentistId");
 
   useEffect(() => {
-    const appointmentData = { serviceIds, dentistId };
+    if (userId) setValue("patientId", userId);
+  }, [userId]);
+
+  useEffect(() => {
+    const appointmentData = { patientId, serviceIds, dentistId };
     props.onSaveAppointmentInfoData(appointmentData);
-  }, [serviceIds, dentistId]);
+  }, [patientId, serviceIds, dentistId]);
 
   return (
     <div className="">

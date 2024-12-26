@@ -59,6 +59,34 @@ class Service {
     }
   };
 
+  static getServicesById = async (serviceIds) => {
+    const client = await pool.connect();
+
+    try {
+      const queryGetServicesById = `
+      SELECT 
+        s.id,
+        s.title,
+        s.description,
+        s.order_no "orderNo",
+        s.visible,
+        s.created_at "createdAt",
+        s.created_by "createBy",
+        s.updated_at "updatedAt",
+        s.updated_by "updatedBy"
+      FROM tbl_service s 
+      WHERE s.id = ANY($1) AND s.deleted = false
+      ORDER BY s.order_no ASC
+      `;
+      const result = await client.query(queryGetServicesById, [serviceIds]);
+      return result.rows;
+    } catch (error) {
+      throw error;
+    } finally {
+      client.release();
+    }
+  };
+
   static createService = async (values) => {
     if (!values.title) {
       throw new Error("Title is required");

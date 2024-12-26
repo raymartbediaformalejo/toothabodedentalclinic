@@ -89,6 +89,14 @@ export const getServiceAPI = async (args: { queryKey: string[] }) => {
   return data;
 };
 
+export const getServicesByIdAPI = async (data: TServiceIds) => {
+  const { data: response } = await axiosInstance.post(
+    "/service/getByIds",
+    data
+  );
+  return response;
+};
+
 export const createServiceAPI = async (data: TCreateService) =>
   await axiosInstance.post("/service", data);
 

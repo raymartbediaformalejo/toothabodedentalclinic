@@ -64,3 +64,18 @@ export const RELATIONSHIP = [
   { value: "Friend", label: "Friend" },
   { value: "Other", label: "Other" },
 ];
+
+export const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;

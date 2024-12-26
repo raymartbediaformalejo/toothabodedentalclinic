@@ -57,7 +57,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   {...register("physicianMobileNo")}
                   id={register("physicianMobileNo").name}
                   type="tel"
-                  placeholder="000 - 000 - 0000r"
+                  placeholder="000 - 000 - 0000"
                 />
               </div>
             </div>
@@ -87,6 +87,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   setValue("question1", value);
                   trigger("question1");
                 }}
+                value={watch("question1")}
                 className="mt-1 ml-4"
               >
                 <div className="flex items-center gap-[6px] select-none">
@@ -126,6 +127,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   )}
                 </div>
                 <RadioGroup
+                  value={watch("question2.answer")}
                   onValueChange={(value) => {
                     setValue("question2.answer", value);
                     trigger("question2");
@@ -184,6 +186,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   )}
                 </div>
                 <RadioGroup
+                  value={watch("question3.answer")}
                   onValueChange={(value) => {
                     setValue("question3.answer", value);
                     trigger("question3");
@@ -242,6 +245,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   )}
                 </div>
                 <RadioGroup
+                  value={watch("question4.answer")}
                   onValueChange={(value) => {
                     setValue("question4.answer", value);
                     trigger("question4");
@@ -301,6 +305,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   )}
                 </div>
                 <RadioGroup
+                  value={watch("question5.answer")}
                   onValueChange={(value) => {
                     setValue("question5.answer", value);
                     trigger("question5");
@@ -358,6 +363,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                 )}
               </div>
               <RadioGroup
+                value={watch("question6")}
                 onValueChange={(value) => {
                   setValue("question6", value);
                   trigger("question6");
@@ -400,6 +406,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                 )}
               </div>
               <RadioGroup
+                value={watch("question7")}
                 onValueChange={(value) => {
                   setValue("question7", value);
                   trigger("question7");
@@ -440,6 +447,9 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                       a. Local Anesthetic drug
                     </p>
                     <Checkbox
+                      checked={
+                        watch("question8.localAnestheticDrug") as boolean
+                      }
                       onCheckedChange={(value) =>
                         setValue(
                           "question8.localAnestheticDrug",
@@ -453,6 +463,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                       b. Penicillin
                     </p>
                     <Checkbox
+                      checked={watch("question8.penicillin") as boolean}
                       onCheckedChange={(value) =>
                         setValue("question8.penicillin", value as boolean)
                       }
@@ -463,6 +474,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                       c. Sulfa drugs
                     </p>
                     <Checkbox
+                      checked={watch("question8.sulfaDrugs") as boolean}
                       onCheckedChange={(value) =>
                         setValue("question8.sulfaDrugs", value as boolean)
                       }
@@ -471,6 +483,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   <div className="flex items-center gap-4 ">
                     <p className="text-neutral-600 text-[14px] ">d. Aspirin</p>
                     <Checkbox
+                      checked={watch("question8.aspirin") as boolean}
                       onCheckedChange={(value) =>
                         setValue("question8.aspirin", value as boolean)
                       }
@@ -479,6 +492,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                   <div className="flex items-center gap-4 ">
                     <p className="text-neutral-600 text-[14px] ">e. Latex</p>
                     <Checkbox
+                      checked={watch("question8.latex") as boolean}
                       onCheckedChange={(value) =>
                         setValue("question8.latex", value as boolean)
                       }
@@ -517,6 +531,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                         a. Are you pregnant?
                       </p>
                       <RadioGroup
+                        value={watch("question9.areYouPregnant")}
                         onValueChange={(value) =>
                           setValue("question9.areYouPregnant", value)
                         }
@@ -549,6 +564,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                         b. Are you currently nursing?
                       </p>
                       <RadioGroup
+                        value={watch("question9.areYouCurrentlyNursing")}
                         onValueChange={(value) =>
                           setValue("question9.areYouCurrentlyNursing", value)
                         }
@@ -581,6 +597,7 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
                         c. Are you taking birth control pills?
                       </p>
                       <RadioGroup
+                        value={watch("question9.areYouTakingBirthControlPills")}
                         onValueChange={(value) =>
                           setValue(
                             "question9.areYouTakingBirthControlPills",

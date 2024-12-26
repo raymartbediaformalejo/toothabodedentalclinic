@@ -87,7 +87,6 @@ const PatientInfo = () => {
     if (!isLovedOne) setValue("relationship", "My self");
   }, [isLovedOne]);
 
-
   return (
     <div>
       <div>

@@ -11,6 +11,7 @@ const userRoutes = require("./service/user/user.routes.js");
 const regionRoutes = require("./service/region/region.routes.js");
 const serviceRoutes = require("./service/service/service.routes.js");
 const dentistRoutes = require("./service/dentist/dentist.routes.js");
+const appointmentRoutes = require("./service/appointment/appointment.routes.js");
 
 const PORT = process.env.PORT || 4000;
 
@@ -28,3 +29,4 @@ app.use("/api", userRoutes);
 app.use("/api", regionRoutes);
 app.use("/api", serviceRoutes);
 app.use("/api", dentistRoutes);
+app.use("/api", appointmentRoutes);

@@ -25,6 +25,29 @@ const getServices = async (req, res) => {
   }
 };
 
+const getServicesById = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    console.log("serviceIds: ", ids);
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).send({
+        message: "Invalid input: serviceIds must be a non-empty array.",
+        ok: false,
+      });
+    }
+
+    const data = await Service.getServicesById(ids);
+    return res.status(200).send({ data, ok: true });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error}`,
+      ok: false,
+    });
+  }
+};
+
 const createService = async (req, res) => {
   try {
     const serviceData = req.body;
@@ -126,6 +149,7 @@ const saveSortedService = async (req, res) => {
 module.exports = {
   getService,
   getServices,
+  getServicesById,
   createService,
   updateService,
   deleteService,

@@ -235,9 +235,18 @@ const Appointment = () => {
                 )}
               </div>
             ) : (
-              <Button type="button" onClick={stepper.reset} className="w-[50%]">
-                Reset
-              </Button>
+              <div className="flex justify-end gap-4 mt-16 mb-4 ">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={stepper.prev}
+                  disabled={stepper.isFirst}
+                  className="w-[50%]"
+                >
+                  Previous
+                </Button>
+                <Button className="w-[50%]">Submit</Button>
+              </div>
             )}
             {stepper.current.id === "requestDateTime" ? (
               <p className="text-center text-neutral-600 text-[12px]">
