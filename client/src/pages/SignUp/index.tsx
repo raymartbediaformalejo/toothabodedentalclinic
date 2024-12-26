@@ -58,7 +58,7 @@ const SignUp = () => {
       nickname: "",
       birthDay: "",
       sex: "",
-      age: undefined,
+      age: "",
       occupation: "",
       religion: "",
       nationality: "Filipino",
@@ -566,7 +566,7 @@ const SignUp = () => {
                             e: ChangeEvent<HTMLInputElement>
                           ) => {
                             field.onBlur();
-                            field.onChange(parseInt(e.target.value));
+                            field.onChange(e.target.value);
                             form.trigger("age");
                           };
                           return (

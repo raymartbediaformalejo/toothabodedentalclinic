@@ -162,6 +162,12 @@ export const saveSortedServiceSchema = serviceSchema.pick({
   title: true,
 });
 
+export const verifyEmailSchema = z.object({
+  code: z
+    .string()
+    .min(6, { message: "Your one-time password must be 6 characters." }),
+});
+
 // ============ || DENTIST || ===========
 
 export const dentistSchema = userSchema.extend({

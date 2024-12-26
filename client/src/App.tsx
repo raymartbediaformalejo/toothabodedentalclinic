@@ -17,6 +17,7 @@ import AddNewService from "./pages/DashboardAdmin/Service/AddNewService";
 import EditService from "./pages/DashboardAdmin/Service/EditService";
 import Appointment from "./pages/Appointment";
 import Calendar from "./pages/DashboardAdmin/Calendar";
+import EmailVerification from "./pages/Auth/EmailVerification";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route index element={<Homepage />} />
             <Route path="signup" element={<SignUp />} />
             <Route path="login" element={<LogIn />} />
+            <Route path="verify-email" element={<EmailVerification />} />
           </Route>
 
           {/* PROTECTED ROUTES */}

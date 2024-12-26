@@ -16,6 +16,7 @@ import {
   saveSortedServiceSchema,
   serviceSchema,
   userSchema,
+  verifyEmailSchema,
 } from "./schema";
 
 export type TCreatePatient = z.infer<typeof createPatientSchema>;
@@ -48,6 +49,7 @@ export type TUsername = {
 };
 
 export type TUser = z.infer<typeof userSchema>;
+export type TVerifyEmail = z.infer<typeof verifyEmailSchema>;
 
 // ============ || SERVICE || ===========
 

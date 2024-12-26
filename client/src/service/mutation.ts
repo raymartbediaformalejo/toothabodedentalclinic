@@ -1,4 +1,4 @@
-import { TChangePassword, TDentistIds } from "./../types/types";
+import { TChangePassword, TDentistIds, TVerifyEmail } from "./../types/types";
 import {
   TCreateDentist,
   TCreatePatient,
@@ -32,6 +32,7 @@ import {
   saveSortedDentistAPI,
   saveSortedServiceAPI,
   setHeaderToken,
+  verifyEmailAPI,
 } from "./api";
 import { toast } from "sonner";
 
@@ -41,7 +42,10 @@ export const useCreatePatient = () => {
   return useMutation({
     mutationFn: (data: TCreatePatient) => createPatientAPI(data),
     onSuccess: () => {
-      navigate("/login");
+      navigate("/verify-email");
+      toast.success(
+        "Successfully created an account. Please verify your email."
+      );
     },
     onSettled: (_, error) => {
       console.log("Error Creation", error);
@@ -98,6 +102,31 @@ export const useLogout = () => {
     },
     onError: (error) => {
       console.log("💥 Logout failed", error);
+    },
+  });
+};
+
+export const useVerifyEmail = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TVerifyEmail) => verifyEmailAPI(data),
+    onSuccess: (data) => {
+      console.log("data: ", data);
+      toast.success("Email successfully verified");
+      // if (data?.data?.data.status === 201) {
+      //   toast.success(data?.data?.data?.message);
+      // }
+      queryClient.invalidateQueries({ queryKey: ["service"] });
+      navigate("/");
+    },
+    onSettled: (_, error) => {
+      console.log("error: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
     },
   });
 };

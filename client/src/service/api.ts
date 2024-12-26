@@ -15,6 +15,7 @@ import {
   TSaveSortedService,
   TServiceId,
   TServiceIds,
+  TVerifyEmail,
 } from "@/types/types";
 // import { refreshAuth } from "./refresh-auth";
 
@@ -74,6 +75,14 @@ export const getUserAPI = async (args: { queryKey: string[] }) => {
   const { queryKey } = args;
   const { data } = await axiosInstance.get(`/user/${queryKey[1]}`);
   return data;
+};
+
+export const verifyEmailAPI = async (data: TVerifyEmail) => {
+  const { data: response } = await axiosInstance.post(
+    "/user/verifyEmail",
+    data
+  );
+  return response;
 };
 
 // ============ || SERVICE || ===========
