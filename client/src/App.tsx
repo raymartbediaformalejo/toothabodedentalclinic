@@ -19,6 +19,8 @@ import Appointment from "./pages/Appointment";
 import Calendar from "./pages/DashboardAdmin/Calendar";
 import EmailVerification from "./pages/Auth/EmailVerification";
 import NoShowRestricted from "./pages/Auth/NoShowRestricted";
+import MyAccount from "./pages/MyAccount";
+import MyAppoinment from "./pages/MyAppointment";
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
           >
             <Route element={<Layout />}>
               <Route path="appointment" element={<Appointment />} />
+              <Route path="my-account" element={<MyAccount />} />
+              <Route path="my-appointment" element={<MyAppoinment />} />
             </Route>
           </Route>
 

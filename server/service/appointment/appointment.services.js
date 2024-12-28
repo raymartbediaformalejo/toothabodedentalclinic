@@ -12,6 +12,72 @@ const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
+  static async getAppointments(userId) {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.appointment_id AS "id", 
+          a.dentist_id AS "dentistId",
+          a.schedule, 
+          a.appointment_status AS "status", 
+          array_agg(s.id) AS "services", 
+          a.created_at AS "createdAt",
+          a.created_by AS "createdBy"
+        FROM tbl_appointment a
+        LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
+        LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        WHERE a.patient_id = $1
+        GROUP BY a.appointment_id
+        ORDER BY a.schedule DESC
+      `;
+
+      const result = await client.query(query, [userId]);
+
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching appointments: ", error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async getAppointment(userId, appointmentId) {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.appointment_id AS "id", 
+          a.dentist_id AS "dentistId",
+          a.schedule, 
+          a.appointment_status AS "status", 
+          array_agg(s.id) AS "services", 
+          a.created_at AS "createAt",
+          a.created_by AS "createdBy"
+        FROM tbl_appointment a
+        LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
+        LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        WHERE a.patient_id = $1 AND a.appointment_id = $2
+        GROUP BY a.appointment_id
+      `;
+
+      const result = await client.query(query, [userId, appointmentId]);
+
+      if (result.rows.length === 0) {
+        throw new Error("Appointment not found");
+      }
+
+      const row = result.rows[0];
+      return row;
+    } catch (error) {
+      console.error("Error fetching appointment: ", error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   static createAppointment = async (values) => {
     const client = await pool.connect();
 
@@ -198,6 +264,35 @@ class Appointment {
       client.release();
     }
   };
+
+  static async editAppointment(userId, appointmentId, updatedValues) {
+    const client = await pool.connect();
+    try {
+      const query = `
+        UPDATE tbl_appointment
+        SET schedule = $1, dentist_id = $2, appointment_status = $3, updated_at = NOW()
+        WHERE patient_id = $4 AND appointment_id = $5
+        RETURNING *
+      `;
+      const { schedule, dentistId, appointmentStatus } = updatedValues;
+      const result = await client.query(query, [
+        schedule,
+        dentistId,
+        appointmentStatus,
+        userId,
+        appointmentId,
+      ]);
+      if (result.rows.length === 0) {
+        throw new Error("Appointment not found or no changes made");
+      }
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error editing appointment: ", error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = Appointment;

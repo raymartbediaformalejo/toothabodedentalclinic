@@ -79,3 +79,20 @@ export const MONTHS = [
   "November",
   "December",
 ] as const;
+
+export const ACCOUNT_STATUS = {
+  PENDING_APPROVAL: "pending-approval",
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  SUSPENDED: "suspended",
+  NO_SHOW_RESTRICTED: "no-show-restricted",
+};
+
+export const APPOINTMENT_STATUS = {
+  PENDING: { value: "pending", foreGround: "#C97E00" },
+  APPROVED: { value: "approved", foreGround: "#14B8A6" },
+  RE_SCHEDULED: { value: "re-scheduled", foreGround: "#0EA5E9" },
+  NO_SHOW: { value: "no-show", foreGround: "#EF4444" },
+  CANCELED: { value: "canceled", foreGround: "#737373" },
+  COMPLETE: { value: "complete", foreGround: "#6366F1" },
+} as const;

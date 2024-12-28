@@ -6,4 +6,13 @@ const ACCOUNT_STATUS = {
   NO_SHOW_RESTRICTED: "no-show-restricted",
 };
 
-module.exports = { ACCOUNT_STATUS };
+const APPOINTMENT_STATUS = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  RE_SCHEDULED: "re-scheduled",
+  NO_SHOW: "no-show",
+  CANCELED: "canceled",
+  COMPLETE: "complete",
+};
+
+module.exports = { ACCOUNT_STATUS, APPOINTMENT_STATUS };

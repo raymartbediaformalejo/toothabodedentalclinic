@@ -208,6 +208,22 @@ export const changePasswordAPI = async (data: TChangePassword) => {
 };
 
 // ============ || APPOINTMENT || ===========
+// API call to fetch all appointments for a user
+export const getAllMyAppointmentAPI = async (userId: string) => {
+  const { data } = await axiosInstance.get("/appointment", {
+    params: { userId },
+  });
+  return data;
+};
+
+// API call to fetch a specific appointment by appointmentId
+export const getMyAppointmentAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(`/appointment/${queryKey[0]}`, {
+    data: { userId: queryKey[0] }, // Sending userId in body
+  });
+  return data;
+};
 
 export const createAppointmentAPI = async (data: TAppointment) =>
   await axiosInstance.post("/appointment", data);

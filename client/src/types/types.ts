@@ -81,3 +81,15 @@ export type TAppointment = TAppointmentInfo &
   TRequestDateAndTime &
   TPatientInfo &
   TMedicalHistory;
+
+export type TMyAppointment = {
+  id: string;
+  dentistId: string;
+  schedule: string;
+  status: string;
+  services: string[];
+  createdAt: string;
+  createdBy: string;
+};
+
+export type TMyAppointmentId = string;

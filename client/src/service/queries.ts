@@ -10,6 +10,8 @@ import {
   getAllDentistAPI,
   getDentistAPI,
   getServicesByIdAPI,
+  getAllMyAppointmentAPI,
+  getMyAppointmentAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -78,5 +80,29 @@ export const useGetDentist = (dentistId: TDentistId) => {
   return useQuery({
     queryKey: ["dentist", dentistId],
     queryFn: getDentistAPI,
+  });
+};
+
+// ============ || APPOINTMENT || ===========
+
+// Hook to fetch all appointments for a user
+export const useGetMyAllAppointment = (userId: string) => {
+  return useQuery({
+    queryKey: ["appointment", userId], // unique queryKey for cache
+    queryFn: () => getAllMyAppointmentAPI(userId), // API function to fetch appointments
+  });
+};
+
+// Hook to fetch a specific appointment by appointmentId
+export const useGetMyAppointment = ({
+  userId,
+  appointmentId,
+}: {
+  userId: string;
+  appointmentId: string;
+}) => {
+  return useQuery({
+    queryKey: ["appointment", userId, appointmentId], // unique queryKey for cache
+    queryFn: () => getMyAppointmentAPI({ queryKey: [userId, appointmentId] }), // API function to fetch a specific appointment
   });
 };
