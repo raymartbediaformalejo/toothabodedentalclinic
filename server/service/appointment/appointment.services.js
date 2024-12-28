@@ -1,4 +1,14 @@
 const { v4: uuidv4 } = require("uuid");
+const {
+  differenceInHours,
+  isBefore,
+  isAfter,
+  addHours,
+  subDays,
+  subHours,
+} = require("date-fns");
+
+const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
@@ -118,9 +128,9 @@ class Appointment {
         VALUES (
           $1, $2, $3, $4, $5, $6, NOW(), $7
         )
-        RETURNING appointment_id
+        RETURNING appointment_id, created_at
       `;
-      await client.query(insertAppointmentQuery, [
+      const resultAppointmentRaw = await client.query(insertAppointmentQuery, [
         appointmentId,
         values.patientId,
         appointmentPatientInfoId,
@@ -139,6 +149,40 @@ class Appointment {
         values.serviceIds,
       ]);
 
+      const resultAppointment = resultAppointmentRaw.rows[0];
+      const currentTime = new Date();
+      const timeDifferenceInHours = differenceInHours(schedule, currentTime);
+      const createdAt = new Date(resultAppointment.created_at);
+
+      if (timeDifferenceInHours <= 2) {
+        console.log(
+          "Appointment created less than 2 hours before scheduled time, no reminder sent."
+        );
+      } else {
+        const timeDifferenceSinceCreation = differenceInHours(
+          schedule,
+          createdAt
+        );
+
+        if (timeDifferenceSinceCreation <= 8) {
+          const threeHoursBefore = addHours(schedule, -3);
+          console.log(
+            "Scheduling reminder email to be sent 3 hours before appointment."
+          );
+          setTimeout(() => {
+            sendAppointmentReminderEmail(values.email, schedule);
+          }, threeHoursBefore - currentTime);
+        } else {
+          const sixHoursBefore = addHours(schedule, -6);
+          console.log(
+            "Scheduling reminder email to be sent 6 hours before appointment."
+          );
+          setTimeout(() => {
+            sendAppointmentReminderEmail(values.email, schedule);
+          }, sixHoursBefore - currentTime);
+        }
+      }
+
       await client.query("COMMIT");
 
       return {
@@ -147,6 +191,7 @@ class Appointment {
         medicalHistoryId,
       };
     } catch (error) {
+      console.log("Error creating appointment: ", error);
       await client.query("ROLLBACK");
       throw error;
     } finally {

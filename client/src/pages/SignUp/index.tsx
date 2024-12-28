@@ -163,6 +163,8 @@ const SignUp = () => {
     createPatient.mutate(finalData);
   };
 
+  console.log("signup: ", form.watch());
+
   return (
     <div className={cn("flex overflow-hidden lg:h-fit")}>
       <div
@@ -847,7 +849,7 @@ const SignUp = () => {
                                     <SelectItem
                                       id={r?.code}
                                       key={r?.code}
-                                      value={r?.code}
+                                      value={r?.name}
                                     >
                                       {r?.name}
                                     </SelectItem>
@@ -889,7 +891,7 @@ const SignUp = () => {
                                     <SelectItem
                                       id={r?.code}
                                       key={r?.code}
-                                      value={r?.code}
+                                      value={r?.name}
                                     >
                                       {r?.name}
                                     </SelectItem>

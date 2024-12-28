@@ -18,6 +18,7 @@ import EditService from "./pages/DashboardAdmin/Service/EditService";
 import Appointment from "./pages/Appointment";
 import Calendar from "./pages/DashboardAdmin/Calendar";
 import EmailVerification from "./pages/Auth/EmailVerification";
+import NoShowRestricted from "./pages/Auth/NoShowRestricted";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="signup" element={<SignUp />} />
             <Route path="login" element={<LogIn />} />
             <Route path="verify-email" element={<EmailVerification />} />
+            <Route path="no-show-restricted" element={<NoShowRestricted />} />
           </Route>
 
           {/* PROTECTED ROUTES */}

@@ -29,6 +29,8 @@ const loginUser = async (request, response) => {
 
     const foundUser = result.rows[0];
 
+    console.log("loginUser: ", foundUser);
+
     // Compare the provided password with the stored hashed password
     const isCorrect = compare_password(UserPassword, foundUser.password);
     if (!isCorrect) {
@@ -49,6 +51,8 @@ const loginUser = async (request, response) => {
     const user = {
       id: foundUser.id,
       email: foundUser.email,
+      isVerified: foundUser.is_verified,
+      accountStatus: foundUser.account_status,
       roles,
     };
     const ts = Tokens.gT(user); // Generate access and refresh tokens using the Tokens utility

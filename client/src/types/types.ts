@@ -77,3 +77,7 @@ export type TAppointmentInfo = z.infer<typeof appointmentInfoSchema>;
 export type TPatientInfo = z.infer<typeof patientInfoSchema>;
 export type TRequestDateAndTime = z.infer<typeof requestDateTimeSchema>;
 export type TMedicalHistory = z.infer<typeof medicalHistorySchema>;
+export type TAppointment = TAppointmentInfo &
+  TRequestDateAndTime &
+  TPatientInfo &
+  TMedicalHistory;

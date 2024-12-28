@@ -67,6 +67,32 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const resendVerificationCode = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+
+  try {
+    const response = await User.resendCode(email);
+
+    return res.status(response.status).json({
+      success: response.status === 200,
+      message: response.message,
+    });
+  } catch (error) {
+    console.error("Error in resendVerificationCode controller:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const deleteUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -78,4 +104,11 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getUsers, createUser, verifyEmail, deleteUser };
+module.exports = {
+  getUser,
+  getUsers,
+  createUser,
+  verifyEmail,
+  resendVerificationCode,
+  deleteUser,
+};

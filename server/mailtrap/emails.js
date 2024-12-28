@@ -31,6 +31,26 @@ const sendVerificationEmail = async (email, verificationToken) => {
   }
 };
 
+const sendAppointmentReminderEmail = async (email, appointmentDate) => {
+  const recipient = [{ email }];
+  const reminderMessage = `This is a reminder that you have an appointment at ${appointmentDate}.`;
+
+  try {
+    const response = await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: "Appointment Reminder for Tomorrow",
+      html: `<p>${reminderMessage}</p>`,
+      category: "Appointment Reminder",
+    });
+
+    console.log("Appointment reminder email sent successfully", response);
+  } catch (error) {
+    console.error(`Error sending appointment reminder email:`, error);
+    throw new Error(`Error sending appointment reminder email: ${error}`);
+  }
+};
+
 const sendWelcomeEmail = async (email, name) => {
   const recipient = [{ email }];
 
@@ -93,6 +113,7 @@ const sendResetSuccessEmail = async (email) => {
 
 module.exports = {
   sendVerificationEmail,
+  sendAppointmentReminderEmail,
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,

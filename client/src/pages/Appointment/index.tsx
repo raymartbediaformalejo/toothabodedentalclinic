@@ -14,7 +14,11 @@ import {
   patientInfoSchema,
   requestDateTimeSchema,
 } from "@/types/schema";
-import { TAppointmentInfo, TRequestDateAndTime } from "@/types/types";
+import {
+  TAppointment,
+  TAppointmentInfo,
+  TRequestDateAndTime,
+} from "@/types/types";
 
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -24,6 +28,7 @@ import RequestDateAndTime from "./components/RequestDateAndTime";
 import PatientInfo from "./components/PatientInfo";
 import MedicalHistory from "./components/MedicalHistory";
 import ReviewAndBook from "./components/ReviewAndBook";
+import { useCreateAppointment } from "@/service/mutation";
 
 const { useStepper, steps } = defineStepper(
   {
@@ -54,8 +59,8 @@ const { useStepper, steps } = defineStepper(
 );
 const Appointment = () => {
   const stepper = useStepper();
-
-  const form = useForm({
+  const createAppointment = useCreateAppointment();
+  const form = useForm<TAppointment>({
     mode: "onTouched",
     resolver: zodResolver(stepper.current.schema),
   });
@@ -82,10 +87,11 @@ const Appointment = () => {
     );
   };
 
-  const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
-    console.log(`Form values for step ${stepper.current.id}:`, values);
+  const onSubmit = async () => {
+    console.log("onSubmit: ");
     if (stepper.isLast) {
-      stepper.reset();
+      const response = await createAppointment.mutate(form.watch());
+      console.log("Response: ", response);
     } else {
       stepper.next();
     }

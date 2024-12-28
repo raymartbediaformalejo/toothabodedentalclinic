@@ -2,6 +2,7 @@ import axios from "axios";
 // import createAuthRefreshInterceptor from "axios-auth-refresh";
 
 import {
+  TAppointment,
   TChangePassword,
   TCreateDentist,
   TCreatePatient,
@@ -205,3 +206,8 @@ export const changePasswordAPI = async (data: TChangePassword) => {
   console.log("changePasswordAPI: ", changePasswordAPI);
   return result;
 };
+
+// ============ || APPOINTMENT || ===========
+
+export const createAppointmentAPI = async (data: TAppointment) =>
+  await axiosInstance.post("/appointment", data);

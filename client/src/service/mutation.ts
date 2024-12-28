@@ -1,4 +1,9 @@
-import { TChangePassword, TDentistIds, TVerifyEmail } from "./../types/types";
+import {
+  TAppointment,
+  TChangePassword,
+  TDentistIds,
+  TVerifyEmail,
+} from "./../types/types";
 import {
   TCreateDentist,
   TCreatePatient,
@@ -17,6 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
   changePasswordAPI,
+  createAppointmentAPI,
   createDentistAPI,
   createPatientAPI,
   createServiceAPI,
@@ -69,7 +75,7 @@ export const useLoginUser = () => {
         const token = localStorage.getItem("tooth_abode_dental_clinic_token");
         const decoded = jwtDecode(token!);
         // @ts-expect-error: Unreachable code error
-        const { id, email, roles } = decoded;
+        const { id, email, isVerified, accountStatus, roles } = decoded;
         if (roles.includes("Admin") || roles.includes("Dentist")) {
           navigate("/admin");
         } else {
@@ -109,16 +115,28 @@ export const useLogout = () => {
 export const useVerifyEmail = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const logout = useLogout(); // Include the useLogout hook
+
   return useMutation({
     mutationFn: (data: TVerifyEmail) => verifyEmailAPI(data),
     onSuccess: (data) => {
       console.log("data: ", data);
       toast.success("Email successfully verified");
-      // if (data?.data?.data.status === 201) {
-      //   toast.success(data?.data?.data?.message);
-      // }
-      queryClient.invalidateQueries({ queryKey: ["service"] });
-      navigate("/");
+
+      const token = localStorage.getItem("tooth_abode_dental_clinic_token");
+      const decoded = jwtDecode(token!);
+      // @ts-expect-error: Unreachable code error
+      const { id } = decoded;
+
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      // Call logout mutation
+      logout.mutate(undefined, {
+        onSuccess: () => {
+          console.log("User logged out after verification.");
+          navigate("/login"); // Redirect to login after logout
+        },
+      });
     },
     onSettled: (_, error) => {
       console.log("error: ", error);
@@ -369,6 +387,30 @@ export const useDeleteAllDentist = () => {
       navigate("/admin/dentists");
     },
     onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+// ============ || APPOINTMENT || ===========
+
+export const useCreateAppointment = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TAppointment) => createAppointmentAPI(data),
+    onSuccess: () => {
+      toast.success("Successfully booked an appointment");
+
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+      navigate("/");
+    },
+    onSettled: (_, error) => {
+      console.log("error: ", error);
       if (error) {
         // @ts-ignore
         toast.error(error?.response?.data.message);

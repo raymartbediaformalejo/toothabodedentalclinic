@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const pool = require("../../config/conn");
 const { sendVerificationEmail } = require("../../mailtrap/emails");
+const { ACCOUNT_STATUS } = require("../../utils/variables");
 
 class User {
   static getUsers = async () => {
@@ -121,9 +122,16 @@ class User {
       nationality,
       religion,
       verification_token,
-      verification_token_expires_at
+      verification_token_expires_at,
+      nickname,
+      occupation,
+      address,
+      barangay,
+      city,
+      region,
+      zip_code
       ) VALUES (
-       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17 
+       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
       ) RETURNING id
       `;
 
@@ -140,43 +148,19 @@ class User {
         values.mobileNo,
         hashPassword,
         values.profilePicUrl,
-        values.accountStatus,
+        ACCOUNT_STATUS.PENDING_APPROVAL,
         values.nationality,
         values.religion,
         verificationToken,
         verificationTokenExpiresAt,
+        values.nickname,
+        values.occupation,
+        values.address,
+        values.barangay,
+        values.city,
+        values.region,
+        values.zipCode,
       ]);
-
-      const hasPatientRole = values.roleIds.includes(
-        "92b73582-0dc5-4b3d-a17d-20523d7e0a82"
-      );
-
-      if (hasPatientRole) {
-        const queryInsertPatient = `
-          INSERT INTO tbl_patient (
-            patient_id,
-            nickname,
-            occupation,
-            address,
-            barangay,
-            city,
-            region,
-            zip_code
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8
-          )`;
-
-        await client.query(queryInsertPatient, [
-          userId,
-          values.nickname,
-          values.occupation,
-          values.address,
-          values.barangay,
-          values.city,
-          values.region,
-          values.zipCode,
-        ]);
-      }
 
       const queryInsertUserRole = `
         INSERT INTO tbl_user_role (user_id, role_id)
@@ -201,6 +185,7 @@ class User {
         throw new Error("Invalid user data received!");
       }
     } catch (error) {
+      console.error("Error in createUser function:", error);
       await client.query("ROLLBACK");
       throw new Error(
         `Internal Server Error (Creating user): ${error.message}`
@@ -242,13 +227,14 @@ class User {
 
       const queryUpdateUser = `
         UPDATE tbl_user
-        SET is_verified = true, 
+        SET is_verified = true,
+            account_status = $1,
             verification_token = NULL, 
             verification_token_expires_at = NULL 
-        WHERE id = $1
+        WHERE id = $2
       `;
 
-      await client.query(queryUpdateUser, [user.id]);
+      await client.query(queryUpdateUser, [ACCOUNT_STATUS.ACTIVE, user.id]);
 
       return {
         status: 200,
@@ -258,6 +244,67 @@ class User {
     } catch (error) {
       throw new Error(
         `Internal Server Error (Verifying Email): ${error.message}`
+      );
+    } finally {
+      client.release();
+    }
+  };
+
+  static resendCode = async (email) => {
+    const client = await pool.connect();
+
+    try {
+      const queryFindUser = `
+        SELECT id, is_verified 
+        FROM tbl_user 
+        WHERE email = $1
+      `;
+      const result = await client.query(queryFindUser, [email]);
+
+      if (result.rows.length === 0) {
+        return {
+          status: 404,
+          message: "User not found with this email",
+        };
+      }
+
+      const user = result.rows[0];
+
+      if (user.is_verified) {
+        return {
+          status: 400,
+          message: "Email is already verified",
+        };
+      }
+
+      const verificationToken = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+      const verificationTokenExpiresAt = new Date(
+        Date.now() + 24 * 60 * 60 * 1000
+      );
+
+      const queryUpdateToken = `
+        UPDATE tbl_user 
+        SET verification_token = $1, 
+            verification_token_expires_at = $2 
+        WHERE id = $3
+      `;
+      await client.query(queryUpdateToken, [
+        verificationToken,
+        verificationTokenExpiresAt,
+        user.id,
+      ]);
+
+      await sendVerificationEmail(email, verificationToken);
+
+      return {
+        status: 200,
+        message: "Verification code resent successfully",
+      };
+    } catch (error) {
+      throw new Error(
+        `Internal Server Error (Resending Code): ${error.message}`
       );
     } finally {
       client.release();

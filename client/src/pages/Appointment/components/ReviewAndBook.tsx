@@ -107,7 +107,7 @@ const ReviewAndBook = () => {
 
           <>
             <span>Birthday:</span>
-            <p>{formatDate(time)}</p>
+            <p>{formatDate(birthday)}</p>
           </>
         </div>
       </div>

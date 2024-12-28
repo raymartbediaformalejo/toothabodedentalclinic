@@ -4,6 +4,8 @@ const createAppointment = async (req, res) => {
   try {
     const appointmentData = req.body;
 
+    // console.log("Appointment data: ", appointmentData);
+
     if (!appointmentData || Object.keys(appointmentData).length === 0) {
       return res.status(400).send({
         message: "Invalid or missing appointment data",

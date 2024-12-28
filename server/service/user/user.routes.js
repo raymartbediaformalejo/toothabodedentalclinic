@@ -5,6 +5,7 @@ const {
   getUser,
   createUser,
   verifyEmail,
+  resendVerificationCode,
   deleteUser,
 } = require("./user.controllers");
 
@@ -14,6 +15,7 @@ router.get("/user/:userId", getUser);
 router.get("/user", getUsers);
 router.post("/user/signup", createUser);
 router.post("/user/verifyEmail", verifyEmail);
+router.post("/resend-code", resendVerificationCode);
 router.delete("/users/:userId", deleteUser);
 
 module.exports = router;

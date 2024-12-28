@@ -70,14 +70,6 @@ export const userSchema = z.object({
   roleIds: z.array(z.string()).min(1, "Role is required"),
   deleted: z.boolean(),
   civilStatus: z.string().optional(),
-  createdAt: z.string(),
-  createdBy: z.string(),
-  updatedAt: z.string(),
-  updatedBy: z.string(),
-});
-
-export const patientSchema = userSchema.extend({
-  patientId: z.string(),
   nickname: z.string().min(1, "Nickname is required"),
   occupation: z.string().min(1, "Occupation is required"),
   address: z.string(),
@@ -85,9 +77,13 @@ export const patientSchema = userSchema.extend({
   city: z.string(),
   region: z.string(),
   zipCode: z.number(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+  updatedAt: z.string(),
+  updatedBy: z.string(),
 });
 
-export const createPatientSchema = patientSchema
+export const createPatientSchema = userSchema
   .pick({
     email: true,
     password: true,
