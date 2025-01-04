@@ -3,6 +3,8 @@ import axios from "axios";
 
 import {
   TAppointment,
+  TApproveAppointment,
+  TCancelAppointment,
   TChangePassword,
   TCreateDentist,
   TCreatePatient,
@@ -11,7 +13,10 @@ import {
   TDentistIds,
   TEditDentist,
   TEditService,
+  TEditUser,
   TLoginUser,
+  TPaymentVerification,
+  TRejectAppointment,
   TSaveSortedDentist,
   TSaveSortedService,
   TServiceId,
@@ -72,10 +77,31 @@ export const createPatientAPI = async (data: TCreatePatient) => {
   await axiosInstance.post("/user/signup", data);
 };
 
+// ============ || USER || ===========
+
 export const getUserAPI = async (args: { queryKey: string[] }) => {
-  const { queryKey } = args;
-  const { data } = await axiosInstance.get(`/user/${queryKey[1]}`);
+  const userId = args.queryKey[2]; // Extract userId from updated queryKey
+  const { data } = await axiosInstance.get(`/user/single/${userId}`);
   return data;
+};
+
+export const getUserAccountStatus = async (args: { queryKey: string[] }) => {
+  const userId = args.queryKey[2]; // Extract userId from updated queryKey
+  const { data } = await axiosInstance.get(`/user/${userId}/account-status`);
+  return data;
+};
+
+export const editUserAPI = async (data: TEditUser) => {
+  const result = await axiosInstance.patch(`/user/${data.id}`, {
+    firstName: data.firstName,
+    middleName: data.middleName,
+    lastName: data.lastName,
+    suffix: data.suffix,
+    profilePicUrl: data.profilePicUrl,
+    updatedBy: data.updatedBy,
+  });
+
+  return result;
 };
 
 export const verifyEmailAPI = async (data: TVerifyEmail) => {
@@ -207,8 +233,17 @@ export const changePasswordAPI = async (data: TChangePassword) => {
   return result;
 };
 
+export const changeUserPasswordAPI = async (data: TChangePassword) => {
+  const result = await axiosInstance.patch(`/user/changepassword/${data.id}`, {
+    oldPassword: data.password,
+    newPassword: data.newPassword,
+  });
+
+  console.log("changePasswordAPI: ", changePasswordAPI);
+  return result;
+};
+
 // ============ || APPOINTMENT || ===========
-// API call to fetch all appointments for a user
 export const getAllMyAppointmentAPI = async (userId: string) => {
   const { data } = await axiosInstance.get("/appointment", {
     params: { userId },
@@ -216,14 +251,103 @@ export const getAllMyAppointmentAPI = async (userId: string) => {
   return data;
 };
 
-// API call to fetch a specific appointment by appointmentId
 export const getMyAppointmentAPI = async (args: { queryKey: string[] }) => {
   const { queryKey } = args;
-  const { data } = await axiosInstance.get(`/appointment/${queryKey[0]}`, {
-    data: { userId: queryKey[0] }, // Sending userId in body
+  const { data } = await axiosInstance.get(`/appointment/${queryKey[1]}`, {
+    params: { userId: queryKey[0] },
   });
   return data;
 };
 
 export const createAppointmentAPI = async (data: TAppointment) =>
   await axiosInstance.post("/appointment", data);
+
+export const cancelAppointmentAPI = async (data: TCancelAppointment) => {
+  const result = await axiosInstance.patch(`/appointment/cancel/${data.id}`);
+  return result;
+};
+
+export const approveAppointmentAPI = async (data: TApproveAppointment) => {
+  const result = await axiosInstance.patch(`/appointment/approve`, data);
+  return result;
+};
+export const rejectAppointmentAPI = async (data: TRejectAppointment) => {
+  const result = await axiosInstance.patch(`/appointment/reject`, data);
+  return result;
+};
+
+// ============ || APPOINTMENT PATIENT INFO || ===========
+export const getAllAppointmentPatientInfoAPI = async () => {
+  const { data } = await axiosInstance.get("/appointment-patient-info");
+  return data;
+};
+
+export const getAppointmentPatientInfoAPI = async (args: {
+  queryKey: string[];
+}) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(
+    `/appointment-patient-info/${queryKey[0]}`
+  );
+  return data;
+};
+
+// ============ || APPOINTMENT PATIENT INFO || ===========
+
+export const getAllMedicalHistoryAPI = async () => {
+  const { data } = await axiosInstance.get("/medical-history");
+  return data;
+};
+
+export const getMedicalHistoryAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  console.log("queryKey: ", queryKey);
+  const { data } = await axiosInstance.get(`/medical-history/${queryKey[1]}`);
+  return data;
+};
+
+export const penaltyAPI = async () => {
+  const { data } = await axiosInstance.get("/penalty");
+  return data;
+};
+
+export const getAppointmentNoShowAPI = async (args: { queryKey: string[] }) => {
+  const { queryKey } = args;
+  console.log("queryKey: ", queryKey);
+  const { data } = await axiosInstance.get(
+    `/user/${queryKey[1]}/no-show-appointment`
+  );
+  return data;
+};
+
+// ============ || PAYMENT VERIFICATION || ===========
+
+export const createPaymentVerificationAPI = async (
+  data: TPaymentVerification
+) => await axiosInstance.post("/payment-verification", data);
+
+// ============ || DENTIST/APPOINTMENT || ===========
+
+export const getDentistAppointmentAPI = async (dentistId: string) => {
+  const { data } = await axiosInstance.get(`/appointment/${dentistId}/dentist`);
+  return data;
+};
+
+export const getPatientAppointmentsAPI = async (patient: string) => {
+  const { data } = await axiosInstance.get(`/appointment/${patient}/patient`);
+  return data;
+};
+
+export const getDentistPendingAppointmentAPI = async (dentistId: string) => {
+  const { data } = await axiosInstance.get(
+    `/appointment/pending/${dentistId}/dentist`
+  );
+  return data;
+};
+
+export const getDentistReScheduleAppointmentAPI = async (dentistId: string) => {
+  const { data } = await axiosInstance.get(
+    `/appointment/re_schedule/${dentistId}/dentist`
+  );
+  return data;
+};

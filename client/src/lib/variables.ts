@@ -85,14 +85,70 @@ export const ACCOUNT_STATUS = {
   ACTIVE: "active",
   INACTIVE: "inactive",
   SUSPENDED: "suspended",
-  NO_SHOW_RESTRICTED: "no-show-restricted",
+  NO_SHOW_RESTRICTED: "no_show_restricted",
+  PAYMENT_VERIFICATION: "payment_verification",
 };
 
 export const APPOINTMENT_STATUS = {
-  PENDING: { value: "pending", foreGround: "#C97E00" },
-  APPROVED: { value: "approved", foreGround: "#14B8A6" },
-  RE_SCHEDULED: { value: "re-scheduled", foreGround: "#0EA5E9" },
-  NO_SHOW: { value: "no-show", foreGround: "#EF4444" },
-  CANCELED: { value: "canceled", foreGround: "#737373" },
-  COMPLETE: { value: "complete", foreGround: "#6366F1" },
+  PENDING: {
+    value: "pending",
+    label: "Pending",
+    foreGround: "#C97E00",
+    backGround: "#FFF9F0",
+    message:
+      "Your appointment is currently being evaluated by the Tooth Abode Dental Clinic team. Please wait for further updates.",
+    title: "Requested Appointment!", // New title field
+  },
+  APPROVED: {
+    value: "approved",
+    label: "Approved",
+    foreGround: "#1D6E3E",
+    backGround: "#D7F7E7",
+    message:
+      "Your appointment has been approved! We look forward to seeing you at the scheduled time.",
+    title: "Approved Appointment!",
+  },
+  RE_SCHEDULED: {
+    value: "re_scheduled",
+    label: "Re-scheduled",
+    foreGround: "#0EA5E9",
+    backGround: "#F0F9FF",
+    message:
+      "Your appointment has been rescheduled. Please check the updated schedule for the new time.",
+    title: "Rescheduled Appointment!",
+  },
+  NO_SHOW: {
+    value: "no_show",
+    label: "No-show",
+    foreGround: "#EF4444",
+    backGround: "#FEF2F2",
+    message:
+      "You missed your appointment. Please contact the clinic to reschedule or for further assistance.",
+    title: "Missed Appointment!",
+  },
+  CANCELED: {
+    value: "canceled",
+    label: "Canceled",
+    foreGround: "#737373",
+    backGround: "#F5F5F5",
+    message:
+      "Your appointment has been canceled. Please contact the clinic if this was unexpected.",
+    title: "Canceled Appointment!",
+  },
+  COMPLETE: {
+    value: "complete",
+    label: "Complete",
+    foreGround: "#6366F1",
+    backGround: "#EEF2FF",
+    message:
+      "Your appointment has been completed. Thank you for choosing Tooth Abode Dental Clinic!",
+    title: "Completed Appointment!",
+  },
+  REJECT: {
+    value: "reject",
+    label: "Reject",
+    foreGround: "#9F1239",
+    backGround: "#FEE2E2",
+    message: "Your appointment has been rejected.",
+  },
 } as const;

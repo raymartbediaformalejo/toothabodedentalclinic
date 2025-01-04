@@ -20,7 +20,14 @@ import Calendar from "./pages/DashboardAdmin/Calendar";
 import EmailVerification from "./pages/Auth/EmailVerification";
 import NoShowRestricted from "./pages/Auth/NoShowRestricted";
 import MyAccount from "./pages/MyAccount";
-import MyAppoinment from "./pages/MyAppointment";
+import MyAppointments from "./pages/MyAppointment";
+import MyAppointment from "./pages/MyAppointment/MyAppointment";
+import AccountStatusAuth from "./pages/Auth/AccountStatusAuth";
+import DashboardDentist from "./pages/DashboardDentist";
+import Appointments from "./pages/DashboardDentist/Appointment";
+import PendingAppointments from "./pages/DashboardDentist/Appointment/PendingAppointments";
+import ReScheduledAppointment from "./pages/DashboardDentist/Appointment/ReScheduledAppointments";
+import WaitForVerification from "./pages/Auth/WaitForVerification";
 
 function App() {
   return (
@@ -35,6 +42,10 @@ function App() {
             <Route path="login" element={<LogIn />} />
             <Route path="verify-email" element={<EmailVerification />} />
             <Route path="no-show-restricted" element={<NoShowRestricted />} />
+            <Route
+              path="wait-for-verification"
+              element={<WaitForVerification />}
+            />
           </Route>
 
           {/* PROTECTED ROUTES */}
@@ -46,9 +57,14 @@ function App() {
             }
           >
             <Route element={<Layout />}>
-              <Route path="appointment" element={<Appointment />} />
+              <Route element={<AccountStatusAuth />}>
+                <Route path="appointment" element={<Appointment />} />
+              </Route>
               <Route path="my-account" element={<MyAccount />} />
-              <Route path="my-appointment" element={<MyAppoinment />} />
+              <Route path="my-appointment">
+                <Route index element={<MyAppointments />} />
+                <Route path=":id" element={<MyAppointment />} />
+              </Route>
             </Route>
           </Route>
 
@@ -57,6 +73,21 @@ function App() {
               <RequireAuth allowedRoles={[ROLES.Admin, ROLES.Dentist]} />
             }
           >
+            <Route path="dentist" element={<DashboardLayout />}>
+              <Route index element={<DashboardDentist />} />
+              <Route path="my_appointments">
+                <Route index element={<Appointments />} />
+                <Route
+                  path="pending_appointment"
+                  element={<PendingAppointments />}
+                />
+                <Route
+                  path="re_schedule_appointment"
+                  element={<ReScheduledAppointment />}
+                />
+              </Route>
+            </Route>
+
             <Route path="admin" element={<DashboardLayout />}>
               <Route index element={<DashboardAdmin />} />
               <Route path="dentists">
@@ -72,6 +103,8 @@ function App() {
               <Route path="calendar" element={<Calendar />} />
             </Route>
           </Route>
+
+          {/* FALLBACK ROUTE */}
           <Route path="*" element={<p>Page Not Found</p>} />
         </Route>
       </Routes>

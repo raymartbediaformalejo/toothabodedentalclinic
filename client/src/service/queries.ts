@@ -12,6 +12,17 @@ import {
   getServicesByIdAPI,
   getAllMyAppointmentAPI,
   getMyAppointmentAPI,
+  getAllAppointmentPatientInfoAPI,
+  getAppointmentPatientInfoAPI,
+  getAllMedicalHistoryAPI,
+  getMedicalHistoryAPI,
+  getUserAccountStatus,
+  penaltyAPI,
+  getAppointmentNoShowAPI,
+  getDentistAppointmentAPI,
+  getDentistPendingAppointmentAPI,
+  getDentistReScheduleAppointmentAPI,
+  getPatientAppointmentsAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -38,8 +49,15 @@ export const useGetBarangays = (id: string) => {
 
 export const useGetUser = (id: string) => {
   return useQuery({
-    queryKey: ["user", id],
-    queryFn: getUserAPI,
+    queryKey: ["user", "single", id], // Unique query key
+    queryFn: getUserAPI, // Calls /user/single/:userId
+  });
+};
+
+export const useGetUserAccountStatus = (id: string) => {
+  return useQuery({
+    queryKey: ["user", "account-status", id], // Unique query key
+    queryFn: getUserAccountStatus, // Calls /user/:userId/account-status
   });
 };
 
@@ -85,24 +103,90 @@ export const useGetDentist = (dentistId: TDentistId) => {
 
 // ============ || APPOINTMENT || ===========
 
-// Hook to fetch all appointments for a user
 export const useGetMyAllAppointment = (userId: string) => {
   return useQuery({
-    queryKey: ["appointment", userId], // unique queryKey for cache
-    queryFn: () => getAllMyAppointmentAPI(userId), // API function to fetch appointments
+    queryKey: ["appointment", userId],
+    queryFn: () => getAllMyAppointmentAPI(userId),
   });
 };
 
-// Hook to fetch a specific appointment by appointmentId
-export const useGetMyAppointment = ({
-  userId,
-  appointmentId,
-}: {
-  userId: string;
-  appointmentId: string;
-}) => {
+export const useGetMyAppointment = (userId: string, appointmentId: string) => {
   return useQuery({
-    queryKey: ["appointment", userId, appointmentId], // unique queryKey for cache
-    queryFn: () => getMyAppointmentAPI({ queryKey: [userId, appointmentId] }), // API function to fetch a specific appointment
+    queryKey: ["appointment", userId, appointmentId],
+    queryFn: () => getMyAppointmentAPI({ queryKey: [userId, appointmentId] }),
+  });
+};
+
+// ============ || APPOINTMENT PATIENT INFO || ===========
+
+export const useGetAllAppointmentPatientInfo = () => {
+  return useQuery({
+    queryKey: ["appointment-patient-info"],
+    queryFn: () => getAllAppointmentPatientInfoAPI(),
+  });
+};
+
+export const useGetAppointmentPatientInfo = (id: string) => {
+  return useQuery({
+    queryKey: ["appointment-patient-info", id],
+    queryFn: () => getAppointmentPatientInfoAPI({ queryKey: [id] }),
+  });
+};
+
+// ============ || MEDICAL HISTORY || ===========
+
+export const useGetAllMedicalHistory = () => {
+  return useQuery({
+    queryKey: ["medical-history"],
+    queryFn: () => getAllMedicalHistoryAPI(),
+  });
+};
+
+export const useGetMedicalHistory = (id: string) => {
+  console.log("useGetAppointmentPatientInfo ID:", id);
+  return useQuery({
+    queryKey: ["medical-history", id],
+    queryFn: () => getMedicalHistoryAPI({ queryKey: [id] }),
+  });
+};
+
+export const useGetPenalty = () => {
+  return useQuery({
+    queryKey: ["penalty"],
+    queryFn: penaltyAPI,
+  });
+};
+
+export const useGetUserAppoitmentNoShowSchedule = (id: string) => {
+  return useQuery({
+    queryKey: ["appointment", id],
+    queryFn: getAppointmentNoShowAPI,
+  });
+};
+
+// ============ || DENTIST/APPOINTMENT || ===========
+
+export const useGetDentistAppointments = (dentistId: string) => {
+  return useQuery({
+    queryKey: ["appointment", dentistId],
+    queryFn: () => getDentistAppointmentAPI(dentistId),
+  });
+};
+export const useGetPatientAppointments = (patientId: string) => {
+  return useQuery({
+    queryKey: ["appointment", patientId],
+    queryFn: () => getPatientAppointmentsAPI(patientId),
+  });
+};
+export const useGetDentistPendingAppointments = (dentistId: string) => {
+  return useQuery({
+    queryKey: ["appointment", dentistId],
+    queryFn: () => getDentistPendingAppointmentAPI(dentistId),
+  });
+};
+export const useGetDentistReScheduleAppointments = (dentistId: string) => {
+  return useQuery({
+    queryKey: ["appointment", dentistId],
+    queryFn: () => getDentistReScheduleAppointmentAPI(dentistId),
   });
 };

@@ -55,6 +55,8 @@ const PatientInfo = () => {
   const [openBarangay, setOpenBarangay] = useState(false);
   const { userId } = useAuth();
   const { data } = useGetUser(userId!);
+
+  console.log("PatientInfo data: ", data);
   const userData: TUser = useMemo(() => data?.data[0], [data]);
   const {
     register,

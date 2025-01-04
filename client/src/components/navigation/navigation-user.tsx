@@ -35,13 +35,23 @@ export function NavigationUser({ userId }: { userId: string }) {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const { data, error, isLoading } = useGetUser(userId!);
-  const user: TUser = !isLoading ? data.data[0] : null;
+  const user: TUser = !isLoading ? data.data : null;
+
+  const username = createUsername({
+    firstname: user?.firstName,
+    middlename: user?.middleName || "",
+    lastname: user?.lastName,
+  });
   if (isLoading) return "Loading...";
   if (error) return "An error has occurred: " + error.message;
   const handleLogout = () => {
     logout.mutate();
     navigate("/");
   };
+
+  console.log("data: ", data);
+  console.log("userId: ", userId);
+  console.log("user: ", user);
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -53,11 +63,13 @@ export function NavigationUser({ userId }: { userId: string }) {
             >
               <Avatar className="w-8 h-8 rounded-lg">
                 <AvatarImage
-                  src={user.profilePicUrl ? user.profilePicUrl : defaultAvatar}
+                  src={
+                    user?.profilePicUrl ? user?.profilePicUrl : defaultAvatar
+                  }
                   alt={createUsername({
-                    firstname: user.firstName,
-                    middlename: user.middleName || "",
-                    lastname: user.lastName,
+                    firstname: user?.firstName || "",
+                    middlename: user?.middleName || "",
+                    lastname: user?.lastName || "",
                   })}
                 />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
@@ -65,12 +77,12 @@ export function NavigationUser({ userId }: { userId: string }) {
               <div className="grid flex-1 text-sm leading-tight text-left">
                 <span className="font-semibold truncate">
                   {createUsername({
-                    firstname: user.firstName,
-                    middlename: user.middleName || "",
-                    lastname: user.lastName,
+                    firstname: user?.firstName || "",
+                    middlename: user?.middleName || "",
+                    lastname: user?.lastName || "",
                   })}
                 </span>
-                <span className="text-xs truncate">{user.email}</span>
+                <span className="text-xs truncate">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -86,12 +98,12 @@ export function NavigationUser({ userId }: { userId: string }) {
                 <Avatar className="w-8 h-8 rounded-lg">
                   <AvatarImage
                     src={
-                      user.profilePicUrl ? user.profilePicUrl : defaultAvatar
+                      user?.profilePicUrl ? user?.profilePicUrl : defaultAvatar
                     }
                     alt={createUsername({
-                      firstname: user.firstName,
-                      middlename: user.middleName || "",
-                      lastname: user.lastName,
+                      firstname: user?.firstName || "",
+                      middlename: user?.middleName || "",
+                      lastname: user?.lastName || "",
                     })}
                   />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
@@ -99,12 +111,12 @@ export function NavigationUser({ userId }: { userId: string }) {
                 <div className="grid flex-1 text-sm leading-tight text-left">
                   <span className="font-semibold truncate">
                     {createUsername({
-                      firstname: user.firstName,
-                      middlename: user.middleName || "",
-                      lastname: user.lastName,
+                      firstname: user?.firstName || "",
+                      middlename: user?.middleName || "",
+                      lastname: user?.lastName || "",
                     })}
                   </span>
-                  <span className="text-xs truncate">{user.email}</span>
+                  <span className="text-xs truncate">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

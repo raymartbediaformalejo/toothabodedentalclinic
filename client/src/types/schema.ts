@@ -117,6 +117,16 @@ export const loginUserSchema = userSchema.pick({
   password: true,
 });
 
+export const editUserSchema = userSchema.pick({
+  id: true,
+  firstName: true,
+  middleName: true,
+  lastName: true,
+  suffix: true,
+  profilePicUrl: true,
+  updatedBy: true,
+});
+
 // ============ || SERVICE || ===========
 
 export const serviceSchema = z.object({
@@ -376,6 +386,33 @@ export const patientInfoSchema = userSchema
     zipCode: z.string().min(1, "Zip code required"),
   });
 
+export const patientInfoWithIdSchema = patientInfoSchema
+  .pick({
+    firstName: true,
+    middleName: true,
+    lastName: true,
+    birthDay: true,
+    age: true,
+    religion: true,
+    nationality: true,
+    email: true,
+    mobileNo: true,
+    isLovedOne: true,
+    relationship: true,
+    nickname: true,
+    sex: true,
+    occupation: true,
+    address: true,
+    city: true,
+    barangay: true,
+    region: true,
+    zipCode: true,
+  })
+  .extend({
+    id: z.string(),
+    medicalHistoryId: z.string(),
+  });
+
 export const medicalHistorySchema = z.object({
   physicianName: z.string().optional(),
   physicianMobileNo: z.string().optional(),
@@ -466,4 +503,16 @@ export const medicalHistorySchema = z.object({
     })
     .optional()
     .nullable(),
+});
+
+export const penaltySchema = z.object({
+  penaltyFee: z.number(),
+  gcashQrCodeUrl: z.string(),
+});
+
+export const paymentVerificationSchema = z.object({
+  userId: z.string(),
+  gcashReceiptUrl: z.string(),
+  appointmentIds: z.string().array(),
+  createdBy: z.string(),
 });

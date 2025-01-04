@@ -37,7 +37,7 @@ import useAuth from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 
 // Menu items.
-const items = [
+const itemsAdmin = [
   {
     title: "Dashboard",
     url: "/admin/dashboard",
@@ -106,8 +106,47 @@ const items = [
   },
 ];
 
+const itemsDentist = [
+  {
+    title: "Dashboard",
+    url: "/dentist/dashboard",
+    icon: DashboardIcon,
+  },
+  {
+    title: "My Appointments",
+    url: "#",
+    icon: PatientsIcon,
+    items: [
+      { title: "Appoitment list", url: "/dentist/my_appointments" },
+      {
+        title: "Pending Approval Appointment",
+        url: "/dentist/my_appointments/pending_appointment",
+      },
+      {
+        title: "Re-schedule Appointment",
+        url: "/dentist/my_appointments/re_schedule_appointment",
+      },
+    ],
+  },
+  {
+    title: "My Patients",
+    url: "#",
+    icon: PatientsIcon,
+  },
+  {
+    title: "Callendar",
+    url: "/admin/calendar",
+    icon: CallendarIcon,
+  },
+  {
+    title: "Messages",
+    url: "#",
+    icon: MessageIcon,
+  },
+];
+
 export function NavigationSidebarDashboard() {
-  const { userId } = useAuth();
+  const { userId, roles } = useAuth();
   const { open } = useSidebar();
 
   return (
@@ -130,45 +169,95 @@ export function NavigationSidebarDashboard() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <Collapsible
-                  key={item.title}
-                  className={cn(item.items?.length && "relative")}
-                >
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                      <Link to={item.url}>
-                        <item.icon className="w-10 h-6" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+              {roles[0] === "Admin" && roles.length === 1
+                ? itemsAdmin.map((item) => (
+                    <Collapsible
+                      key={item.title}
+                      className={cn(item.items?.length && "relative")}
+                    >
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          tooltip={item.title}
+                          size="lg"
+                        >
+                          <Link to={item.url}>
+                            <item.icon className="w-10 h-6" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
 
-                  {item.items?.length ? (
-                    <>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuAction className="translate-y-[50%] data-[state=open]:rotate-90">
-                          <ChevronRight />
-                          <span className="sr-only">Toggle</span>
-                        </SidebarMenuAction>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="CollapsibleContent">
-                        <SidebarMenuSub>
-                          {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton size="lg">
-                                <Link to={subItem.url}>
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </>
-                  ) : null}
-                </Collapsible>
-              ))}
+                      {item.items?.length ? (
+                        <>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuAction className="translate-y-[50%] data-[state=open]:rotate-90">
+                              <ChevronRight />
+                              <span className="sr-only">Toggle</span>
+                            </SidebarMenuAction>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="CollapsibleContent">
+                            <SidebarMenuSub>
+                              {item.items?.map((subItem) => (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton size="lg">
+                                    <Link to={subItem.url}>
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </>
+                      ) : null}
+                    </Collapsible>
+                  ))
+                : roles[0] === "Dentist" && roles.length === 1
+                ? itemsDentist.map((item) => (
+                    <Collapsible
+                      key={item.title}
+                      className={cn(item.items?.length && "relative")}
+                    >
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          tooltip={item.title}
+                          size="lg"
+                        >
+                          <Link to={item.url}>
+                            <item.icon className="w-10 h-6" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      {item.items?.length ? (
+                        <>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuAction className="translate-y-[50%] data-[state=open]:rotate-90">
+                              <ChevronRight />
+                              <span className="sr-only">Toggle</span>
+                            </SidebarMenuAction>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="CollapsibleContent">
+                            <SidebarMenuSub>
+                              {item.items?.map((subItem) => (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton size="lg">
+                                    <Link to={subItem.url}>
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </>
+                      ) : null}
+                    </Collapsible>
+                  ))
+                : null}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

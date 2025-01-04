@@ -1,6 +1,6 @@
 const Dentist = require("./dentist.services");
 
-const getDentists = async (req, res) => {
+const getDentists = async (_, res) => {
   try {
     const data = await Dentist.getDentists();
     return res.status(200).send({ data, ok: true });

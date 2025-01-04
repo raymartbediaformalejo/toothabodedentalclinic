@@ -7,6 +7,7 @@ import { SheetClose } from "../ui/sheet";
 import { Button } from "../ui/button";
 import useAuth from "@/hooks/useAuth";
 import { useLogout } from "@/service/mutation";
+import { Separator } from "../ui/separator";
 
 const NavigationSidebar = () => {
   const navigate = useNavigate();
@@ -99,11 +100,19 @@ const NavigationSidebar = () => {
             </SheetClose>
           </>
         ) : (
-          <SheetClose asChild>
-            <Button size="lg" onClick={handleLogout}>
-              Logout
-            </Button>
-          </SheetClose>
+          <>
+            <SheetClose asChild>
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/appointment">Book Appointment</Link>
+              </Button>
+            </SheetClose>
+            <Separator className="my-4 opacity-30 " />
+            <SheetClose asChild>
+              <Button size="lg" onClick={handleLogout}>
+                Logout
+              </Button>
+            </SheetClose>
+          </>
         )}
       </div>
     </div>

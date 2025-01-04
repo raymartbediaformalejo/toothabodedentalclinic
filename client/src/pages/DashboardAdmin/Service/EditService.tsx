@@ -304,7 +304,7 @@ const EditService = () => {
 
                 <div className="flex content-end justify-center gap-3 mt-10 ">
                   <Button asChild variant="db_outline" size="lg">
-                    <Link to="/dashboardadmin/service">Cancel</Link>
+                    <Link to="/admin/services">Cancel</Link>
                   </Button>
                   <Button
                     type="submit"

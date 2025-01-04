@@ -22,9 +22,10 @@ const loginUser = async (request, response) => {
 
     // Check if user is found
     if (result.rows.length === 0) {
-      return response
-        .status(400)
-        .send({ message: "Wrong Credentials", ok: false });
+      return response.status(400).send({
+        message: "Incorrect password or no user found!",
+        ok: false,
+      });
     }
 
     const foundUser = result.rows[0];
@@ -34,9 +35,10 @@ const loginUser = async (request, response) => {
     // Compare the provided password with the stored hashed password
     const isCorrect = compare_password(UserPassword, foundUser.password);
     if (!isCorrect) {
-      return response
-        .status(400)
-        .send({ message: "Wrong Credentials", ok: false });
+      return response.status(400).send({
+        message: "Incorrect password or no user found!",
+        ok: false,
+      });
     }
     const queryRoleIds = `
     SELECT r.name

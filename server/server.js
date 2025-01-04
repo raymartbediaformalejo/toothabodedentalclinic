@@ -12,6 +12,10 @@ const regionRoutes = require("./service/region/region.routes.js");
 const serviceRoutes = require("./service/service/service.routes.js");
 const dentistRoutes = require("./service/dentist/dentist.routes.js");
 const appointmentRoutes = require("./service/appointment/appointment.routes.js");
+const appointmentPatientInfo = require("./service/appointment-patient-info/appointmentPatientInfo.routes.js");
+const medicalHistory = require("./service/medical-history/medicalHistory.routes.js");
+const penaltyRoutes = require("./service/penalty/penalty.routes");
+const paymentVerificationRoutes = require("./service/payment-verification/payment-verification.routes.js");
 
 const PORT = process.env.PORT || 4000;
 
@@ -30,3 +34,7 @@ app.use("/api", regionRoutes);
 app.use("/api", serviceRoutes);
 app.use("/api", dentistRoutes);
 app.use("/api", appointmentRoutes);
+app.use("/api", appointmentPatientInfo);
+app.use("/api", medicalHistory);
+app.use("/api", penaltyRoutes);
+app.use("/api", paymentVerificationRoutes);

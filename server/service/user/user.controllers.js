@@ -4,10 +4,12 @@ const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    console.log("getUser: ", userId);
+    console.log("getuser controller: ", userId);
+
     const data = await User.getUser(userId);
     return res.status(200).send({ data, ok: true });
   } catch (error) {
+    console.log("Error: ", error);
     return res
       .status(500)
       .send({ message: `Internal Server Error: ${error}`, ok: false });
@@ -24,6 +26,28 @@ const getUsers = async (req, res) => {
     return res
       .status(500)
       .send({ message: "Internal Server Error (Users Controller)", ok: false });
+  }
+};
+
+const getUserAppointmentNoShowSchedule = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    console.log("getUserAppointmentNoShowSchedule: ", userId);
+
+    if (!userId) {
+      return res
+        .status(400)
+        .send({ message: "User ID is required", ok: false });
+    }
+
+    const data = await User.getUserAppointmentNoShowSchedule(userId);
+
+    return res.status(200).send({ data, ok: true });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: `Internal Server Error: ${error.message}`, ok: false });
   }
 };
 
@@ -93,6 +117,70 @@ const resendVerificationCode = async (req, res) => {
   }
 };
 
+const getUserAccountStatus = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("getUserAccountStatus: ", userId);
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const result = await User.getUserAccountStatus(userId);
+
+    return res.status(result.status).json({
+      success: result.status === 200,
+      message: result.message || "Account status retrieved successfully",
+      accountStatus: result.accountStatus,
+      isVerified: result.isVerified,
+    });
+  } catch (error) {
+    console.error("Error in getUserAccountStatus controller:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Internal Server Error: ${error.message}`,
+    });
+  }
+};
+
+const updateUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      firstName,
+      middleName,
+      lastName,
+      suffix,
+      email,
+      profilePicUrl,
+      password,
+      updatedBy,
+    } = req.body;
+
+    const data = await User.updateUser({
+      id,
+      firstName,
+      middleName,
+      lastName,
+      suffix,
+      email,
+      password,
+      profilePicUrl,
+      updatedBy,
+    });
+    return res
+      .status(data.status)
+      .send({ data, ok: data.status === 200 || data.status === 201 });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error}`,
+      ok: false,
+    });
+  }
+};
+
 const deleteUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -104,11 +192,38 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    const data = await User.changePassword({
+      id,
+      oldPassword,
+      newPassword,
+    });
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
 module.exports = {
   getUser,
   getUsers,
+  getUserAccountStatus,
+  getUserAppointmentNoShowSchedule,
   createUser,
   verifyEmail,
   resendVerificationCode,
+  updateUserData,
   deleteUser,
+  changePassword,
 };

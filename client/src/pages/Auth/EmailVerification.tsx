@@ -19,8 +19,11 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
+import useAuth from "@/hooks/useAuth";
 
 const EmailVerification = () => {
+  const { userId } = useAuth();
+  console.log("userId: ", userId);
   const verifyEmail = useVerifyEmail();
   const form = useForm<TVerifyEmail>({
     resolver: zodResolver(verifyEmailSchema),

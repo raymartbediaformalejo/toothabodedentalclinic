@@ -82,3 +82,42 @@ export const formatReadableDate = (isoDate: string): string => {
 
   return `${datePart} - ${timePart}`;
 };
+
+export const formatAppointmentDate = (dateString: string) => {
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Return a fallback string if the date is invalid
+  }
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const day = days[date.getDay()]; // Day of the week
+  const dayOfMonth = date.getDate(); // Day of the month
+  const month = months[date.getMonth()]; // Month
+  const year = date.getFullYear(); // Year
+
+  // Format time
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const period = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+
+  // Combine into desired format
+  return `${formattedHours}:${minutes} ${period} ${day}, ${dayOfMonth} ${month} ${year}`;
+};

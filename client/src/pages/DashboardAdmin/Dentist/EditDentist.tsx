@@ -4,7 +4,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaCamera } from "react-icons/fa";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { Input } from "@/components/ui/input";
 import { TDentist, TEditDentist, TService } from "@/types/types";
@@ -40,7 +39,6 @@ const EditDentist = () => {
   const { userId } = useAuth();
   const { id } = useParams();
   const { data: dentistData, isFetched } = useGetDentist(id!);
-  console.log("data: ", isFetched && dentistData);
   const currentDentist: TDentist | undefined = dentistData?.data;
   const defaultRoles = currentDentist?.roleIds!;
   const defaultServices = currentDentist?.services!;
@@ -178,14 +176,6 @@ const EditDentist = () => {
   const handleClearAvailabiltiy = (name: keyof TEditDentist) => {
     form.setValue(name, [{ startTime: "--|--", endTime: "--|--" }]);
   };
-
-  console.log("errors: ", form.formState.errors);
-  console.log("state: ", form.watch());
-  console.log("currect dentist: ", currentDentist);
-  console.log("currect dentist services: ", form.watch("services"));
-  console.log("currect dentist roles: ", form.watch("roleIds"));
-  console.log("currect dentist roles default: ", defaultRoles);
-  console.log("currect dentist services default: ", defaultServices);
 
   return (
     <div>

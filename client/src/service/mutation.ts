@@ -1,7 +1,12 @@
 import {
   TAppointment,
+  TApproveAppointment,
+  TCancelAppointment,
   TChangePassword,
   TDentistIds,
+  TEditUser,
+  TPaymentVerification,
+  TRejectAppointment,
   TVerifyEmail,
 } from "./../types/types";
 import {
@@ -21,10 +26,14 @@ import { jwtDecode } from "jwt-decode";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
+  approveAppointmentAPI,
+  cancelAppointmentAPI,
   changePasswordAPI,
+  changeUserPasswordAPI,
   createAppointmentAPI,
   createDentistAPI,
   createPatientAPI,
+  createPaymentVerificationAPI,
   createServiceAPI,
   deleteAllDentistAPI,
   deleteAllServiceAPI,
@@ -32,8 +41,10 @@ import {
   deleteServiceAPI,
   editDentistAPI,
   editServiceAPI,
+  editUserAPI,
   loginUserAPI,
   logout,
+  rejectAppointmentAPI,
   removeHeaderToken,
   saveSortedDentistAPI,
   saveSortedServiceAPI,
@@ -112,6 +123,8 @@ export const useLogout = () => {
   });
 };
 
+// ============ || USER || ===========
+
 export const useVerifyEmail = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -144,6 +157,48 @@ export const useVerifyEmail = () => {
         // @ts-ignore
         toast.error(error?.response?.data.message);
       }
+      return error;
+    },
+  });
+};
+
+export const useEditUser = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TEditUser) => editUserAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      navigate("/my-account");
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useChangeUserPassword = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TChangePassword) => changeUserPasswordAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
       return error;
     },
   });
@@ -415,6 +470,93 @@ export const useCreateAppointment = () => {
         // @ts-ignore
         toast.error(error?.response?.data.message);
       }
+      return error;
+    },
+  });
+};
+
+// ============ || PAYMENT VERIFICATION || ===========
+
+export const useCreatePaymentVerification = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPaymentVerification) =>
+      createPaymentVerificationAPI(data),
+    onSuccess: (data) => {
+      console.log("useCreatePaymentVerification: ", data);
+      toast.success("Payment verification successfully sent to admin");
+      queryClient.invalidateQueries({
+        queryKey: ["payment-verification", "user"],
+      });
+      navigate("/");
+    },
+    onSettled: (_, error) => {
+      console.log("error: ", error);
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useApproveAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) => approveAppointmentAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+export const useRejectAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TRejectAppointment) => rejectAppointmentAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+export const useCancelAppointment = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TCancelAppointment) => cancelAppointmentAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+      navigate("/my-appointment");
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
       return error;
     },
   });

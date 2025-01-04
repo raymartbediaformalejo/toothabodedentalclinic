@@ -6,6 +6,57 @@ const { sendVerificationEmail } = require("../../mailtrap/emails");
 const { ACCOUNT_STATUS } = require("../../utils/variables");
 
 class User {
+  static getUserAppointmentNoShowSchedule = async (userId) => {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const userQuery = `
+        SELECT 
+          id, 
+          last_name "lastName", 
+          account_status "accountStatus"
+        FROM tbl_user 
+        WHERE id = $1 AND account_status = 'no_show_restricted'
+      `;
+
+      const userResult = await client.query(userQuery, [userId]);
+
+      if (userResult.rowCount === 0) {
+        await client.query("ROLLBACK");
+        throw new Error(
+          "User not found or not restricted with 'no-show-restricted' status."
+        );
+      }
+
+      const user = userResult.rows[0];
+
+      const appointmentsQuery = `
+        SELECT 
+          appointment_id AS "id",
+          schedule
+        FROM tbl_appointment 
+        WHERE patient_id = $1 AND appointment_status = 'no_show'
+      `;
+
+      const appointmentsResult = await client.query(appointmentsQuery, [
+        user.id,
+      ]);
+
+      await client.query("COMMIT");
+
+      return {
+        appointments: appointmentsResult.rows,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  };
+
   static getUsers = async () => {
     const client = await pool.connect();
 
@@ -25,7 +76,7 @@ class User {
 
   static getUser = async (userId) => {
     const client = await pool.connect();
-
+    console.log("getuser service: ", userId);
     try {
       const queryGetUser = `
       SELECT 
@@ -53,7 +104,7 @@ class User {
       `;
 
       const result = await client.query(queryGetUser, [userId]);
-      return result.rows;
+      return result.rows[0];
     } catch (error) {
       throw error;
     } finally {
@@ -311,6 +362,92 @@ class User {
     }
   };
 
+  static getUserAccountStatus = async (id) => {
+    const client = await pool.connect();
+
+    try {
+      const query = `
+        SELECT 
+          id,
+          account_status AS "accountStatus",
+          is_verified AS "isVerified"
+        FROM tbl_user
+        WHERE id = $1
+      `;
+
+      const result = await client.query(query, [id]);
+
+      if (result.rows.length === 0) {
+        return {
+          status: 404,
+          message: "User not found",
+          accountStatus: null,
+        };
+      }
+
+      return {
+        status: 200,
+        accountStatus: result.rows[0].accountStatus,
+        isVerified: result.rows[0].isVerified,
+      };
+    } catch (error) {
+      console.error("Error in getUserAccountStatus:", error.message);
+      throw new Error(`Internal Server Error: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  };
+
+  static updateUser = async (values) => {
+    const client = await pool.connect();
+    const updatedAt = new Date();
+    const id = values.id;
+    try {
+      await client.query("BEGIN");
+
+      if (!values.firstName || !values.lastName) {
+        throw new Error("First name and last name are required");
+      }
+
+      const updateUserQuery = `
+      UPDATE tbl_user
+      SET 
+        first_name = $1, 
+        middle_name = $2, 
+        last_name = $3, 
+        suffix = $4, 
+        profile_pic_url = $5,
+        password = $6,
+        updated_at = $7,
+        updated_by = $8
+      WHERE id = $9
+    `;
+
+      await client.query(updateUserQuery, [
+        values.firstName,
+        values.middleName,
+        values.lastName,
+        values.suffix,
+        values.profilePicUrl,
+        values.password,
+        updatedAt,
+        values.updatedBy,
+        id,
+      ]);
+
+      await client.query("COMMIT");
+      return {
+        status: 200,
+        message: `Successfully updated user.`,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  };
+
   static deleteUser = async (userId) => {
     const client = await pool.connect();
 
@@ -359,6 +496,58 @@ class User {
       throw new Error(
         `Internal Server Error (Deleting user): ${error.message}`
       );
+    } finally {
+      client.release();
+    }
+  };
+
+  static changePassword = async (values) => {
+    if (!values.id || !values.oldPassword || !values.newPassword) {
+      throw new Error("Old password and new password are required.");
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const verifyUserQuery = `
+        SELECT u.password 
+        FROM tbl_user u
+        WHERE u.id = $1 AND u.deleted = false
+      `;
+      const userResult = await client.query(verifyUserQuery, [values.id]);
+      if (userResult.rows.length === 0) {
+        throw new Error("User not found.");
+      }
+
+      const user = userResult.rows[0];
+      const isMatchPassword = await bcrypt.compare(
+        values.oldPassword,
+        user.password
+      );
+      if (!isMatchPassword) {
+        throw new Error("Current password is incorrect.");
+      }
+
+      const hashedNewPassword = await bcrypt.hash(values.newPassword, 10);
+
+      const updatePasswordQuery = `
+        UPDATE tbl_user
+        SET password = $1, updated_at = NOW()
+        WHERE id = $2
+      `;
+      await client.query(updatePasswordQuery, [hashedNewPassword, values.id]);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: "Password updated successfully.",
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
     } finally {
       client.release();
     }

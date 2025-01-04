@@ -6,7 +6,7 @@ type TH1 = React.HTMLAttributes<HTMLHeadingElement> & {
 
 const H1 = ({ className, children }: TH1) => {
   return (
-    <h1 className={cn("heading-1 font-bold leading-[52.8px]", className)}>
+    <h1 className={cn("heading-1 font-bold leading-snug", className)}>
       {children}
     </h1>
   );

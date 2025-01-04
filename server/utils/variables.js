@@ -9,8 +9,8 @@ const ACCOUNT_STATUS = {
 const APPOINTMENT_STATUS = {
   PENDING: "pending",
   APPROVED: "approved",
-  RE_SCHEDULED: "re-scheduled",
-  NO_SHOW: "no-show",
+  RE_SCHEDULED: "re_scheduled",
+  NO_SHOW: "no_show",
   CANCELED: "canceled",
   COMPLETE: "complete",
 };

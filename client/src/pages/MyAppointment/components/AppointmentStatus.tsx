@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { APPOINTMENT_STATUS } from "@/lib/variables";
 
 type TAppointmentStatusProps = {
@@ -13,9 +14,17 @@ const AppointmentStatus = ({ status }: TAppointmentStatusProps) => {
 
   return (
     <div>
-      <span style={{ color: textColor }} className="font-semibold">
-        {status}
-      </span>
+      <Badge
+        variant="outline"
+        style={{
+          color: textColor,
+          borderColor: statusObject?.foreGround,
+          backgroundColor: statusObject?.backGround,
+        }}
+        className="font-semibold text-nowrap"
+      >
+        {statusObject?.label}
+      </Badge>
     </div>
   );
 };

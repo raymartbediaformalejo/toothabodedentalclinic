@@ -8,9 +8,13 @@ import {
   dentistSchema,
   editDentistSchema,
   editServiceSchema,
+  editUserSchema,
   loginUserSchema,
   medicalHistorySchema,
   patientInfoSchema,
+  patientInfoWithIdSchema,
+  paymentVerificationSchema,
+  penaltySchema,
   requestDateTimeSchema,
   saveSortedDentistSchema,
   saveSortedServiceSchema,
@@ -48,8 +52,16 @@ export type TUsername = {
   middlename?: string;
 };
 
+// ============ || USER || ===========
+
 export type TUser = z.infer<typeof userSchema>;
+export type TEditUser = z.infer<typeof editUserSchema>;
 export type TVerifyEmail = z.infer<typeof verifyEmailSchema>;
+export type TUserAccountStatus = {
+  isVerified: boolean;
+  accountStatus: string;
+};
+export type TChangePassword = z.infer<typeof changePasswordSchema>;
 
 // ============ || SERVICE || ===========
 
@@ -69,22 +81,33 @@ export type TSaveSortedDentist = z.infer<typeof saveSortedDentistSchema>;
 export type TDentistId = string;
 export type TDentistIds = { ids: TDentistId[] };
 export type TAvailability = [{}];
-export type TChangePassword = z.infer<typeof changePasswordSchema>;
 
 // ============ || APPOINTMENT || ===========
 
 export type TAppointmentInfo = z.infer<typeof appointmentInfoSchema>;
 export type TPatientInfo = z.infer<typeof patientInfoSchema>;
+export type TPatientInfoWithId = z.infer<typeof patientInfoWithIdSchema>;
 export type TRequestDateAndTime = z.infer<typeof requestDateTimeSchema>;
 export type TMedicalHistory = z.infer<typeof medicalHistorySchema>;
 export type TAppointment = TAppointmentInfo &
   TRequestDateAndTime &
   TPatientInfo &
-  TMedicalHistory;
+  TMedicalHistory & { id: string };
 
 export type TMyAppointment = {
   id: string;
   dentistId: string;
+  appointmentPatientInfoId: string;
+  medicalHistoryId: string;
+  dentistFirstName: string;
+  dentistLastName: string;
+  dentistMiddleName: string;
+  dentistSuffix: string;
+  patientId: string;
+  patientFirstName: string;
+  patientMiddleName: string;
+  patientLastName: string;
+  patientSuffix: string;
   schedule: string;
   status: string;
   services: string[];
@@ -93,3 +116,25 @@ export type TMyAppointment = {
 };
 
 export type TMyAppointmentId = string;
+
+export type TPenalty = z.infer<typeof penaltySchema>;
+export type TPaymentVerification = z.infer<typeof paymentVerificationSchema>;
+export type TUserNoShowSchedule = {
+  appointments: {
+    id: string;
+    schedule: string;
+  }[];
+};
+
+export type TCancelAppointment = {
+  id: string;
+};
+
+export type TApproveAppointment = {
+  appointmentId: string;
+  dentistId: string;
+};
+export type TRejectAppointment = {
+  appointmentId: string;
+  dentistId: string;
+};
