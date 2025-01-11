@@ -91,60 +91,61 @@ export const ACCOUNT_STATUS = {
 
 export const APPOINTMENT_STATUS = {
   PENDING: {
+    title: "Requested Appointment!",
     value: "pending",
     label: "Pending",
     foreGround: "#C97E00",
     backGround: "#FFF9F0",
     message:
       "Your appointment is currently being evaluated by the Tooth Abode Dental Clinic team. Please wait for further updates.",
-    title: "Requested Appointment!", // New title field
   },
   APPROVED: {
+    title: "Approved Appointment!",
     value: "approved",
     label: "Approved",
     foreGround: "#1D6E3E",
     backGround: "#D7F7E7",
     message:
       "Your appointment has been approved! We look forward to seeing you at the scheduled time.",
-    title: "Approved Appointment!",
   },
   RE_SCHEDULED: {
+    title: "Rescheduled Appointment!",
     value: "re_scheduled",
     label: "Re-scheduled",
     foreGround: "#0EA5E9",
     backGround: "#F0F9FF",
     message:
       "Your appointment has been rescheduled. Please check the updated schedule for the new time.",
-    title: "Rescheduled Appointment!",
   },
   NO_SHOW: {
+    title: "Missed Appointment!",
     value: "no_show",
     label: "No-show",
     foreGround: "#EF4444",
     backGround: "#FEF2F2",
     message:
       "You missed your appointment. Please contact the clinic to reschedule or for further assistance.",
-    title: "Missed Appointment!",
   },
   CANCELED: {
+    title: "Canceled Appointment!",
     value: "canceled",
     label: "Canceled",
     foreGround: "#737373",
     backGround: "#F5F5F5",
     message:
       "Your appointment has been canceled. Please contact the clinic if this was unexpected.",
-    title: "Canceled Appointment!",
   },
   COMPLETE: {
+    title: "Completed Appointment!",
     value: "complete",
     label: "Complete",
     foreGround: "#6366F1",
     backGround: "#EEF2FF",
     message:
       "Your appointment has been completed. Thank you for choosing Tooth Abode Dental Clinic!",
-    title: "Completed Appointment!",
   },
   REJECT: {
+    title: "Rejected Appointment!",
     value: "reject",
     label: "Reject",
     foreGround: "#9F1239",

@@ -4,8 +4,6 @@ const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    console.log("getuser controller: ", userId);
-
     const data = await User.getUser(userId);
     return res.status(200).send({ data, ok: true });
   } catch (error) {
@@ -19,7 +17,6 @@ const getUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const data = await User.getUsers();
-    console.log("keme");
 
     return res.status(200).send({ data, ok: true });
   } catch (error) {
@@ -32,8 +29,6 @@ const getUsers = async (req, res) => {
 const getUserAppointmentNoShowSchedule = async (req, res) => {
   try {
     const { userId } = req.params;
-
-    console.log("getUserAppointmentNoShowSchedule: ", userId);
 
     if (!userId) {
       return res
@@ -54,7 +49,6 @@ const getUserAppointmentNoShowSchedule = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const userData = req.body;
-    console.log("data: ", userData);
     const data = await User.createUser(userData);
     return res.status(201).send({ data, ok: true });
   } catch (error) {
@@ -120,7 +114,6 @@ const resendVerificationCode = async (req, res) => {
 const getUserAccountStatus = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log("getUserAccountStatus: ", userId);
     if (!userId) {
       return res.status(400).json({
         success: false,

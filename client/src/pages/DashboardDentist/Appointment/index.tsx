@@ -7,7 +7,6 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-import { Link } from "react-router-dom";
 
 import {
   Table,
@@ -18,7 +17,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { useGetAllDentist, useGetDentistAppointments } from "@/service/queries";
 import {
@@ -75,8 +74,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
-// import DentistName from "./components/DentistName";
-// import AvailabilityCell from "./components/AvailabilityCell";
 import useAuth from "@/hooks/useAuth";
 import UserName from "./components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
@@ -108,7 +105,6 @@ const columnAppointments = [
 const Appointments = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "schedule", desc: true },
   ]);
@@ -117,15 +113,12 @@ const Appointments = () => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
-  // const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
   const { data, isLoading } = useGetDentistAppointments(userId);
   const allAppointments: TMyAppointment[] = useMemo(
     () => data?.data || [],
     [data]
   );
-  // const deleteAllDentist = useDeleteAllDentist();
-  // const deleteDentist = useDeleteDentist();
   const table = useReactTable({
     data: allAppointments,
     columns: columnAppointments,
@@ -415,9 +408,14 @@ const Appointments = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <UserName
-                                  userId={cell.row.original.patientId}
-                                />
+                                <Link
+                                  className="flex items-center"
+                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                >
+                                  <UserName
+                                    userId={cell.row.original.patientId}
+                                  />
+                                </Link>
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
                               <TableCell

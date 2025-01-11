@@ -3,6 +3,7 @@ const AppointmentPatientInfo = require("./appointmentPatientInfo.services");
 const getAppointmentPatientInfo = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("id: ", id);
     const data = await AppointmentPatientInfo.getAppointmentPatientInfo(id);
     if (!data) {
       return res.status(404).send({

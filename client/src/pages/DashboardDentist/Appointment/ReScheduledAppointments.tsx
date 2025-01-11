@@ -129,6 +129,8 @@ const ReScheduledAppointments = () => {
     () => data?.data || [],
     [data]
   );
+
+  console.log("allAppointments: ", allAppointments);
   // const deleteAllDentist = useDeleteAllDentist();
   // const deleteDentist = useDeleteDentist();
   const table = useReactTable({
@@ -417,9 +419,13 @@ const ReScheduledAppointments = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <UserName
-                                  userId={cell.row.original.patientId}
-                                />
+                                <Link
+                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                >
+                                  <UserName
+                                    userId={cell.row.original.patientId}
+                                  />
+                                </Link>
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
                               <TableCell
@@ -597,7 +603,9 @@ const ReScheduledAppointments = () => {
                                 className="w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(`/admin/dentists/${row.original.id}`)
+                                  navigate(
+                                    `/dentist/my_appointments/${row.original.id}`
+                                  )
                                 }
                               >
                                 <span>View</span>

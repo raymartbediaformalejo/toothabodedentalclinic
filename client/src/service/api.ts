@@ -302,7 +302,7 @@ export const getAllMedicalHistoryAPI = async () => {
 export const getMedicalHistoryAPI = async (args: { queryKey: string[] }) => {
   const { queryKey } = args;
   console.log("queryKey: ", queryKey);
-  const { data } = await axiosInstance.get(`/medical-history/${queryKey[1]}`);
+  const { data } = await axiosInstance.get(`/medical-history/${queryKey[0]}`);
   return data;
 };
 

@@ -316,6 +316,11 @@ const MyAppointments = () => {
                                   <TableCell
                                     key={cell.id}
                                     className="text-[#424242] text-sm"
+                                    onClick={() =>
+                                      navigate(
+                                        `/my-appointment/${row.original.id}`
+                                      )
+                                    }
                                   >
                                     <DentistName
                                       dentistId={cell.row.original.dentistId}

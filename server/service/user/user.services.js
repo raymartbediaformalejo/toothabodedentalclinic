@@ -76,7 +76,6 @@ class User {
 
   static getUser = async (userId) => {
     const client = await pool.connect();
-    console.log("getuser service: ", userId);
     try {
       const queryGetUser = `
       SELECT 

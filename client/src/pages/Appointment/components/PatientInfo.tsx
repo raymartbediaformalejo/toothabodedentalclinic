@@ -56,7 +56,6 @@ const PatientInfo = () => {
   const { userId } = useAuth();
   const { data } = useGetUser(userId!);
 
-  console.log("PatientInfo data: ", data);
   const userData: TUser = useMemo(() => data?.data[0], [data]);
   const {
     register,
@@ -88,6 +87,9 @@ const PatientInfo = () => {
   useEffect(() => {
     if (!isLovedOne) setValue("relationship", "My self");
   }, [isLovedOne]);
+
+  console.log("region: ", watch("region"));
+  console.log("PatientInfo data: ", data);
 
   return (
     <div>

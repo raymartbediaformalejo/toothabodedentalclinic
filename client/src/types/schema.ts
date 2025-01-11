@@ -366,6 +366,7 @@ export const patientInfoSchema = userSchema
     firstName: true,
     middleName: true,
     lastName: true,
+    suffix: true,
     birthDay: true,
     age: true,
     religion: true,

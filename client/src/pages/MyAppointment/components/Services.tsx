@@ -11,7 +11,6 @@ const Services = ({ serviceIds }: TServiceProps) => {
   const { data: servicesData, isLoading } = useGetServicesById(servicesCast);
   const services: TService[] | undefined = servicesData?.data;
 
-  console.log("servicesData: ", servicesData);
   const content = services?.map((service) => service.title);
 
   if (content && content.length > 2) {
@@ -31,7 +30,7 @@ const Services = ({ serviceIds }: TServiceProps) => {
     );
   } else {
     return (
-      <div className="flex items-center h-full gap-2 ml-4">
+      <div className="flex items-center h-full gap-2">
         {!isLoading ? (
           <div className="flex flex-col gap-1">
             <Badge className="">{content?.join(", ")}</Badge>

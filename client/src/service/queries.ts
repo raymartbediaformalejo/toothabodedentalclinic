@@ -168,25 +168,25 @@ export const useGetUserAppoitmentNoShowSchedule = (id: string) => {
 
 export const useGetDentistAppointments = (dentistId: string) => {
   return useQuery({
-    queryKey: ["appointment", dentistId],
+    queryKey: ["appointment", "dentist", dentistId],
     queryFn: () => getDentistAppointmentAPI(dentistId),
   });
 };
 export const useGetPatientAppointments = (patientId: string) => {
   return useQuery({
-    queryKey: ["appointment", patientId],
+    queryKey: ["appointment", "patient", patientId],
     queryFn: () => getPatientAppointmentsAPI(patientId),
   });
 };
 export const useGetDentistPendingAppointments = (dentistId: string) => {
   return useQuery({
-    queryKey: ["appointment", dentistId],
+    queryKey: ["appointment", "dentistPending", dentistId],
     queryFn: () => getDentistPendingAppointmentAPI(dentistId),
   });
 };
 export const useGetDentistReScheduleAppointments = (dentistId: string) => {
   return useQuery({
-    queryKey: ["appointment", dentistId],
+    queryKey: ["appointment", "dentistRescheduled", dentistId],
     queryFn: () => getDentistReScheduleAppointmentAPI(dentistId),
   });
 };

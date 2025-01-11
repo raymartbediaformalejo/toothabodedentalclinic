@@ -34,14 +34,6 @@ class Appointment {
 
       const result = await client.query(query, [dentistId]);
 
-      if (result.rows.length === 0) {
-        return {
-          status: 404,
-          message: "Dentist not found",
-          accountStatus: null,
-        };
-      }
-
       return result.rows;
     } catch (error) {
       console.error("Error fetching appointments: ", error);
@@ -76,7 +68,6 @@ class Appointment {
         return {
           status: 404,
           message: "Dentist not found",
-          accountStatus: null,
         };
       }
 
@@ -284,12 +275,15 @@ class Appointment {
   }
 
   static async getAppointment(userId, appointmentId) {
+    console.log("class getAppointment userId: ", userId);
+    console.log("class getAppointment appointmentId: ", appointmentId);
     const client = await pool.connect();
     try {
       const query = `
         SELECT 
           a.appointment_id AS "id", 
           a.dentist_id AS "dentistId",
+          a.patient_id AS "patientId",
           a.schedule, 
           a.appointment_status AS "status", 
           a.appointment_patient_info_id AS "appointmentPatientInfoId",

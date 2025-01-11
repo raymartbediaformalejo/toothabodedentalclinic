@@ -28,6 +28,7 @@ import Appointments from "./pages/DashboardDentist/Appointment";
 import PendingAppointments from "./pages/DashboardDentist/Appointment/PendingAppointments";
 import ReScheduledAppointment from "./pages/DashboardDentist/Appointment/ReScheduledAppointments";
 import WaitForVerification from "./pages/Auth/WaitForVerification";
+import SingleAppointment from "./pages/DashboardDentist/Appointment/SingleAppointment";
 
 function App() {
   return (
@@ -73,34 +74,39 @@ function App() {
               <RequireAuth allowedRoles={[ROLES.Admin, ROLES.Dentist]} />
             }
           >
-            <Route path="dentist" element={<DashboardLayout />}>
-              <Route index element={<DashboardDentist />} />
-              <Route path="my_appointments">
-                <Route index element={<Appointments />} />
-                <Route
-                  path="pending_appointment"
-                  element={<PendingAppointments />}
-                />
-                <Route
-                  path="re_schedule_appointment"
-                  element={<ReScheduledAppointment />}
-                />
+            <Route element={<RequireAuth allowedRoles={[ROLES.Dentist]} />}>
+              <Route path="dentist" element={<DashboardLayout />}>
+                <Route index element={<DashboardDentist />} />
+                <Route path="my_appointments">
+                  <Route index element={<Appointments />} />
+                  <Route path=":id" element={<SingleAppointment />} />
+                  <Route
+                    path="pending_appointment"
+                    element={<PendingAppointments />}
+                  />
+                  <Route
+                    path="re_schedule_appointment"
+                    element={<ReScheduledAppointment />}
+                  />
+                </Route>
               </Route>
             </Route>
 
-            <Route path="admin" element={<DashboardLayout />}>
-              <Route index element={<DashboardAdmin />} />
-              <Route path="dentists">
-                <Route index element={<Dentists />} />
-                <Route path="add_new_dentist" element={<AddNewDentist />} />
-                <Route path=":id" element={<EditDentist />} />
+            <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+              <Route path="admin" element={<DashboardLayout />}>
+                <Route index element={<DashboardAdmin />} />
+                <Route path="dentists">
+                  <Route index element={<Dentists />} />
+                  <Route path="add_new_dentist" element={<AddNewDentist />} />
+                  <Route path=":id" element={<EditDentist />} />
+                </Route>
+                <Route path="services">
+                  <Route index element={<Services />} />
+                  <Route path="add_new_service" element={<AddNewService />} />
+                  <Route path=":id" element={<EditService />} />
+                </Route>
+                <Route path="calendar" element={<Calendar />} />
               </Route>
-              <Route path="services">
-                <Route index element={<Services />} />
-                <Route path="add_new_service" element={<AddNewService />} />
-                <Route path=":id" element={<EditService />} />
-              </Route>
-              <Route path="calendar" element={<Calendar />} />
             </Route>
           </Route>
 
