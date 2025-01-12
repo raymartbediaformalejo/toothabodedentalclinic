@@ -17,10 +17,6 @@ import {
 import logo from "@/assets/logo-with-bg.png";
 import { cn } from "@/lib/utils";
 import { RxDashboard as DashboardIcon } from "react-icons/rx";
-import {
-  LuCalendarClock as CallendarIcon,
-  LuMessageSquare as MessageIcon,
-} from "react-icons/lu";
 import { RiServiceLine as ServiceIcon } from "react-icons/ri";
 import { TbDental as DentistsIcon } from "react-icons/tb";
 import { HiOutlineUserGroup as PatientsIcon } from "react-icons/hi2";
@@ -169,7 +165,7 @@ export function NavigationSidebarDashboard() {
                           tooltip={item.title}
                           size="lg"
                           className={cn(
-                            isActive(item.url) ? "bg-primary-700" : ""
+                            isActive(item.url) ? "bg-primary-100" : ""
                           )}
                         >
                           <Link to={item.url}>
@@ -195,7 +191,7 @@ export function NavigationSidebarDashboard() {
                                     size="lg"
                                     className={cn(
                                       isActive(subItem.url)
-                                        ? "bg-primary-700"
+                                        ? "bg-primary-100"
                                         : ""
                                     )}
                                   >

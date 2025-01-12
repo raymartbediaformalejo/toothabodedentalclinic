@@ -20,35 +20,18 @@ import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  useGetDentistAppointments,
   useGetPatientsOfDoctor,
 } from "@/service/queries";
 import {
-  TAppointmentInfo,
-  TApproveAppointment,
-  TMyAppointment,
   TPatientInfo,
-  TRejectAppointment,
 } from "@/types/types";
-import {
-  useApproveAppointment,
-  useRejectAppointment,
-} from "@/service/mutation";
+
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
 import {
   cn,
   createUsername,
-  formatAppointmentDate,
   formatReadableDate,
 } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -76,9 +59,7 @@ import {
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import useAuth from "@/hooks/useAuth";
-import UserName from "../Appointment/components/UserName";
-import Services from "@/pages/MyAppointment/components/Services";
-import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
+
 import CreatedBy from "./components/CreatedBy";
 import AccountStatus from "./components/AccountStatus";
 
@@ -115,11 +96,8 @@ const Patients = () => {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "schedule", desc: true },
   ]);
-  const approveAppointment = useApproveAppointment();
-  const rejectAppoinment = useRejectAppointment();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
-  const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
+
   const [rowPerPage, setRowPerPage] = useState(6);
   const { data: allPatientInfo, isLoading: isPatientLoading } =
     useGetPatientsOfDoctor(userId);
@@ -158,34 +136,6 @@ const Patients = () => {
 
   const handleRowPerPageChange = (value: number) => {
     setRowPerPage(value);
-  };
-
-  const handleApproveAppointment = async (data: TApproveAppointment) => {
-    try {
-      if (data.appointmentId && data.dentistId) {
-        await approveAppointment.mutate(data);
-        setIsApprovedModalOpen(false);
-      }
-    } catch (error) {
-      console.log("Error approve appointment: ", error);
-    }
-  };
-  const handleRejectAppointment = async (data: TRejectAppointment) => {
-    try {
-      if (data.appointmentId && data.dentistId) {
-        await rejectAppoinment.mutate(data);
-        setIsDeclineModalOpen(false);
-      }
-    } catch (error) {
-      console.log("Error approve appointment: ", error);
-    }
-  };
-
-  const onOpenApprovedModalChange = () => {
-    setIsApprovedModalOpen((prev) => !prev);
-  };
-  const onOpenDeclineModalChange = () => {
-    setIsDeclineModalOpen((prev) => !prev);
   };
 
   return (

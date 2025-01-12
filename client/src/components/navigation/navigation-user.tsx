@@ -1,11 +1,4 @@
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -37,11 +30,6 @@ export function NavigationUser({ userId }: { userId: string }) {
   const { data, error, isLoading } = useGetUser(userId!);
   const user: TUser = !isLoading ? data.data : null;
 
-  const username = createUsername({
-    firstname: user?.firstName,
-    middlename: user?.middleName || "",
-    lastname: user?.lastName,
-  });
   if (isLoading) return "Loading...";
   if (error) return "An error has occurred: " + error.message;
   const handleLogout = () => {

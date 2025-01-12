@@ -52,7 +52,6 @@ import {
   verifyEmailAPI,
 } from "./api";
 import { toast } from "sonner";
-import useAuth from "@/hooks/useAuth";
 
 export const useCreatePatient = () => {
   const navigate = useNavigate();
@@ -88,10 +87,10 @@ export const useLoginUser = () => {
         const decoded = jwtDecode(token!);
         // @ts-expect-error: Unreachable code error
         const { id, email, isVerified, accountStatus, roles } = decoded;
-        if (roles[0] === "Admin" && roles.length === 1) {
+        console.log("useLoginUser decoded: ", decoded);
+        if (roles.includes("Admin")) {
           navigate("/admin");
-        }
-        if (roles[0] === "Dentist" && roles.length === 1) {
+        } else if (roles[0] === "Dentist" && roles.length === 1) {
           navigate("/dentist");
         } else {
           navigate("/");

@@ -1,12 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  createUsername,
-  formatAppointmentDate,
-  formatDate,
-  formatTimeTo12Hour,
-} from "@/lib/utils";
+
+import { createUsername, formatAppointmentDate } from "@/lib/utils";
 import { useGetDentist, useGetServicesById } from "@/service/queries";
 import {
   TAppointmentInfo,
@@ -16,9 +10,7 @@ import {
   TService,
 } from "@/types/types";
 import { useFormContext } from "react-hook-form";
-import { FaLocationDot } from "react-icons/fa6";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { MdDateRange } from "react-icons/md";
 import { Link } from "react-router-dom";
 import ReviewAndBookService from "./ReviewAndBookService";
 
@@ -33,22 +25,7 @@ const ReviewAndBook = () => {
   const firstName = watch("firstName");
   const middleName = watch("middleName");
   const lastName = watch("lastName");
-  const birthday = watch("birthDay");
-  const age = watch("age");
-  const religion = watch("religion");
-  const nationality = watch("nationality");
-  const email = watch("email");
-  const mobileNo = watch("mobileNo");
-  const nickname = watch("nickname");
   const suffix = watch("suffix");
-  const sex = watch("sex");
-  const occupation = watch("occupation");
-  const address = watch("address");
-  const city = watch("city");
-  const barangay = watch("barangay");
-  const region = watch("region");
-  const zipcode = watch("zipCode");
-
   const { data: dentistData } = useGetDentist(dentistId!);
   const dentist: TDentist | undefined = dentistData?.data;
   const { data: servicesData, isLoading: isLoadingServices } =

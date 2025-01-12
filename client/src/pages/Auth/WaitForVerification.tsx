@@ -2,7 +2,6 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import H1 from "@/components/ui/H1";
 import { Progress } from "@/components/ui/progress";
-import React from "react";
 import { Link } from "react-router-dom";
 
 const WaitForVerification = () => {

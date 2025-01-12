@@ -20,10 +20,7 @@ import {
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  useGetMyAllAppointment,
-  useGetPatientAppointments,
-} from "@/service/queries";
+import { useGetPatientAppointments } from "@/service/queries";
 import { TMyAppointment } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";

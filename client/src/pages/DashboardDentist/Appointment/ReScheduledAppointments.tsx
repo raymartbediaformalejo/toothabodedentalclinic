@@ -18,31 +18,19 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
+import { useGetDentistReScheduleAppointments } from "@/service/queries";
 import {
-  useGetAllDentist,
-  useGetDentistAppointments,
-  useGetDentistPendingAppointments,
-  useGetDentistReScheduleAppointments,
-} from "@/service/queries";
-import {
-  TAppointment,
   TApproveAppointment,
-  TDentist,
-  TDentistId,
-  TDentistIds,
   TMyAppointment,
   TRejectAppointment,
 } from "@/types/types";
 import {
   useApproveAppointment,
-  useDeleteAllDentist,
-  useDeleteDentist,
   useRejectAppointment,
 } from "@/service/mutation";
 import { Button } from "@/components/ui/button";
-import { FiPlus } from "react-icons/fi";
 import {
   Dialog,
   DialogContent,
@@ -51,10 +39,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { MdDeleteForever } from "react-icons/md";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
+import { cn, formatAppointmentDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
@@ -62,7 +49,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { MdEdit } from "react-icons/md";
 import {
   Select,
   SelectContent,
@@ -113,7 +99,6 @@ const columnAppointments = [
 const ReScheduledAppointments = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "schedule", desc: true },
   ]);
@@ -191,35 +176,6 @@ const ReScheduledAppointments = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
 
-  // const onOpenDeleteAllModalChange = () => {
-  //   setIsDeleteAllModalOpen((prev) => !prev);
-  // };
-
-  // const handleDeleteDentist = async ({
-  //   dentistId,
-  // }: {
-  //   dentistId: TDentistId;
-  // }) => {
-  //   try {
-  //     await deleteDentist.mutate(dentistId);
-  //     setIsModalOpen(false);
-  //     navigate(location.pathname, { replace: true });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const handleDeleteAllDentist = async (dentistIds: TDentistIds) => {
-  //   try {
-  //     if (selectedDentistRow.length) {
-  //       setIsDeleteAllModalOpen(false);
-  //       await deleteAllDentist.mutate(dentistIds);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   return (
     <>
       <div className="flex items-center justify-between mb-6 ">
@@ -228,62 +184,6 @@ const ReScheduledAppointments = () => {
             Re-schedule Appointments
           </h1>
         </header>
-
-        {/* <div className="flex flex-row-reverse justify-between gap-3">
-          <Button variant="db_default" size="lg" asChild>
-            <Link to="add_new_dentist">
-              <span>Add new dentist</span> <FiPlus className="w-4 h-4" />
-            </Link>
-          </Button>
-          <Dialog
-            open={isDeleteAllModalOpen}
-            onOpenChange={onOpenDeleteAllModalChange}
-          >
-            {selectedDentistRow.length > 0 && (
-              <Button
-                variant="db_outline"
-                size="lg"
-                disabled={!selectedDentistRow.length}
-                onClick={onOpenDeleteAllModalChange}
-                className="flex gap-1 font-semibold "
-              >
-                <span>Delete</span>
-                <MdDeleteForever className="w-[19px] h-[19px] text-red/80" />
-              </Button>
-            )}
-            <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-              <DialogHeader className="px-6 pt-8">
-                <DialogTitle className="text-2xl font-bold text-center">
-                  Delete dentist
-                </DialogTitle>
-                <DialogDescription className="text-center text-neutral-600">
-                  Are you sure you want to delete all the selected dentists?
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="px-6 py-4 bg-gray-100">
-                <div className="flex items-center justify-center w-full gap-4">
-                  <Button
-                    size="lg"
-                    variant="db_outline"
-                    onClick={onOpenDeleteAllModalChange}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    // variant="destructive"
-                    size="lg"
-                    className="rounded-md"
-                    onClick={() =>
-                      handleDeleteAllDentist({ ids: selectedDentistRow })
-                    }
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div> */}
       </div>
 
       {/* =========== START TABLE ============= */}
@@ -582,11 +482,6 @@ const ReScheduledAppointments = () => {
                                                 dentistId: userId,
                                               })
                                             }
-                                            // onClick={() =>
-                                            //   handleDeleteDentist({
-                                            //     dentistId: row.original.id,
-                                            //   })
-                                            // }
                                           >
                                             Reject
                                           </Button>

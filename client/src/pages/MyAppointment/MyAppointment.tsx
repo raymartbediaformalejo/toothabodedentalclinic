@@ -1,9 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
-import { MdDateRange } from "react-icons/md";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { TbDental } from "react-icons/tb";
-import { FaLocationDot } from "react-icons/fa6";
 
 import H1 from "@/components/ui/H1";
 import useAuth from "@/hooks/useAuth";
@@ -24,7 +21,6 @@ import {
 import { useState } from "react";
 import { useCancelAppointment } from "@/service/mutation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import ReviewAndBookService from "../Appointment/components/ReviewAndBookService";
 import { Badge } from "@/components/ui/badge";
 
 type AppointmentStatusKey = keyof typeof APPOINTMENT_STATUS;

@@ -3,8 +3,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { IoMdCheckmark } from "react-icons/io";
 import classes from "@/style/index.module.css";
 
-import { cn } from "@/lib/utils";
-
 const checkboxVariants = cva(
   "relative rounded-[3px] transition-[box-shadow] duration-200 ease-in-out",
   {
@@ -32,7 +30,7 @@ type TCheckBoxProps = React.HTMLAttributes<HTMLDivElement> &
   };
 
 const Checkbox = React.forwardRef<HTMLDivElement, TCheckBoxProps>(
-  ({ onChange, label, checked, id, className, variant, size }, ref) => {
+  ({ onChange, label, checked, id, className }, ref) => {
     const getId = () => {
       const newId = id
         ? id?.toLowerCase().split(" ").join("-")

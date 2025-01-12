@@ -1,43 +1,13 @@
 import { useGetAppointmentPatientInfo } from "@/service/queries";
 import { TPatientInfo } from "@/types/types";
 
-import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import useAuth from "@/hooks/useAuth";
-import { useGetMyAppointment } from "@/service/queries";
-import {
-  TApproveAppointment,
-  TMyAppointment,
-  TRejectAppointment,
-} from "@/types/types";
-import PatientProfile from "../Appointment/components/PatientProfile";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  createUsername,
-  formatAppointmentDate,
-  formatDate,
-  formatReadableDate,
-} from "@/lib/utils";
-import BookedBy from "../Appointment/components/BookedBy";
-import BookedFor from "../Appointment/components/BookedFor";
+
+import { createUsername, formatDate, formatReadableDate } from "@/lib/utils";
+
 import MedicalHistory from "../Appointment/components/MedicalHistory";
-import {
-  useApproveAppointment,
-  useRejectAppointment,
-} from "@/service/mutation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
-import { Separator } from "@radix-ui/react-select";
 import CreatedBy from "./components/CreatedBy";
 import AccountStatus from "./components/AccountStatus";
 
@@ -136,7 +106,7 @@ const SinglePatient = () => {
                 Account status:
               </span>
               <span className="gap-4 text-sm break-words text-neutral-800">
-                <AccountStatus userId={patient.createdBy} />
+                <AccountStatus userId={patient.createdBy as string} />
               </span>
             </div>
 
@@ -150,7 +120,7 @@ const SinglePatient = () => {
             <div className="grid items-center grid-cols-2">
               <span className="text-sm text-neutral-500/90">Created at:</span>
               <span className="gap-4 text-sm break-words text-neutral-800">
-                {formatReadableDate(patient.createdAt)}
+                {formatReadableDate(patient.createdAt as string)}
               </span>
             </div>
           </CardContent>

@@ -7,7 +7,7 @@ const useGetUserName = (userID: string) => {
 
   const userName = createUsername({
     lastname: user?.lastName,
-    middlename: user?.middleName,
+    middlename: user?.middleName || "",
     firstname: user?.firstName,
   });
   if (userName) {

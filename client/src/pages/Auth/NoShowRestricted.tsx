@@ -26,7 +26,7 @@ import { Form } from "@/components/ui/form";
 const NoShowRestricted = () => {
   const { userId } = useAuth();
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageUploading, setImageUploading] = useState<boolean>(false);
+  // const [imageUploading, setImageUploading] = useState<boolean>(false);
   const {
     data: userNoShowAppointmentData,
     isLoading: isLoadingNoShowAppointment,
@@ -45,7 +45,7 @@ const NoShowRestricted = () => {
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState<boolean>(true);
-  const { data: penaltyData, isLoading, isError } = useGetPenalty();
+  const { data: penaltyData, isError } = useGetPenalty();
   const penalty: TPenalty = penaltyData || {
     penaltyFee: 0,
     gcashQrCodeUrl: "",
@@ -54,7 +54,7 @@ const NoShowRestricted = () => {
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
     console.log("uploadToCloudinary");
-    setImageUploading(true);
+    // setImageUploading(true);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "toothabodedentalclinic");
@@ -70,10 +70,10 @@ const NoShowRestricted = () => {
       );
       const data = await response.json();
       console.log("uploadToCloudinary: ", data);
-      setImageUploading(false);
+      // setImageUploading(false);
       return data.secure_url;
     } catch (error) {
-      setImageUploading(false);
+      // setImageUploading(false);
       console.error("Cloudinary upload failed:", error);
       throw error;
     }

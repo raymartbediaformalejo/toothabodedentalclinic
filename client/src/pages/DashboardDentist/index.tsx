@@ -9,7 +9,6 @@ import { TMyAppointment, TPatientInfo, TUser } from "@/types/types";
 import dentalVector from "@/assets/dentalvector.png";
 import { Badge } from "@/components/ui/badge";
 import { MdPendingActions } from "react-icons/md";
-import { BsPeople } from "react-icons/bs";
 import { useMemo } from "react";
 import { GrGroup } from "react-icons/gr";
 import { Link } from "react-router-dom";
@@ -25,8 +24,7 @@ const DashboardDentist = () => {
     ? appointmentInfo.data
     : null;
 
-  const { data: allPatientInfo, isLoading: isPatientLoading } =
-    useGetPatientsOfDoctor(userId);
+  const { data: allPatientInfo } = useGetPatientsOfDoctor(userId);
 
   const allPatient: TPatientInfo[] = useMemo(
     () => allPatientInfo?.data || [],
@@ -55,7 +53,7 @@ const DashboardDentist = () => {
   );
 
   // Sort pending appointments by time
-  const sortedPendingAppointments = pendingTodayAppointments?.sort((a, b) => {
+  const sortedPendingAppointments = todayAppointments?.sort((a, b) => {
     const timeA = new Date(a.schedule).getTime();
     const timeB = new Date(b.schedule).getTime();
     return timeA - timeB; // Ascending order

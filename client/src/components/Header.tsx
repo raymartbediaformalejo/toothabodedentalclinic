@@ -1,7 +1,6 @@
 import logo from "@/assets/toothabodelogo.png";
 import MobileToggle from "./mobile-toggle";
 import { Link } from "react-router-dom";
-import useAuth from "@/hooks/useAuth";
 
 const Header = () => {
   return (
