@@ -138,10 +138,8 @@ const Services = () => {
 
   const handleDeleteService = async ({
     serviceId,
-    title,
   }: {
     serviceId: TServiceId;
-    title: string;
   }) => {
     try {
       await deleteService.mutate(serviceId);
@@ -463,7 +461,6 @@ const Services = () => {
                                         onClick={() =>
                                           handleDeleteService({
                                             serviceId: row.original.id,
-                                            title: row.original.title,
                                           })
                                         }
                                       >
