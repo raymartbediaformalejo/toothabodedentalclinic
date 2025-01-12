@@ -22,12 +22,17 @@ const AccountStatusAuth = () => {
     return <Navigate to="/verify-email" state={{ from: location }} replace />;
   }
 
-  if (userAccountStatus.accountStatus === ACCOUNT_STATUS.NO_SHOW_RESTRICTED) {
+  if (
+    userAccountStatus.accountStatus === ACCOUNT_STATUS.NO_SHOW_RESTRICTED.value
+  ) {
     return (
       <Navigate to="/no-show-restricted" state={{ from: location }} replace />
     );
   }
-  if (userAccountStatus.accountStatus === ACCOUNT_STATUS.PAYMENT_VERIFICATION) {
+  if (
+    userAccountStatus.accountStatus ===
+    ACCOUNT_STATUS.PAYMENT_VERIFICATION.value
+  ) {
     return (
       <Navigate
         to="/wait-for-verification"

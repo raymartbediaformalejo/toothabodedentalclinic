@@ -13,19 +13,17 @@ const AppointmentStatus = ({ status }: TAppointmentStatusProps) => {
   const textColor = statusObject ? statusObject.foreGround : "#000000";
 
   return (
-    <div>
-      <Badge
-        variant="outline"
-        style={{
-          color: textColor,
-          borderColor: statusObject?.foreGround,
-          backgroundColor: statusObject?.backGround,
-        }}
-        className="font-semibold text-nowrap"
-      >
-        {statusObject?.label}
-      </Badge>
-    </div>
+    <Badge
+      variant="outline"
+      style={{
+        color: textColor,
+        borderColor: statusObject?.foreGround,
+        backgroundColor: statusObject?.backGround,
+      }}
+      className="font-semibold text-nowrap"
+    >
+      {statusObject?.label}
+    </Badge>
   );
 };
 

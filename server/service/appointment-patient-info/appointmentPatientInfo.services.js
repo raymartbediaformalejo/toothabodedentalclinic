@@ -8,6 +8,7 @@ class AppointmentPatientInfo {
       const query = `
         SELECT 
           appointment_patient_info_id AS "id",
+          medical_history_id AS "medicalHistoryId",
           last_name AS "lastName",
           first_name AS "firstName",
           middle_name AS "middleName",

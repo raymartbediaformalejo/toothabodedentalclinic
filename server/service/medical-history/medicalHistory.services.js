@@ -17,7 +17,7 @@ class MedicalHistory {
           question_six AS "question6",
           question_seven AS "question7",
           question_eight AS "question8",
-          question_nine AS "question8",
+          question_nine AS "question9",
           created_at AS "createdAt",
           created_by AS "createdBy",
           updated_at AS "updatedAt",

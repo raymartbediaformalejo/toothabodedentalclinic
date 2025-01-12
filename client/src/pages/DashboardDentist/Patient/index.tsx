@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-
+import profileImgFallback from "@/assets/default-avatar.jpg";
 import {
   Table,
   TableHeader,
@@ -17,12 +17,17 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetDentistPendingAppointments } from "@/service/queries";
 import {
+  useGetDentistAppointments,
+  useGetPatientsOfDoctor,
+} from "@/service/queries";
+import {
+  TAppointmentInfo,
   TApproveAppointment,
   TMyAppointment,
+  TPatientInfo,
   TRejectAppointment,
 } from "@/types/types";
 import {
@@ -40,7 +45,12 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, formatAppointmentDate } from "@/lib/utils";
+import {
+  cn,
+  createUsername,
+  formatAppointmentDate,
+  formatReadableDate,
+} from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
@@ -65,29 +75,33 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
-// import DentistName from "./components/DentistName";
-// import AvailabilityCell from "./components/AvailabilityCell";
 import useAuth from "@/hooks/useAuth";
-import UserName from "./components/UserName";
+import UserName from "../Appointment/components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
+import CreatedBy from "./components/CreatedBy";
+import AccountStatus from "./components/AccountStatus";
 
-const columnAppointments = [
+const columnPatients = [
   {
     header: "Patient Name",
     accessorKey: "firstName",
   },
   {
-    header: "Requested Date & Time",
-    accessorKey: "schedule",
+    header: "Gender",
+    accessorKey: "sex",
   },
   {
-    header: "Dental Service",
-    accessorKey: "services",
+    header: "Age",
+    accessorKey: "age",
   },
   {
-    header: "Status",
-    accessorKey: "status",
+    header: "Account status",
+    accessorKey: "middleName",
+  },
+  {
+    header: "Created by",
+    accessorKey: "createdBy",
   },
   {
     header: "Created at",
@@ -95,7 +109,7 @@ const columnAppointments = [
   },
 ];
 
-const PendingAppointments = () => {
+const Patients = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
@@ -106,18 +120,19 @@ const PendingAppointments = () => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
-  // const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetDentistPendingAppointments(userId);
-  const allAppointments: TMyAppointment[] = useMemo(
-    () => data?.data || [],
-    [data]
+  const { data: allPatientInfo, isLoading: isPatientLoading } =
+    useGetPatientsOfDoctor(userId);
+
+  const allPatient: TPatientInfo[] = useMemo(
+    () => allPatientInfo?.data || [],
+    [allPatientInfo]
   );
-  // const deleteAllDentist = useDeleteAllDentist();
-  // const deleteDentist = useDeleteDentist();
+
+  console.log("allPatient: ", allPatient);
   const table = useReactTable({
-    data: allAppointments,
-    columns: columnAppointments,
+    data: allPatient,
+    columns: columnPatients,
     initialState: {
       pagination: {
         pageSize: rowPerPage,
@@ -127,7 +142,7 @@ const PendingAppointments = () => {
       rowSelection,
       sorting,
     },
-    getRowId: (row) => row.id,
+    getRowId: (row) => row.id as string,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -173,29 +188,26 @@ const PendingAppointments = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
 
-  console.log("allAppointments data: ", data);
-  console.log("allAppointments: ", allAppointments);
-
   return (
     <>
       <div className="flex items-center justify-between mb-6 ">
         <header className=" text-black/80">
           <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
-            Pending Approval Appointments
+            My Appointments
           </h1>
         </header>
       </div>
 
       {/* =========== START TABLE ============= */}
       <Card className="bg-white shadow-sidebar-shadow overflow-hidden border-[rgba(46,32,0,0.1)]">
-        {allAppointments.length === 0 && !isLoading && (
+        {allPatient.length === 0 && !isPatientLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
-              There are no records to display for Pending Approval Appointments
+              There are no records to display for Patients
             </p>
           </div>
         )}
-        {allAppointments.length > 0 && (
+        {allPatient.length > 0 && (
           <Table className="font-inter ">
             <TableHeader className="bg-neutral-100">
               {table.getHeaderGroups().map((headerGroup) => {
@@ -290,7 +302,7 @@ const PendingAppointments = () => {
               })}
             </TableHeader>
             <TableBody className="w-full">
-              {isLoading && (
+              {isPatientLoading && (
                 <div className="absolute flex flex-col w-full gap-1 py-1">
                   <Skeleton className="w-full h-10" />
                   <Skeleton className="w-full h-10" />
@@ -303,7 +315,9 @@ const PendingAppointments = () => {
                   <React.Fragment key={row.id}>
                     <TableRow
                       key={row.id}
-                      isSelected={selectedDentistRow.includes(row.original.id)}
+                      isSelected={selectedDentistRow.includes(
+                        row.original.id as string
+                      )}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
@@ -319,36 +333,33 @@ const PendingAppointments = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <UserName
-                                  userId={cell.row.original.patientId}
-                                />
-                              </TableCell>
-                            ) : cell.column.id === "schedule" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <div>
-                                  {formatAppointmentDate(
-                                    cell.row.original.schedule
-                                  )}
-                                </div>
-                              </TableCell>
-                            ) : cell.column.id === "services" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <Services serviceIds={row.original.services} />
-                              </TableCell>
-                            ) : cell.column.id === "status" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <AppointmentStatus
-                                  status={row.original.status}
-                                />
+                                <Link
+                                  className="flex items-center"
+                                  to={`/dentist/my_patients/${cell.row.original.id}`}
+                                >
+                                  <label
+                                    key={userId}
+                                    className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
+                                  >
+                                    <span className="relative flex w-6 h-6 overflow-hidden border rounded-full select-none border-neutral-300 ">
+                                      <img
+                                        src={profileImgFallback}
+                                        alt="Profile picture"
+                                        className="w-full h-full aspect-square"
+                                      />
+                                    </span>
+                                    <div>
+                                      <span>
+                                        {createUsername({
+                                          firstname: row.original.firstName!,
+                                          middlename:
+                                            row.original.middleName! || "",
+                                          lastname: row.original.lastName!,
+                                        })}
+                                      </span>
+                                    </div>
+                                  </label>
+                                </Link>
                               </TableCell>
                             ) : cell.column.id === "createdAt" ? (
                               <TableCell
@@ -356,10 +367,56 @@ const PendingAppointments = () => {
                                 className=" text-[#424242] text-sm"
                               >
                                 <span className="text-nowrap">
-                                  {formatAppointmentDate(
-                                    cell.row.original.createdAt
+                                  {formatReadableDate(
+                                    cell.row.original.createdAt as string
                                   )}
                                 </span>
+                              </TableCell>
+                            ) : cell.column.id === "middleName" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <AccountStatus
+                                  userId={row.original.createdBy as string}
+                                />
+                              </TableCell>
+                            ) : cell.column.id === "sex" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <span
+                                  className={cn(
+                                    "text-xs font-medium",
+                                    row.original.sex === "Male"
+                                      ? "text-blue-800"
+                                      : "text-pink-500"
+                                  )}
+                                >
+                                  {row.original.sex}
+                                </span>
+                              </TableCell>
+                            ) : cell.column.id === "createdBy" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <Link
+                                  className="flex items-center"
+                                  to={`/dentist/my_patients/${row.original.createdBy}`}
+                                >
+                                  <div
+                                    key={userId}
+                                    className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
+                                  >
+                                    <div>
+                                      <CreatedBy
+                                        userId={row.original.createdBy as string}
+                                      />
+                                    </div>
+                                  </div>
+                                </Link>
                               </TableCell>
                             ) : (
                               <TableCell
@@ -379,7 +436,7 @@ const PendingAppointments = () => {
                       <TableCell>
                         <Popover>
                           <PopoverTrigger
-                            id={row.original.id}
+                            id={row.original.id as string}
                             className="data-[state=open]:bg-black/10 transition-[background-color] duration-300 ease-in-out py-2 px-3 rounded-md hover:bg-black/10 "
                           >
                             <BsThreeDots />
@@ -388,118 +445,17 @@ const PendingAppointments = () => {
                             align="end"
                             className="flex flex-col p-0 w-[150px]"
                           >
-                            {row.original.status === "pending" ? (
-                              <div className="pb-1 border-b border-black/10">
-                                <div className="flex flex-col w-full gap-2 px-3 pt-3 pb-2">
-                                  <Dialog
-                                    open={isApprovedModalOpen}
-                                    onOpenChange={onOpenApprovedModalChange}
-                                  >
-                                    <Button
-                                      size="sm"
-                                      className="w-full  border-green-500 text-green-800 justify-between rounded-[4px] hover:bg-green-200 focus:bg-green-200 "
-                                      variant="db_outline"
-                                      onClick={onOpenApprovedModalChange}
-                                    >
-                                      <span>Approve</span>
-                                    </Button>
-                                    <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                                      <DialogHeader className="px-6 pt-8">
-                                        <DialogTitle className="text-2xl font-bold text-center">
-                                          Approve Appointment
-                                        </DialogTitle>
-                                        <DialogDescription className="text-center text-neutral-600">
-                                          Are you sure you want to approve this
-                                          appointment?
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <DialogFooter className="px-6 py-4 bg-gray-100">
-                                        <div className="flex items-center justify-center w-full gap-4">
-                                          <Button
-                                            className="rounded-md"
-                                            variant="db_outline"
-                                            onClick={onOpenApprovedModalChange}
-                                          >
-                                            Cancel
-                                          </Button>
-                                          <Button
-                                            variant="db_default"
-                                            onClick={() =>
-                                              handleApproveAppointment({
-                                                appointmentId: row.original.id,
-                                                dentistId: userId,
-                                              })
-                                            }
-                                            className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
-                                          >
-                                            Approve
-                                          </Button>
-                                        </div>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                  <Dialog
-                                    open={isDeclineModalOpen}
-                                    onOpenChange={onOpenDeclineModalChange}
-                                  >
-                                    <Button
-                                      size="sm"
-                                      className="w-full  border-red-500 text-red-800 justify-between rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
-                                      variant="db_outline"
-                                      onClick={onOpenDeclineModalChange}
-                                    >
-                                      <span>Reject</span>
-                                    </Button>
-                                    <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                                      <DialogHeader className="px-6 pt-8">
-                                        <DialogTitle className="text-2xl font-bold text-center">
-                                          Reject Appointment
-                                        </DialogTitle>
-                                        <DialogDescription className="text-center text-neutral-600">
-                                          Are you sure you want to do reject
-                                          this appointment?{" "}
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <DialogFooter className="px-6 py-4 bg-gray-100">
-                                        <div className="flex items-center justify-center w-full gap-4">
-                                          <Button
-                                            className="rounded-md"
-                                            variant="db_outline"
-                                            onClick={onOpenDeclineModalChange}
-                                          >
-                                            Cancel
-                                          </Button>
-                                          <Button
-                                            variant="db_default"
-                                            className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
-                                            onClick={() =>
-                                              handleRejectAppointment({
-                                                appointmentId: row.original.id,
-                                                dentistId: userId,
-                                              })
-                                            }
-                                            // onClick={() =>
-                                            //   handleDeleteDentist({
-                                            //     dentistId: row.original.id,
-                                            //   })
-                                            // }
-                                          >
-                                            Reject
-                                          </Button>
-                                        </div>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                </div>
-                              </div>
-                            ) : null}
                             <div className="w-full px-3 pt-2 pb-2">
                               <Button
                                 size="sm"
                                 className="w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(`/admin/dentists/${row.original.id}`)
+                                  navigate(
+                                    `/dentist/my_patients/${
+                                      row.original.id as string
+                                    }`
+                                  )
                                 }
                               >
                                 <span>View</span>
@@ -517,7 +473,7 @@ const PendingAppointments = () => {
         )}
       </Card>
       {/* =========== END TABLE ============= */}
-      {!!allAppointments.length && (
+      {!!allPatient.length && (
         <div className="flex justify-between my-8 text-sm ">
           <p
             className={cn(
@@ -525,7 +481,7 @@ const PendingAppointments = () => {
               selectedDentistRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedDentistRow.length} of ${allAppointments.length} row(s) selected.`}
+            {`${selectedDentistRow.length} of ${allPatient.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">
@@ -601,4 +557,4 @@ const PendingAppointments = () => {
   );
 };
 
-export default PendingAppointments;
+export default Patients;

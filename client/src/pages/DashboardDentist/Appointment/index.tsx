@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-
+import profileImgFallback from "@/assets/default-avatar.jpg";
 import {
   Table,
   TableHeader,
@@ -17,26 +17,19 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetAllDentist, useGetDentistAppointments } from "@/service/queries";
+import { useGetDentistAppointments } from "@/service/queries";
 import {
-  TAppointment,
   TApproveAppointment,
-  TDentist,
-  TDentistId,
-  TDentistIds,
   TMyAppointment,
   TRejectAppointment,
 } from "@/types/types";
 import {
   useApproveAppointment,
-  useDeleteAllDentist,
-  useDeleteDentist,
   useRejectAppointment,
 } from "@/service/mutation";
 import { Button } from "@/components/ui/button";
-import { FiPlus } from "react-icons/fi";
 import {
   Dialog,
   DialogContent,
@@ -45,7 +38,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { MdDeleteForever } from "react-icons/md";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
 import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
@@ -56,7 +48,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { MdEdit } from "react-icons/md";
 import {
   Select,
   SelectContent,
@@ -95,6 +86,10 @@ const columnAppointments = [
   {
     header: "Status",
     accessorKey: "status",
+  },
+  {
+    header: "Created by",
+    accessorKey: "createdBy",
   },
   {
     header: "Created at",
@@ -177,35 +172,6 @@ const Appointments = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
 
-  // const onOpenDeleteAllModalChange = () => {
-  //   setIsDeleteAllModalOpen((prev) => !prev);
-  // };
-
-  // const handleDeleteDentist = async ({
-  //   dentistId,
-  // }: {
-  //   dentistId: TDentistId;
-  // }) => {
-  //   try {
-  //     await deleteDentist.mutate(dentistId);
-  //     setIsModalOpen(false);
-  //     navigate(location.pathname, { replace: true });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const handleDeleteAllDentist = async (dentistIds: TDentistIds) => {
-  //   try {
-  //     if (selectedDentistRow.length) {
-  //       setIsDeleteAllModalOpen(false);
-  //       await deleteAllDentist.mutate(dentistIds);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   console.log("allAppointments data: ", data);
   console.log("allAppointments: ", allAppointments);
 
@@ -217,62 +183,6 @@ const Appointments = () => {
             My Appointments
           </h1>
         </header>
-
-        {/* <div className="flex flex-row-reverse justify-between gap-3">
-          <Button variant="db_default" size="lg" asChild>
-            <Link to="add_new_dentist">
-              <span>Add new dentist</span> <FiPlus className="w-4 h-4" />
-            </Link>
-          </Button>
-          <Dialog
-            open={isDeleteAllModalOpen}
-            onOpenChange={onOpenDeleteAllModalChange}
-          >
-            {selectedDentistRow.length > 0 && (
-              <Button
-                variant="db_outline"
-                size="lg"
-                disabled={!selectedDentistRow.length}
-                onClick={onOpenDeleteAllModalChange}
-                className="flex gap-1 font-semibold "
-              >
-                <span>Delete</span>
-                <MdDeleteForever className="w-[19px] h-[19px] text-red/80" />
-              </Button>
-            )}
-            <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-              <DialogHeader className="px-6 pt-8">
-                <DialogTitle className="text-2xl font-bold text-center">
-                  Delete dentist
-                </DialogTitle>
-                <DialogDescription className="text-center text-neutral-600">
-                  Are you sure you want to delete all the selected dentists?
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="px-6 py-4 bg-gray-100">
-                <div className="flex items-center justify-center w-full gap-4">
-                  <Button
-                    size="lg"
-                    variant="db_outline"
-                    onClick={onOpenDeleteAllModalChange}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    // variant="destructive"
-                    size="lg"
-                    className="rounded-md"
-                    onClick={() =>
-                      handleDeleteAllDentist({ ids: selectedDentistRow })
-                    }
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div> */}
       </div>
 
       {/* =========== START TABLE ============= */}
@@ -412,9 +322,34 @@ const Appointments = () => {
                                   className="flex items-center"
                                   to={`/dentist/my_appointments/${cell.row.original.id}`}
                                 >
-                                  <UserName
+                                  <label
+                                    key={userId}
+                                    className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
+                                  >
+                                    <span className="relative flex w-6 h-6 overflow-hidden border rounded-full select-none border-neutral-300 ">
+                                      <img
+                                        src={profileImgFallback}
+                                        alt="Profile picture"
+                                        className="w-full h-full aspect-square"
+                                      />
+                                    </span>
+                                    <div>
+                                      <span>
+                                        {createUsername({
+                                          firstname:
+                                            row.original.patientFirstName!,
+                                          middlename:
+                                            row.original.patientMiddleName! ||
+                                            "",
+                                          lastname:
+                                            row.original.patientLastName!,
+                                        })}
+                                      </span>
+                                    </div>
+                                  </label>
+                                  {/* <UserName
                                     userId={cell.row.original.patientId}
-                                  />
+                                  /> */}
                                 </Link>
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
@@ -454,6 +389,15 @@ const Appointments = () => {
                                     cell.row.original.createdAt
                                   )}
                                 </span>
+                              </TableCell>
+                            ) : cell.column.id === "createdBy" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <UserName
+                                  userId={cell.row.original.createdBy}
+                                />
                               </TableCell>
                             ) : (
                               <TableCell
@@ -593,7 +537,9 @@ const Appointments = () => {
                                 className="w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(`/admin/dentists/${row.original.id}`)
+                                  navigate(
+                                    `/dentist/my_appointments/${row.original.id}`
+                                  )
                                 }
                               >
                                 <span>View</span>

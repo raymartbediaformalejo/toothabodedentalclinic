@@ -375,6 +375,8 @@ export const patientInfoSchema = userSchema
     mobileNo: true,
   })
   .extend({
+    id: z.string().optional().nullable(),
+    medicalHistoryId: z.string().optional().nullable(),
     isLovedOne: z.boolean(),
     relationship: z.string().min(1, "Reqiured"),
     nickname: z.string(),
@@ -385,6 +387,8 @@ export const patientInfoSchema = userSchema
     barangay: z.string().min(1, "Barangay required"),
     region: z.string().min(1, "Region required"),
     zipCode: z.string().min(1, "Zip code required"),
+    createdAt: z.string().optional().nullable(),
+    createdBy: z.string().optional().nullable(),
   });
 
 export const patientInfoWithIdSchema = patientInfoSchema

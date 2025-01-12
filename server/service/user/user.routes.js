@@ -3,6 +3,7 @@ const { Router } = require("express");
 const {
   getUsers,
   getUser,
+  getPatientsOfDoctor,
   createUser,
   verifyEmail,
   resendVerificationCode,
@@ -18,6 +19,8 @@ const router = Router();
 router.get("/user/single/:userId", getUser);
 router.get("/user", getUsers);
 router.get("/user/:userId/account-status", getUserAccountStatus);
+router.get("/user/:doctorId/patients", getPatientsOfDoctor);
+
 router.get(
   "/user/:userId/no-show-appointment",
   getUserAppointmentNoShowSchedule

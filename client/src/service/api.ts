@@ -90,6 +90,11 @@ export const getUserAccountStatus = async (args: { queryKey: string[] }) => {
   const { data } = await axiosInstance.get(`/user/${userId}/account-status`);
   return data;
 };
+export const getPatientsOfDoctor = async (args: { queryKey: string[] }) => {
+  const dentistId = args.queryKey[2]; // Extract userId from updated queryKey
+  const { data } = await axiosInstance.get(`/user/${dentistId}/patients`);
+  return data;
+};
 
 export const editUserAPI = async (data: TEditUser) => {
   const result = await axiosInstance.patch(`/user/${data.id}`, {

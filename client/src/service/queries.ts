@@ -23,6 +23,7 @@ import {
   getDentistPendingAppointmentAPI,
   getDentistReScheduleAppointmentAPI,
   getPatientAppointmentsAPI,
+  getPatientsOfDoctor,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -58,6 +59,12 @@ export const useGetUserAccountStatus = (id: string) => {
   return useQuery({
     queryKey: ["user", "account-status", id], // Unique query key
     queryFn: getUserAccountStatus, // Calls /user/:userId/account-status
+  });
+};
+export const useGetPatientsOfDoctor = (id: string) => {
+  return useQuery({
+    queryKey: ["user", "patientsOfDoctor", id], // Unique query key
+    queryFn: getPatientsOfDoctor, // Calls /user/:userId/account-status
   });
 };
 

@@ -116,6 +116,19 @@ export default {
         500: "#10B981",
         200: "#D7F7E7",
       },
+      blue: {
+        50: "#EFF6FF",
+        100: "#DBEAFE",
+        200: "#BAE6FD",
+        500: "#0EA5E9",
+        800: "#1E40AF",
+        900: "#1E3A8A",
+      },
+      pink: {
+        50: "#FDF4FF",
+        500: "#D946EF",
+        900: "#701A75",
+      },
     },
     boxShadow: {
       "shadow-none": "0 0 0 0 rgba(0, 0, 0, 0)",

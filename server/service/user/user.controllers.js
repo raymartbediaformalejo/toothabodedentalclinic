@@ -26,6 +26,28 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getPatientsOfDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+
+    if (!doctorId) {
+      return res
+        .status(400)
+        .send({ message: "Doctor ID is required", ok: false });
+    }
+
+    const data = await User.getPatientOfDoctor(doctorId);
+
+    return res.status(200).send({ data, ok: true });
+  } catch (error) {
+    console.error("Error in getPatientsOfDoctor controller:", error.message);
+    return res.status(500).send({
+      message: `Internal Server Error: ${error.message}`,
+      ok: false,
+    });
+  }
+};
+
 const getUserAppointmentNoShowSchedule = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -211,6 +233,7 @@ const changePassword = async (req, res) => {
 module.exports = {
   getUser,
   getUsers,
+  getPatientsOfDoctor,
   getUserAccountStatus,
   getUserAppointmentNoShowSchedule,
   createUser,

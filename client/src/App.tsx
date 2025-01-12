@@ -29,6 +29,8 @@ import PendingAppointments from "./pages/DashboardDentist/Appointment/PendingApp
 import ReScheduledAppointment from "./pages/DashboardDentist/Appointment/ReScheduledAppointments";
 import WaitForVerification from "./pages/Auth/WaitForVerification";
 import SingleAppointment from "./pages/DashboardDentist/Appointment/SingleAppointment";
+import Patients from "./pages/DashboardDentist/Patient";
+import SinglePatient from "./pages/DashboardDentist/Patient/SinglePatient";
 
 function App() {
   return (
@@ -88,6 +90,10 @@ function App() {
                     path="re_schedule_appointment"
                     element={<ReScheduledAppointment />}
                   />
+                </Route>
+                <Route path="my_patients">
+                  <Route index element={<Patients />} />
+                  <Route path=":id" element={<SinglePatient />} />
                 </Route>
               </Route>
             </Route>

@@ -6,6 +6,101 @@ const { sendVerificationEmail } = require("../../mailtrap/emails");
 const { ACCOUNT_STATUS } = require("../../utils/variables");
 
 class User {
+  static async getPatientOfDoctor(dentistId) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      // Get unique patient IDs from appointments for the specified doctor
+      const appointmentsQuery = `
+        SELECT DISTINCT appointment_patient_info_id
+        FROM tbl_appointment
+        WHERE dentist_id = $1
+      `;
+      const appointmentsResult = await client.query(appointmentsQuery, [
+        dentistId,
+      ]);
+
+      console.log("appointmentsResult:", appointmentsResult.rows);
+
+      if (appointmentsResult.rowCount === 0) {
+        await client.query("ROLLBACK");
+        return [];
+      }
+
+      const patientIds = appointmentsResult.rows.map(
+        (row) => row.appointment_patient_info_id
+      );
+
+      // Fetch patient details with the role "Patient"
+      // const usersQuery = `
+      //   SELECT
+      //     u.id,
+      //     u.last_name "lastName",
+      //     u.first_name "firstName",
+      //     u.middle_name "middleName",
+      //     u.suffix,
+      //     u.birth_day "birthDay",
+      //     u.age,
+      //     u.sex,
+      //     u.email,
+      //     u.mobile_no "mobileNo",
+      //     u.profile_pic_url "profilePicUrl",
+      //     u.account_status "accountStatus",
+      //     u.nationality,
+      //     u.religion,
+      //     u.deleted,
+      //     u.created_at "createdAt",
+      //     u.created_by "createdBy",
+      //     u.updated_at "updatedAt",
+      //     u.updated_by "updatedBy"
+      //   FROM tbl_user u
+      //   INNER JOIN tbl_user_role ur ON u.id = ur.user_id
+      //   INNER JOIN tbl_role r ON ur.role_id = r.id
+      //   WHERE u.id = ANY($1) AND r.name = 'Patient'
+      // `;
+      const usersQuery = `
+        SELECT 
+          appointment_patient_info_id AS "id",
+          last_name AS "lastName",
+          first_name AS "firstName",
+          middle_name AS "middleName",
+          nickname,
+          occupation,
+          birth_day AS "birthDay",
+          age,
+          sex,
+          email,
+          mobile_no AS "mobileNo",
+          address,
+          city,
+          barangay,
+          region,
+          zip_code AS "zipCode",
+          religion,
+          is_loved_ones AS "isLovedOnes",
+          relationship,
+          deleted,
+          created_at AS "createdAt",
+          created_by AS "createdBy",
+          updated_at AS "updatedAt",
+          updated_by AS "updatedBy"
+        FROM tbl_appointment_patient_info
+        WHERE appointment_patient_info_id = ANY($1)
+      `;
+      const usersResult = await client.query(usersQuery, [patientIds]);
+
+      await client.query("COMMIT");
+      return usersResult.rows;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`Error fetching patients of doctor: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   static getUserAppointmentNoShowSchedule = async (userId) => {
     const client = await pool.connect();
 

@@ -122,18 +122,22 @@ class Appointment {
     try {
       const query = `
         SELECT 
-          a.appointment_id AS "id", 
-          a.patient_id AS "patientId",
-          a.schedule, 
-          a.appointment_status AS "status", 
-          array_agg(s.id) AS "services", 
+          a.appointment_id AS "id",
+          a.appointment_patient_info_id AS "patientInfoId",
+          a.schedule,
+          a.appointment_status AS "status",
+          array_agg(s.id) AS "services",
           a.created_at AS "createdAt",
-          a.created_by AS "createdBy"
+          a.created_by AS "createdBy",
+          api.first_name AS "patientFirstName",
+          api.middle_name AS "patientMiddleName",
+          api.last_name AS "patientLastName"
         FROM tbl_appointment a
         LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
         LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        LEFT JOIN tbl_appointment_patient_info api ON a.appointment_patient_info_id = api.appointment_patient_info_id
         WHERE a.dentist_id = $1
-        GROUP BY a.appointment_id
+        GROUP BY a.appointment_id, api.first_name, api.middle_name, api.last_name
         ORDER BY a.schedule DESC
       `;
 
@@ -149,12 +153,13 @@ class Appointment {
 
       return result.rows;
     } catch (error) {
-      console.error("Error fetching appointments: ", error);
+      console.error("Error fetching dentist appointments: ", error);
       throw new Error(`Internal Server Error: ${error.message}`);
     } finally {
       client.release();
     }
   }
+
   static async approveAppointment(values) {
     const client = await pool.connect();
     try {

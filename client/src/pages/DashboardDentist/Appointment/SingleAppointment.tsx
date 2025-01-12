@@ -3,10 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useAuth from "@/hooks/useAuth";
-import PatientInfo from "@/pages/Appointment/components/PatientInfo";
 import { useGetMyAppointment } from "@/service/queries";
 import {
-  TAppointment,
   TApproveAppointment,
   TMyAppointment,
   TRejectAppointment,
@@ -48,12 +46,16 @@ const SingleAppointment = () => {
     () => appointmentData?.data || [],
     [appointmentData]
   );
+
+  if (isLoadingAppointment) {
+    return <div>Loading...</div>;
+  }
   const handleApproveAppointment = async (data: TApproveAppointment) => {
     try {
       if (data.appointmentId && data.dentistId) {
         await approveAppointment.mutate(data);
         setIsApprovedModalOpen(false);
-        navigate("/my_appointments");
+        navigate("/dentist/my_appointments");
       }
     } catch (error) {
       console.log("Error approve appointment: ", error);
@@ -64,7 +66,7 @@ const SingleAppointment = () => {
       if (data.appointmentId && data.dentistId) {
         await rejectAppoinment.mutate(data);
         setIsDeclineModalOpen(false);
-        navigate("/my_appointments");
+        navigate("/dentist/my_appointments");
       }
     } catch (error) {
       console.log("Error approve appointment: ", error);
@@ -79,7 +81,7 @@ const SingleAppointment = () => {
   console.log("appointment: ", appointment);
 
   return (
-    <div className=" max-w-[1200px] mx-auto">
+    <div className=" max-w-[1200px] mx-auto mb-12">
       <header className=" text-black/80">
         <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
           Appointment Details

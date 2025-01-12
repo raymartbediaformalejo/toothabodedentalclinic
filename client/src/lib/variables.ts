@@ -81,13 +81,46 @@ export const MONTHS = [
 ] as const;
 
 export const ACCOUNT_STATUS = {
-  PENDING_APPROVAL: "pending-approval",
-  ACTIVE: "active",
-  INACTIVE: "inactive",
-  SUSPENDED: "suspended",
-  NO_SHOW_RESTRICTED: "no_show_restricted",
-  PAYMENT_VERIFICATION: "payment_verification",
-};
+  ACTIVE: {
+    value: "active",
+    label: "Active",
+    foreground: "#064E3B",
+    background: "#ECFDF5",
+    message: "Your account is active and in good standing.",
+  },
+  INACTIVE: {
+    value: "inactive",
+    label: "Inactive",
+    foreground: "#525252",
+    background: "#E5E5E5",
+    message:
+      "Your account is currently inactive. Please contact support if this is unexpected.",
+  },
+  SUSPENDED: {
+    value: "suspended",
+    label: "Suspended",
+    foreground: "#896022",
+    background: "#FFECCF",
+    message:
+      "Your account has been suspended. Please resolve the issue to regain access.",
+  },
+  NO_SHOW_RESTRICTED: {
+    value: "no_show_restricted",
+    label: "Penalized",
+    foreground: "#9F1239",
+    background: "#FEE2E2",
+    message:
+      "Your account is restricted due to no-show appointment. Please contact the clinic for resolution.",
+  },
+  PAYMENT_VERIFICATION: {
+    value: "payment_verification",
+    label: "Payment Verification",
+    foreground: "#0C4A6E",
+    background: "#F0F9FF",
+    message:
+      "Your account is awaiting payment verification. Please settle your payment to continue using the services.",
+  },
+} as const;
 
 export const APPOINTMENT_STATUS = {
   PENDING: {

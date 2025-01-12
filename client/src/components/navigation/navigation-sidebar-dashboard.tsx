@@ -34,7 +34,7 @@ import {
 import { ChevronRight } from "lucide-react";
 import { NavigationUser } from "./navigation-user";
 import useAuth from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Menu items.
 const itemsAdmin = [
@@ -90,16 +90,6 @@ const itemsAdmin = [
     icon: ServiceIcon,
   },
   {
-    title: "Callendar",
-    url: "/admin/calendar",
-    icon: CallendarIcon,
-  },
-  {
-    title: "Messages",
-    url: "#",
-    icon: MessageIcon,
-  },
-  {
     title: "Users",
     url: "#",
     icon: UsersIcon,
@@ -109,7 +99,7 @@ const itemsAdmin = [
 const itemsDentist = [
   {
     title: "Dashboard",
-    url: "/dentist/dashboard",
+    url: "/dentist",
     icon: DashboardIcon,
   },
   {
@@ -130,24 +120,22 @@ const itemsDentist = [
   },
   {
     title: "My Patients",
-    url: "#",
+    url: "/dentist/my_patients",
     icon: PatientsIcon,
-  },
-  {
-    title: "Callendar",
-    url: "/admin/calendar",
-    icon: CallendarIcon,
-  },
-  {
-    title: "Messages",
-    url: "#",
-    icon: MessageIcon,
   },
 ];
 
 export function NavigationSidebarDashboard() {
   const { userId, roles } = useAuth();
   const { open } = useSidebar();
+  const location = useLocation();
+
+  const isActive = (url: string) => {
+    console.log("url: ", url);
+    console.log("location.pathname: ", location.pathname);
+    console.log(location.pathname === url ? true : false);
+    return location.pathname === url ? true : false;
+  };
 
   return (
     <Sidebar collapsible="icon" className="shadow-sidebar-shadow">
@@ -180,6 +168,9 @@ export function NavigationSidebarDashboard() {
                           asChild
                           tooltip={item.title}
                           size="lg"
+                          className={cn(
+                            isActive(item.url) ? "bg-primary-700" : ""
+                          )}
                         >
                           <Link to={item.url}>
                             <item.icon className="w-10 h-6" />
@@ -200,7 +191,14 @@ export function NavigationSidebarDashboard() {
                             <SidebarMenuSub>
                               {item.items?.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.title}>
-                                  <SidebarMenuSubButton size="lg">
+                                  <SidebarMenuSubButton
+                                    size="lg"
+                                    className={cn(
+                                      isActive(subItem.url)
+                                        ? "bg-primary-700"
+                                        : ""
+                                    )}
+                                  >
                                     <Link to={subItem.url}>
                                       <span>{subItem.title}</span>
                                     </Link>
@@ -224,6 +222,9 @@ export function NavigationSidebarDashboard() {
                           asChild
                           tooltip={item.title}
                           size="lg"
+                          className={cn(
+                            isActive(item.url) ? "bg-primary-100" : ""
+                          )}
                         >
                           <Link to={item.url}>
                             <item.icon className="w-10 h-6" />
@@ -244,7 +245,14 @@ export function NavigationSidebarDashboard() {
                             <SidebarMenuSub>
                               {item.items?.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.title}>
-                                  <SidebarMenuSubButton size="lg">
+                                  <SidebarMenuSubButton
+                                    size="lg"
+                                    className={cn(
+                                      isActive(subItem.url)
+                                        ? "bg-primary-100"
+                                        : ""
+                                    )}
+                                  >
                                     <Link to={subItem.url}>
                                       <span>{subItem.title}</span>
                                     </Link>

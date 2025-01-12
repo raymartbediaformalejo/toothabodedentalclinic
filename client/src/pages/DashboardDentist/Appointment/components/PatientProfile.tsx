@@ -39,7 +39,7 @@ const PatientProfile = ({ patientId }: PatientProfileProps) => {
       </div>
       <div className="grid items-center grid-cols-2">
         <span className="text-sm text-neutral-500/90">Age:</span>
-        <span className="gap-4 text-sm break-words  text-neutral-800">
+        <span className="gap-4 text-sm break-words text-neutral-800">
           {patientInfo.age || "N/A"}
         </span>
       </div>
