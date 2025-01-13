@@ -5,8 +5,12 @@ import {
   TChangePassword,
   TDentistIds,
   TEditUser,
+  TPatientId,
+  TPatientIds,
   TPaymentVerification,
   TRejectAppointment,
+  TUserId,
+  TUserIds,
   TVerifyEmail,
 } from "./../types/types";
 import {
@@ -36,9 +40,13 @@ import {
   createPaymentVerificationAPI,
   createServiceAPI,
   deleteAllDentistAPI,
+  deleteAllPatientAPI,
   deleteAllServiceAPI,
+  deleteAllUserAPI,
   deleteDentistAPI,
+  deletePatientAPI,
   deleteServiceAPI,
+  deleteUserAPI,
   editDentistAPI,
   editServiceAPI,
   editUserAPI,
@@ -182,6 +190,48 @@ export const useEditUser = () => {
     onSettled: (_, error) => {
       // @ts-ignore
       if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useDeleteUser = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TUserId) => deleteUserAPI(data),
+    onSuccess: (data) => {
+      console.log("data useDeleteService: ", data);
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      navigate("/admin/users");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useDeleteAllUser = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TUserIds) => deleteAllUserAPI(data),
+    onSuccess: (data) => {
+      console.log("data useDeleteAllService: ", data);
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      navigate("/admin/users");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });
@@ -560,6 +610,50 @@ export const useCancelAppointment = () => {
     onSettled: (_, error) => {
       // @ts-ignore
       if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+// ============ || APPOINTMENT PATIENT INFO || ===========
+
+export const useDeletePatient = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPatientId) => deletePatientAPI(data),
+    onSuccess: (data) => {
+      console.log("data useDeletePatient: ", data);
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["patient"] });
+      navigate("/admin/patients");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
+      return error;
+    },
+  });
+};
+
+export const useDeleteAllPatient = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPatientIds) => deleteAllPatientAPI(data),
+    onSuccess: (data) => {
+      console.log("data useDeleteAllPatient: ", data);
+      toast.success(`${data.message}`);
+      queryClient.invalidateQueries({ queryKey: ["patient"] });
+      navigate("/admin/patients");
+    },
+    onSettled: (_, error) => {
+      if (error) {
+        // @ts-ignore
+        toast.error(error?.response?.data.message);
+      }
       return error;
     },
   });

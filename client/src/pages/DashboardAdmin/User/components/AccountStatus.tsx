@@ -1,22 +1,10 @@
-import { useGetUserAccountStatus } from "@/service/queries";
-import { TUserAccountStatus } from "@/types/types";
 import { ACCOUNT_STATUS } from "@/lib/variables";
 import { Badge } from "@/components/ui/badge";
 
-const AccountStatus = ({ userId }: { userId: string }) => {
-  const { data, isLoading } = useGetUserAccountStatus(userId);
-
-  const userAccountStatus: TUserAccountStatus = data || {
-    accountStatus: "unknown",
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
+const AccountStatus = ({ accountStatus }: { accountStatus: string }) => {
   // Determine the styles based on account status
   const accountStatusKey = Object.values(ACCOUNT_STATUS).find(
-    (status) => status.value === userAccountStatus.accountStatus
+    (status) => status.value === accountStatus
   );
 
   const backgroundColor = accountStatusKey?.background || "#FFFFFF"; // Default to white

@@ -49,4 +49,74 @@ const getAppointmentPatientInfos = async (req, res) => {
   }
 };
 
-module.exports = { getAppointmentPatientInfo, getAppointmentPatientInfos };
+const updatePatientInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await AppointmentPatientInfo.updatePatientInfo({
+      id,
+      ...req.body,
+    });
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
+const deletePatientInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await AppointmentPatientInfo.deletePatientInfo(id);
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
+const deleteAllPatientInfo = async (req, res) => {
+  try {
+    const { ids } = req.body.data;
+    console.log("deleteAllPatientInfo ids: ", req.body);
+    console.log("deleteAllPatientInfo ids: ", ids);
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).send({
+        message: "Invalid or missing patient IDs.",
+        ok: false,
+      });
+    }
+
+    const data = await AppointmentPatientInfo.deleteAllPatientInfo(ids);
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: data.status === 200 || data.status === 201,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
+module.exports = {
+  getAppointmentPatientInfo,
+  getAppointmentPatientInfos,
+  updatePatientInfo,
+  deletePatientInfo,
+  deleteAllPatientInfo,
+};

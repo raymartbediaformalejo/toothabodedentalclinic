@@ -24,6 +24,8 @@ import {
   getDentistReScheduleAppointmentAPI,
   getPatientAppointmentsAPI,
   getPatientsOfDoctor,
+  getAllPatientAPI,
+  getAllUsersAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -52,6 +54,20 @@ export const useGetUser = (id: string) => {
   return useQuery({
     queryKey: ["user", "single", id], // Unique query key
     queryFn: getUserAPI, // Calls /user/single/:userId
+  });
+};
+
+export const useGetAllUsers = () => {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: getAllUsersAPI,
+  });
+};
+
+export const useGetAllPatients = () => {
+  return useQuery({
+    queryKey: ["patient"],
+    queryFn: getAllPatientAPI,
   });
 };
 

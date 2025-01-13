@@ -77,7 +77,7 @@ const itemsAdmin = [
   },
   {
     title: "Patients",
-    url: "#",
+    url: "/admin/patients",
     icon: PatientsIcon,
   },
   {
@@ -87,7 +87,7 @@ const itemsAdmin = [
   },
   {
     title: "Users",
-    url: "#",
+    url: "/admin/users",
     icon: UsersIcon,
   },
 ];

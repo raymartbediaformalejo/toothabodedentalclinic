@@ -174,6 +174,37 @@ export const verifyEmailSchema = z.object({
     .min(6, { message: "Your one-time password must be 6 characters." }),
 });
 
+export const userWithRoleSchema = userSchema
+  .pick({
+    id: true,
+    lastName: true,
+    firstName: true,
+    middleName: true,
+    suffix: true,
+    birthDay: true,
+    age: true,
+    sex: true,
+    email: true,
+    mobileNo: true,
+    profilePicUrl: true,
+    accountStatus: true,
+    nationality: true,
+    religion: true,
+    nickname: true,
+    occupation: true,
+    address: true,
+    barangay: true,
+    city: true,
+    region: true,
+    zipCode: true,
+    civilStatus: true,
+    createdBy: true,
+    createdAt: true,
+    updatedBy: true,
+    updatedAt: true,
+  })
+  .extend({ roles: z.array(z.string()), isVerified: z.boolean() });
+
 // ============ || DENTIST || ===========
 
 export const dentistSchema = userSchema.extend({
@@ -416,6 +447,10 @@ export const patientInfoWithIdSchema = patientInfoSchema
   .extend({
     id: z.string(),
     medicalHistoryId: z.string(),
+    createdAt: z.string().optional().nullable(),
+    createdBy: z.string().optional().nullable(),
+    updateAt: z.string().optional().nullable(),
+    updatedBy: z.string().optional().nullable(),
   });
 
 export const medicalHistorySchema = z.object({

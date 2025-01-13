@@ -31,6 +31,10 @@ import WaitForVerification from "./pages/Auth/WaitForVerification";
 import SingleAppointment from "./pages/DashboardDentist/Appointment/SingleAppointment";
 import Patients from "./pages/DashboardDentist/Patient";
 import SinglePatient from "./pages/DashboardDentist/Patient/SinglePatient";
+import AdminPatients from "./pages/DashboardAdmin/Patient";
+import SingleAdminPatient from "./pages/DashboardAdmin/Patient/SinglePatient";
+import Users from "./pages/DashboardAdmin/User";
+import SingleUser from "./pages/DashboardAdmin/User/SingleUser";
 
 function App() {
   return (
@@ -111,7 +115,14 @@ function App() {
                   <Route path="add_new_service" element={<AddNewService />} />
                   <Route path=":id" element={<EditService />} />
                 </Route>
-                <Route path="calendar" element={<Calendar />} />
+                <Route path="patients">
+                  <Route index element={<AdminPatients />} />
+                  <Route path=":id" element={<SingleAdminPatient />} />
+                </Route>
+                <Route path="users">
+                  <Route index element={<Users />} />
+                  <Route path=":id" element={<SingleUser />} />
+                </Route>
               </Route>
             </Route>
           </Route>

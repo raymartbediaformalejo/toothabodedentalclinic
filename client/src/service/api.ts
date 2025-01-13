@@ -12,15 +12,20 @@ import {
   TDentistId,
   TDentistIds,
   TEditDentist,
+  TEditPatient,
   TEditService,
   TEditUser,
   TLoginUser,
+  TPatientId,
+  TPatientIds,
   TPaymentVerification,
   TRejectAppointment,
   TSaveSortedDentist,
   TSaveSortedService,
   TServiceId,
   TServiceIds,
+  TUserId,
+  TUserIds,
   TVerifyEmail,
 } from "@/types/types";
 // import { refreshAuth } from "./refresh-auth";
@@ -85,6 +90,16 @@ export const getUserAPI = async (args: { queryKey: string[] }) => {
   return data;
 };
 
+export const getAllUsersAPI = async () => {
+  const { data } = await axiosInstance.get("/user");
+  return data;
+};
+
+export const getAllPatientAPI = async () => {
+  const { data } = await axiosInstance.get("/user/patients");
+  return data;
+};
+
 export const getUserAccountStatus = async (args: { queryKey: string[] }) => {
   const userId = args.queryKey[2]; // Extract userId from updated queryKey
   const { data } = await axiosInstance.get(`/user/${userId}/account-status`);
@@ -115,6 +130,18 @@ export const verifyEmailAPI = async (data: TVerifyEmail) => {
     data
   );
   return response;
+};
+
+export const deleteUserAPI = async (id: TUserId) => {
+  const { data } = await axiosInstance.patch(`/user/delete/${id}`);
+  return data;
+};
+
+export const deleteAllUserAPI = async (data: TUserIds) => {
+  const { data: result } = await axiosInstance.patch(`/user/delete/all`, {
+    data,
+  });
+  return result;
 };
 
 // ============ || SERVICE || ===========
@@ -297,7 +324,36 @@ export const getAppointmentPatientInfoAPI = async (args: {
   return data;
 };
 
-// ============ || APPOINTMENT PATIENT INFO || ===========
+export const editPatientAPI = async (data: TEditPatient) => {
+  const result = await axiosInstance.patch(`/service/${data.id}`, {
+    firstName: data.firstName,
+    middleName: data.middleName,
+    lastName: data.lastName,
+    updatedBy: data.updatedBy,
+  });
+
+  return result;
+};
+
+export const deletePatientAPI = async (id: TPatientId) => {
+  const { data } = await axiosInstance.patch(
+    `/appointment-patient-info/delete/${id}`
+  );
+  return data;
+};
+
+export const deleteAllPatientAPI = async (data: TPatientIds) => {
+  console.log("deleteAllPatientAPI: ", data);
+  const { data: result } = await axiosInstance.patch(
+    `/appointment-patient-info/delete/all`,
+    {
+      data,
+    }
+  );
+  return result;
+};
+
+// ============ || MEDICAL HISTORY || ===========
 
 export const getAllMedicalHistoryAPI = async () => {
   const { data } = await axiosInstance.get("/medical-history");

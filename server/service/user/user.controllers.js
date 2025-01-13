@@ -14,7 +14,7 @@ const getUser = async (req, res) => {
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (_, res) => {
   try {
     const data = await User.getUsers();
 
@@ -26,6 +26,19 @@ const getUsers = async (req, res) => {
   }
 };
 
+const getPatients = async (_, res) => {
+  try {
+    const data = await User.getPatients();
+
+    return res.status(200).send({ data, ok: true });
+  } catch (error) {
+    console.error("Error in getPatients controller:", error.message);
+    return res.status(500).send({
+      message: `Internal Server Error: ${error.message}`,
+      ok: false,
+    });
+  }
+};
 const getPatientsOfDoctor = async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -197,13 +210,40 @@ const updateUserData = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  const { userId } = req.params;
-
+  console.log("deleteUser controller");
   try {
+    const { userId } = req.params;
+
     const result = await User.deleteUser(userId);
-    res.status(result.status).json({ message: result.message });
+    return res.status(200).send({ message: result.message, ok: true });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in deleteUser controller:", error.message);
+    return res
+      .status(500)
+      .send({ message: `Internal Server Error: ${error.message}`, ok: false });
+  }
+};
+
+const deleteAllUsers = async (req, res) => {
+  console.log("deleteAllUsers controller");
+  try {
+    const { userIds } = req.body;
+    console.log("body: ", req.body);
+    console.log("userIds: ", userIds);
+
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res
+        .status(400)
+        .send({ message: "User IDs must be provided as an array.", ok: false });
+    }
+
+    const result = await User.deleteAllUser(userIds);
+    return res.status(200).send({ message: result.message, ok: true });
+  } catch (error) {
+    console.error("Error in deleteAllUsers controller:", error.message);
+    return res
+      .status(500)
+      .send({ message: `Internal Server Error: ${error.message}`, ok: false });
   }
 };
 
@@ -233,6 +273,7 @@ const changePassword = async (req, res) => {
 module.exports = {
   getUser,
   getUsers,
+  getPatients,
   getPatientsOfDoctor,
   getUserAccountStatus,
   getUserAppointmentNoShowSchedule,
@@ -241,5 +282,6 @@ module.exports = {
   resendVerificationCode,
   updateUserData,
   deleteUser,
+  deleteAllUsers,
   changePassword,
 };

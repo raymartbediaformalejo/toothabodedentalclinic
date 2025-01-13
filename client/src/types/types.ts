@@ -20,6 +20,7 @@ import {
   saveSortedServiceSchema,
   serviceSchema,
   userSchema,
+  userWithRoleSchema,
   verifyEmailSchema,
 } from "./schema";
 
@@ -55,7 +56,10 @@ export type TUsername = {
 // ============ || USER || ===========
 
 export type TUser = z.infer<typeof userSchema>;
+export type TUserWithRole = z.infer<typeof userWithRoleSchema>;
 export type TEditUser = z.infer<typeof editUserSchema>;
+export type TUserId = string;
+export type TUserIds = { ids: TUserId[] };
 export type TVerifyEmail = z.infer<typeof verifyEmailSchema>;
 export type TUserAccountStatus = {
   isVerified: boolean;
@@ -86,7 +90,7 @@ export type TAvailability = [{}];
 
 export type TAppointmentInfo = z.infer<typeof appointmentInfoSchema>;
 export type TPatientInfo = z.infer<typeof patientInfoSchema>;
-export type TPatientInfoWithId = z.infer<typeof patientInfoWithIdSchema>;
+
 export type TRequestDateAndTime = z.infer<typeof requestDateTimeSchema>;
 export type TMedicalHistory = z.infer<typeof medicalHistorySchema>;
 export type TAppointment = TAppointmentInfo &
@@ -138,3 +142,10 @@ export type TRejectAppointment = {
   appointmentId: string;
   dentistId: string;
 };
+
+// ============ || APPOINTMENT PATIENT INFO || ===========
+
+export type TPatientInfoWithId = z.infer<typeof patientInfoWithIdSchema>;
+export type TEditPatient = z.infer<typeof patientInfoWithIdSchema>;
+export type TPatientId = string;
+export type TPatientIds = { ids: TPatientId[] };
