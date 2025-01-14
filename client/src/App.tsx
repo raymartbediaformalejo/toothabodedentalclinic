@@ -16,7 +16,6 @@ import Services from "./pages/DashboardAdmin/Service";
 import AddNewService from "./pages/DashboardAdmin/Service/AddNewService";
 import EditService from "./pages/DashboardAdmin/Service/EditService";
 import Appointment from "./pages/Appointment";
-import Calendar from "./pages/DashboardAdmin/Calendar";
 import EmailVerification from "./pages/Auth/EmailVerification";
 import NoShowRestricted from "./pages/Auth/NoShowRestricted";
 import MyAccount from "./pages/MyAccount";
