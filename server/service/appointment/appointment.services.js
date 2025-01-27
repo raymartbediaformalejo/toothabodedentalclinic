@@ -12,6 +12,61 @@ const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
+  static async requestRescheduleAppointment(values) {
+    const client = await pool.connect();
+    try {
+      const { appointmentId, requestedReschedule } = values;
+
+      const query = `
+        SELECT appointment_status, limit_re_schedule
+        FROM tbl_appointment
+        WHERE appointment_id = $1
+      `;
+      const { rows } = await client.query(query, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      const { limit_re_schedule } = rows[0];
+
+      if (limit_re_schedule >= 2) {
+        throw new Error(
+          "You have reached the maximum limit of 2 reschedules for this appointment. Please contact the clinic directly for further assistance."
+        );
+      }
+
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET 
+          appointment_status = 'requesting_re_schedule',
+          limit_re_schedule = limit_re_schedule + 1,
+          requested_re_schedule = $2,
+          updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING *;
+      `;
+
+      const updateResult = await client.query(updateQuery, [
+        appointmentId,
+        requestedReschedule,
+      ]);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: `Reschedule request has been submitted successfully.`,
+        data: updateResult.rows[0],
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   static async getDentistReScheduleAppointments(dentistId) {
     const client = await pool.connect();
     try {

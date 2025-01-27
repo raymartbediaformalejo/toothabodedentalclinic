@@ -20,6 +20,8 @@ import {
   TPatientIds,
   TPaymentVerification,
   TRejectAppointment,
+  TRequestDateAndTime,
+  TRequestDateAndTimeWithId,
   TSaveSortedDentist,
   TSaveSortedService,
   TServiceId,
@@ -293,6 +295,16 @@ export const getMyAppointmentAPI = async (args: { queryKey: string[] }) => {
 
 export const createAppointmentAPI = async (data: TAppointment) =>
   await axiosInstance.post("/appointment", data);
+
+export const requestRescheduleAppointmentAPI = async (
+  data: TRequestDateAndTimeWithId
+) => {
+  const result = await axiosInstance.patch(
+    `/appointment/request-reschedule`,
+    data
+  );
+  return result;
+};
 
 export const cancelAppointmentAPI = async (data: TCancelAppointment) => {
   const result = await axiosInstance.patch(`/appointment/cancel/${data.id}`);

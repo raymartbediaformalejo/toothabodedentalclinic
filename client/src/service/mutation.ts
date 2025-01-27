@@ -9,6 +9,7 @@ import {
   TPatientIds,
   TPaymentVerification,
   TRejectAppointment,
+  TRequestDateAndTimeWithId,
   TUserId,
   TUserIds,
   TVerifyEmail,
@@ -54,6 +55,7 @@ import {
   logout,
   rejectAppointmentAPI,
   removeHeaderToken,
+  requestRescheduleAppointmentAPI,
   saveSortedDentistAPI,
   saveSortedServiceAPI,
   setHeaderToken,
@@ -568,6 +570,25 @@ export const useApproveAppointment = () => {
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
     },
     onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useRequestRescheduleAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TRequestDateAndTimeWithId) =>
+      requestRescheduleAppointmentAPI(data),
+    onSuccess: (data) => {
+      console.log("useRequestRescheduleAppointment success: ", data);
+      toast.success("Reschedule request has been submitted successfully.");
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onSettled: (_, error) => {
+      console.log("useRequestRescheduleAppointment error: ", error);
       // @ts-ignore
       if (error) toast.error(error?.response?.data.message);
       return error;

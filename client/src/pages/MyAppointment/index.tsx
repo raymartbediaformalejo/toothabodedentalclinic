@@ -17,17 +17,23 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
+import {
+  APPOINTMENT_STATUS,
+  ROW_PER_PAGE_OPTIONS,
+  TIME_LIST,
+} from "@/lib/variables";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { useGetPatientAppointments } from "@/service/queries";
-import { TMyAppointment } from "@/types/types";
+import { TMyAppointment, TRequestDateAndTime } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";
 
 import { LuArrowUp } from "react-icons/lu";
 import {
+  cn,
   formatAppointmentDate,
+  formatDate,
   formatDateTo12Hour,
   formatReadableDate,
 } from "@/lib/utils";
@@ -60,7 +66,10 @@ import Services from "./components/Services";
 import DentistName from "../DashboardAdmin/Dentist/components/DentistName";
 import AppointmentStatus from "./components/AppointmentStatus";
 import H1 from "@/components/ui/H1";
-import { useCancelAppointment } from "@/service/mutation";
+import {
+  useCancelAppointment,
+  useRequestRescheduleAppointment,
+} from "@/service/mutation";
 import { Dialog } from "@radix-ui/react-dialog";
 import {
   DialogContent,
@@ -69,6 +78,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { requestDateTimeSchema } from "@/types/schema";
+import {
+  eachDayOfInterval,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameWeek,
+  isToday,
+  isPast,
+  startOfWeek,
+  addWeeks,
+  subWeeks,
+  set,
+} from "date-fns";
+import { MdPlayArrow } from "react-icons/md";
 
 const columnMyAppointment = [
   {
@@ -95,8 +121,13 @@ const columnMyAppointment = [
 ];
 
 const MyAppointments = () => {
+  const requestRescheduleAppointment = useRequestRescheduleAppointment();
   const [isCancelAppointmentModalOpen, setIsCancelAppointmentModalOpen] =
     useState(false);
+  const [
+    isRescheduleAppointmentModalOpen,
+    setIsRescheduleAppointmentModalOpen,
+  ] = useState(false);
   const { userId } = useAuth();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
@@ -110,6 +141,7 @@ const MyAppointments = () => {
     () => data?.data || [],
     [data]
   );
+  console.log("allMyAppoinment: ", allMyAppoinment);
   const cancelAppointment = useCancelAppointment();
 
   const table = useReactTable({
@@ -133,6 +165,14 @@ const MyAppointments = () => {
   });
   const onOpenChange = () => {
     setIsCancelAppointmentModalOpen((prev) => !prev);
+    form.setValue("date", "");
+    form.setValue("time", "");
+  };
+
+  const onOpenRescheduleChange = () => {
+    setIsRescheduleAppointmentModalOpen((prev) => !prev);
+    form.setValue("date", "");
+    form.setValue("time", "");
   };
   useEffect(() => {
     table.setPageSize(rowPerPage);
@@ -149,7 +189,69 @@ const MyAppointments = () => {
     }
   };
 
-  console.log("data appointments: ", data);
+  const handleRequestRescheduleAppointment = async (appointmentId: string) => {
+    if (appointmentId) {
+      requestRescheduleAppointment.mutate({
+        appointmentId,
+        date: form.watch("date"),
+        time: form.watch("time"),
+      });
+      setIsCancelAppointmentModalOpen(false);
+      form.setValue("date", "");
+      form.setValue("time", "");
+    }
+  };
+
+  const form = useForm<TRequestDateAndTime>({
+    resolver: zodResolver(requestDateTimeSchema),
+    defaultValues: {
+      date: "",
+      time: "",
+    },
+  });
+
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const firstDayOfWeek = startOfWeek(currentWeek);
+  const lastDayOfWeek = endOfWeek(currentWeek);
+  const today = new Date();
+
+  const requestedDate = form.watch("date");
+  const requestedTime = form.watch("time");
+
+  const daysInWeek = eachDayOfInterval({
+    start: firstDayOfWeek,
+    end: lastDayOfWeek,
+  });
+
+  const handlePrevWeek = () => {
+    setCurrentWeek(subWeeks(currentWeek, 1));
+  };
+
+  const handleNextWeek = () => {
+    setCurrentWeek(addWeeks(currentWeek, 1));
+  };
+
+  const isDisabledDay = (day: Date) => {
+    return isPast(day) && !isToday(day);
+  };
+
+  const isDisabledTime = (timeValue: string) => {
+    if (!requestedDate) return false;
+
+    const selectedDate = new Date(requestedDate);
+
+    if (isToday(selectedDate)) {
+      const [hours, minutes] = timeValue.split(":").map(Number);
+      const selectedTime = set(today, { hours, minutes });
+      return isPast(selectedTime);
+    }
+
+    return false;
+  };
+
+  const disablePrevWeek = isSameWeek(today, currentWeek);
+
+  console.log("SCHEDULE: ", form.watch());
 
   return (
     <div>
@@ -371,6 +473,242 @@ const MyAppointments = () => {
                                 className="flex flex-col w-auto p-0"
                               >
                                 <div className="flex flex-col gap-2 px-3 pt-3 pb-2 border-b border-black/10">
+                                  {row.original.status !==
+                                    APPOINTMENT_STATUS.NO_SHOW.value &&
+                                    row.original.status !==
+                                      APPOINTMENT_STATUS.CANCELED.value &&
+                                    row.original.status !==
+                                      APPOINTMENT_STATUS.COMPLETE.value &&
+                                    row.original.status !==
+                                      APPOINTMENT_STATUS.RE_SCHEDULED.value && (
+                                      <>
+                                        <Dialog
+                                          open={isCancelAppointmentModalOpen}
+                                          onOpenChange={onOpenChange}
+                                        >
+                                          <Button
+                                            onClick={onOpenChange}
+                                            size="sm"
+                                            className="border-red-500 w-full justify-between rounded-[4px] text-red-500 hover:bg-red-500/10"
+                                            variant="db_outline"
+                                          >
+                                            Cancel Appointment
+                                          </Button>
+                                          <DialogContent>
+                                            <DialogHeader>
+                                              <DialogTitle>
+                                                Cancel Appointment
+                                              </DialogTitle>
+                                              <DialogDescription>{`Are you sure you want to cancel this appoitment ${formatAppointmentDate(
+                                                row.original.schedule
+                                              )}`}</DialogDescription>
+                                            </DialogHeader>
+                                            <DialogFooter>
+                                              <div className="flex items-center justify-center w-full gap-4 mt-4">
+                                                <Button
+                                                  variant="db_outline"
+                                                  className="w-[30%]"
+                                                  onClick={onOpenChange}
+                                                >
+                                                  No
+                                                </Button>
+                                                <Button
+                                                  variant="db_default"
+                                                  className="w-[30%]"
+                                                  onClick={() =>
+                                                    handleCancelAppointment(
+                                                      row.original.id
+                                                    )
+                                                  }
+                                                >
+                                                  Yes
+                                                </Button>
+                                              </div>
+                                            </DialogFooter>
+                                          </DialogContent>
+                                        </Dialog>
+                                        <Dialog
+                                          open={
+                                            isRescheduleAppointmentModalOpen
+                                          }
+                                          onOpenChange={onOpenRescheduleChange}
+                                        >
+                                          <Button
+                                            onClick={onOpenRescheduleChange}
+                                            size="sm"
+                                            className="border-blue-500 w-full justify-between rounded-[4px] text-blue-500 hover:bg-blue-100"
+                                            variant="db_outline"
+                                          >
+                                            Re-schedule Appointment
+                                          </Button>
+                                          <DialogContent>
+                                            <DialogHeader>
+                                              <DialogTitle>
+                                                Request Re-schedule Appointment
+                                              </DialogTitle>
+                                              <DialogDescription>{`Are you sure you want to re-schedule this appoitment ${formatAppointmentDate(
+                                                row.original.schedule
+                                              )}`}</DialogDescription>
+                                            </DialogHeader>
+
+                                            <div>
+                                              <div className="container p-4 mx-auto border border-neutral-200 rounded-[8px]">
+                                                <div className="flex justify-between w-full mb-4">
+                                                  <button
+                                                    onClick={handlePrevWeek}
+                                                    type="button"
+                                                    disabled={disablePrevWeek}
+                                                    className={cn(
+                                                      disablePrevWeek
+                                                        ? "opacity-50 cursor-not-allowed"
+                                                        : ""
+                                                    )}
+                                                  >
+                                                    <MdPlayArrow className="w-5 h-5 rotate-180 text-neutral-600" />
+                                                  </button>
+
+                                                  <h2 className="font-semibold text-center text-neutral-800">
+                                                    {format(
+                                                      lastDayOfWeek,
+                                                      "MMMM yyyy"
+                                                    )}
+                                                  </h2>
+
+                                                  <button
+                                                    type="button"
+                                                    onClick={handleNextWeek}
+                                                  >
+                                                    <MdPlayArrow className="w-5 h-5 text-neutral-600" />
+                                                  </button>
+                                                </div>
+                                                <div className="grid grid-cols-7 gap-2">
+                                                  {daysInWeek.map(
+                                                    (day, index) => (
+                                                      <button
+                                                        key={index}
+                                                        type="button"
+                                                        onClick={() => {
+                                                          const formattedDay =
+                                                            formatDate(
+                                                              day + ""
+                                                            );
+                                                          console.log(
+                                                            "formattedDay: ",
+                                                            formattedDay
+                                                          );
+                                                          form.setValue(
+                                                            "date",
+                                                            formattedDay
+                                                          );
+                                                        }}
+                                                        disabled={isDisabledDay(
+                                                          day
+                                                        )}
+                                                        className={cn(
+                                                          "border rounded-md p-2 text-center cursor-pointer",
+                                                          isSameDay(
+                                                            form.watch("date"),
+                                                            day
+                                                          )
+                                                            ? "bg-primary-100  outline outline-2 outline-primary-600 text-primary-900"
+                                                            : "",
+                                                          isDisabledDay(day)
+                                                            ? "opacity-50 cursor-not-allowed"
+                                                            : ""
+                                                        )}
+                                                      >
+                                                        {format(day, "d")}
+                                                      </button>
+                                                    )
+                                                  )}
+                                                  {form.formState.errors
+                                                    .date && (
+                                                    <span className="text-sm text-destructive">
+                                                      {
+                                                        form.formState.errors
+                                                          .date.message
+                                                      }
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              <div className="mt-10">
+                                                <p className="text-neutral-500 text-[11px]">
+                                                  All times are in Asia/Manila
+                                                  (UTC+08)
+                                                </p>
+                                                <div className="grid grid-cols-4 gap-4 mt-3">
+                                                  {TIME_LIST.map(
+                                                    ({ value, label }) => (
+                                                      <button
+                                                        key={value}
+                                                        type="button"
+                                                        onClick={() =>
+                                                          form.setValue(
+                                                            "time",
+                                                            value
+                                                          )
+                                                        }
+                                                        disabled={isDisabledTime(
+                                                          value
+                                                        )}
+                                                        className={cn(
+                                                          "rounded-[8px] px-3 py-2",
+                                                          requestedTime ===
+                                                            value
+                                                            ? "bg-primary-100 outline outline-primary-600 outline-2 text-primary-900"
+                                                            : "bg-neutral-200 text-neutral-800",
+                                                          isDisabledTime(value)
+                                                            ? "opacity-50 cursor-not-allowed"
+                                                            : ""
+                                                        )}
+                                                      >
+                                                        <p className="text-center font-medium text-[13px]">
+                                                          {label}
+                                                        </p>
+                                                      </button>
+                                                    )
+                                                  )}
+                                                  {form.formState.errors
+                                                    .time && (
+                                                    <span className="text-sm text-destructive">
+                                                      {
+                                                        form.formState.errors
+                                                          .time.message
+                                                      }
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <DialogFooter>
+                                              <div className="flex items-center justify-center w-full gap-4 mt-4">
+                                                <Button
+                                                  variant="db_outline"
+                                                  className="w-[30%]"
+                                                  onClick={
+                                                    onOpenRescheduleChange
+                                                  }
+                                                >
+                                                  Cancel
+                                                </Button>
+                                                <Button
+                                                  variant="db_default"
+                                                  className="w-[30%]"
+                                                  onClick={() =>
+                                                    handleRequestRescheduleAppointment(
+                                                      row.original.id
+                                                    )
+                                                  }
+                                                >
+                                                  Submit
+                                                </Button>
+                                              </div>
+                                            </DialogFooter>
+                                          </DialogContent>
+                                        </Dialog>
+                                      </>
+                                    )}
                                   <Button
                                     size="sm"
                                     className=" w-full min-w-[100px] justify-between rounded-[4px] hover:bg-primary-400/20"
@@ -383,55 +721,6 @@ const MyAppointments = () => {
                                   >
                                     <span>View</span>
                                   </Button>
-                                  {row.original.status !== "no_show" &&
-                                    row.original.status !== "canceled" &&
-                                    row.original.status !== "complete" && (
-                                      <Dialog
-                                        open={isCancelAppointmentModalOpen}
-                                        onOpenChange={onOpenChange}
-                                      >
-                                        <Button
-                                          onClick={onOpenChange}
-                                          size="sm"
-                                          className="border-red-500 w-full justify-between rounded-[4px] text-red-500 hover:bg-red-500/10"
-                                          variant="db_outline"
-                                        >
-                                          Cancel Appointment
-                                        </Button>
-                                        <DialogContent>
-                                          <DialogHeader>
-                                            <DialogTitle>
-                                              Cancel Appointment
-                                            </DialogTitle>
-                                            <DialogDescription>{`Are you sure you want to cancel this appoitment ${formatAppointmentDate(
-                                              row.original.schedule
-                                            )}`}</DialogDescription>
-                                          </DialogHeader>
-                                          <DialogFooter>
-                                            <div className="flex items-center justify-center w-full gap-4 mt-4">
-                                              <Button
-                                                variant="db_outline"
-                                                className="w-[30%]"
-                                                onClick={onOpenChange}
-                                              >
-                                                No
-                                              </Button>
-                                              <Button
-                                                variant="db_default"
-                                                className="w-[30%]"
-                                                onClick={() =>
-                                                  handleCancelAppointment(
-                                                    row.original.id
-                                                  )
-                                                }
-                                              >
-                                                Yes
-                                              </Button>
-                                            </div>
-                                          </DialogFooter>
-                                        </DialogContent>
-                                      </Dialog>
-                                    )}
                                 </div>
                               </PopoverContent>
                             </Popover>

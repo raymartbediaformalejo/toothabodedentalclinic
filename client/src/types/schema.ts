@@ -392,6 +392,12 @@ export const requestDateTimeSchema = z.object({
   time: z.string().min(1, "Time required"),
 });
 
+export const requestDateTimeWithIdSchema = z.object({
+  appointmentId: z.string().min(1, "Required appointment id"),
+  date: z.string().min(1, "Date required."),
+  time: z.string().min(1, "Time required"),
+});
+
 export const patientInfoSchema = userSchema
   .pick({
     firstName: true,

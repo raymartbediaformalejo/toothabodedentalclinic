@@ -179,10 +179,19 @@ export const APPOINTMENT_STATUS = {
   },
   REJECT: {
     title: "Rejected Appointment!",
-    value: "reject",
-    label: "Reject",
+    value: "rejected",
+    label: "Rejected",
     foreGround: "#9F1239",
     backGround: "#FEE2E2",
     message: "Your appointment has been rejected.",
+  },
+  REQUESTING_RE_SCHEDULE: {
+    title: "Reschedule Request Submitted!",
+    value: "requesting_re_schedule",
+    label: "Requesting re-schedule",
+    foreGround: "#06B6D4",
+    backGround: "#ECFEFF",
+    message:
+      "You have requested to reschedule your appointment. The Tooth Abode Dental Clinic team is reviewing your request.",
   },
 } as const;

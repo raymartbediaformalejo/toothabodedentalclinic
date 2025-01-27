@@ -1,5 +1,27 @@
 const Appointment = require("./appointment.services");
 
+const requestRescheduleAppointment = async (req, res) => {
+  try {
+    const { appointmentId, date, time } = req.body;
+    const requestedReschedule = `${date} ${time}`;
+    const data = await Appointment.requestRescheduleAppointment({
+      appointmentId,
+      requestedReschedule,
+    });
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
+
 const approveAppointment = async (req, res) => {
   try {
     const { appointmentId, dentistId } = req.body;
@@ -269,6 +291,7 @@ const editAppointment = async (req, res) => {
 };
 
 module.exports = {
+  requestRescheduleAppointment,
   approveAppointment,
   rejectAppointment,
   cancelAppointment,

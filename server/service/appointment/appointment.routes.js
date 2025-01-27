@@ -5,6 +5,7 @@ const {
   getDentistAppointments,
   createAppointment,
   editAppointment,
+  requestRescheduleAppointment,
   approveAppointment,
   cancelAppointment,
   rejectAppointment,
@@ -32,6 +33,8 @@ router.get(
   "/appointment/re_schedule/:dentistId/dentist",
   getDentistReScheduleAppointments
 );
+
+router.patch("/appointment/request-reschedule", requestRescheduleAppointment);
 
 router.patch("/appointment/approve", approveAppointment);
 

@@ -4,9 +4,15 @@ import { createUsername } from "@/lib/utils";
 import profileImgFallback from "@/assets/default-avatar.jpg";
 
 const DentistName = ({ dentistId }: { dentistId: TDentistId }) => {
-  const { data, isLoading, isFetched } = useGetDentist(dentistId);
-  const dentist: TDentist | null = isFetched ? data.data : null;
-
+  const { data, isLoading, isFetched, isError } = useGetDentist(dentistId);
+  const dentist: TDentist | null = isFetched ? data?.data : null;
+  if (isError) {
+    return (
+      <label className="whitespace-nowrap text-[#424242] text-sm">
+        Error getting dentist
+      </label>
+    );
+  }
   if (isLoading) {
     return (
       <label className="whitespace-nowrap text-[#424242] text-sm">

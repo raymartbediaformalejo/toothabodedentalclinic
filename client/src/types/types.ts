@@ -16,6 +16,7 @@ import {
   paymentVerificationSchema,
   penaltySchema,
   requestDateTimeSchema,
+  requestDateTimeWithIdSchema,
   saveSortedDentistSchema,
   saveSortedServiceSchema,
   serviceSchema,
@@ -92,6 +93,9 @@ export type TAppointmentInfo = z.infer<typeof appointmentInfoSchema>;
 export type TPatientInfo = z.infer<typeof patientInfoSchema>;
 
 export type TRequestDateAndTime = z.infer<typeof requestDateTimeSchema>;
+export type TRequestDateAndTimeWithId = z.infer<
+  typeof requestDateTimeWithIdSchema
+>;
 export type TMedicalHistory = z.infer<typeof medicalHistorySchema>;
 export type TAppointment = TAppointmentInfo &
   TRequestDateAndTime &
@@ -114,6 +118,8 @@ export type TMyAppointment = {
   patientSuffix: string;
   schedule: string;
   status: string;
+  requestedReschedule: string;
+  limitReschedule: number;
   services: string[];
   createdAt: string;
   createdBy: string;
