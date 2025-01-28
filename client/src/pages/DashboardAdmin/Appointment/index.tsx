@@ -19,7 +19,7 @@ import {
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetDentistAppointments } from "@/service/queries";
+import { useGetAllAppointments } from "@/service/queries";
 import {
   TApproveAppointment,
   TMyAppointment,
@@ -66,7 +66,7 @@ import {
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
 import useAuth from "@/hooks/useAuth";
-import UserName from "./components/UserName";
+import UserName from "@/pages/DashboardDentist/Appointment/components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
 
@@ -97,7 +97,7 @@ const columnAppointments = [
   },
 ];
 
-const Appointments = () => {
+const AdminAppointments = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
@@ -109,7 +109,7 @@ const Appointments = () => {
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetDentistAppointments(userId);
+  const { data, isLoading } = useGetAllAppointments();
   const allAppointments: TMyAppointment[] = useMemo(
     () => data?.data || [],
     [data]
@@ -134,7 +134,7 @@ const Appointments = () => {
     onSortingChange: setSorting,
   });
 
-  const selectedDentistRow = Object.keys(table.getState().rowSelection);
+  const selectedAppointmentRow = Object.keys(table.getState().rowSelection);
 
   useEffect(() => {
     table.setPageSize(rowPerPage);
@@ -180,7 +180,7 @@ const Appointments = () => {
       <div className="flex items-center justify-between mb-6 ">
         <header className=" text-black/80">
           <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
-            My Appointments
+            All Appointments
           </h1>
         </header>
       </div>
@@ -302,7 +302,9 @@ const Appointments = () => {
                   <React.Fragment key={row.id}>
                     <TableRow
                       key={row.id}
-                      isSelected={selectedDentistRow.includes(row.original.id)}
+                      isSelected={selectedAppointmentRow.includes(
+                        row.original.id
+                      )}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
@@ -320,7 +322,7 @@ const Appointments = () => {
                                 />
                                 <Link
                                   className="flex items-center"
-                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                  to={`/admin/appointments/${cell.row.original.id}`}
                                 >
                                   <label
                                     key={userId}
@@ -337,12 +339,13 @@ const Appointments = () => {
                                       <span>
                                         {createUsername({
                                           firstname:
-                                            row.original.patientFirstName!,
+                                            row.original?.patientFirstName ||
+                                            "",
                                           middlename:
-                                            row.original.patientMiddleName! ||
+                                            row.original?.patientMiddleName ||
                                             "",
                                           lastname:
-                                            row.original.patientLastName!,
+                                            row.original?.patientLastName || "",
                                         })}
                                       </span>
                                     </div>
@@ -531,7 +534,7 @@ const Appointments = () => {
                                 variant="db_outline"
                                 onClick={() =>
                                   navigate(
-                                    `/dentist/my_appointments/${row.original.id}`
+                                    `/admin/appointments/${row.original.id}`
                                   )
                                 }
                               >
@@ -555,10 +558,10 @@ const Appointments = () => {
           <p
             className={cn(
               "flex transition-colors duration-100 ease-in-out place-items-center font-inter ",
-              selectedDentistRow.length ? "text-black" : "text-black/60"
+              selectedAppointmentRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedDentistRow.length} of ${allAppointments.length} row(s) selected.`}
+            {`${selectedAppointmentRow.length} of ${allAppointments.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">
@@ -634,4 +637,4 @@ const Appointments = () => {
   );
 };
 
-export default Appointments;
+export default AdminAppointments;

@@ -7,6 +7,8 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
+
 import profileImgFallback from "@/assets/default-avatar.jpg";
 import {
   Table,
@@ -17,17 +19,17 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetDentistAppointments } from "@/service/queries";
+import { useGetAllRequestingReschedAppointments } from "@/service/queries";
 import {
   TApproveAppointment,
-  TMyAppointment,
+  TMyAppointmentWithResched,
   TRejectAppointment,
 } from "@/types/types";
 import {
-  useApproveAppointment,
-  useRejectAppointment,
+  useApproveRequestReschedAppointment,
+  useRejectRequestReschedAppointment,
 } from "@/service/mutation";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +42,12 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
+import {
+  cn,
+  createUsername,
+  formatAppointmentDate,
+  formatReadableDate,
+} from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
@@ -65,8 +72,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
-import useAuth from "@/hooks/useAuth";
-import UserName from "./components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
 
@@ -76,20 +81,16 @@ const columnAppointments = [
     accessorKey: "firstName",
   },
   {
-    header: "Requested Date & Time",
+    header: "Current Schedule",
     accessorKey: "schedule",
+  },
+  {
+    header: "Requested Re-schedule",
+    accessorKey: "requestedResched",
   },
   {
     header: "Dental Service",
     accessorKey: "services",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-  },
-  {
-    header: "Created by",
-    accessorKey: "createdBy",
   },
   {
     header: "Created at",
@@ -97,23 +98,25 @@ const columnAppointments = [
   },
 ];
 
-const Appointments = () => {
-  const { userId } = useAuth();
+const AdminReScheduledAppointments = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "schedule", desc: true },
   ]);
-  const approveAppointment = useApproveAppointment();
-  const rejectAppoinment = useRejectAppointment();
+  const approveRequestReschedAppointment =
+    useApproveRequestReschedAppointment();
+  const rejectRequestReschedAppointment = useRejectRequestReschedAppointment();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
+  // const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetDentistAppointments(userId);
-  const allAppointments: TMyAppointment[] = useMemo(
+  const { data, isLoading } = useGetAllRequestingReschedAppointments();
+  const allAppointments: TMyAppointmentWithResched[] = useMemo(
     () => data?.data || [],
     [data]
   );
+
   const table = useReactTable({
     data: allAppointments,
     columns: columnAppointments,
@@ -134,7 +137,7 @@ const Appointments = () => {
     onSortingChange: setSorting,
   });
 
-  const selectedDentistRow = Object.keys(table.getState().rowSelection);
+  const selectedAppointmentRow = Object.keys(table.getState().rowSelection);
 
   useEffect(() => {
     table.setPageSize(rowPerPage);
@@ -147,7 +150,7 @@ const Appointments = () => {
   const handleApproveAppointment = async (data: TApproveAppointment) => {
     try {
       if (data.appointmentId) {
-        await approveAppointment.mutate(data);
+        await approveRequestReschedAppointment.mutate(data);
         setIsApprovedModalOpen(false);
       }
     } catch (error) {
@@ -157,7 +160,7 @@ const Appointments = () => {
   const handleRejectAppointment = async (data: TRejectAppointment) => {
     try {
       if (data.appointmentId) {
-        await rejectAppoinment.mutate(data);
+        await rejectRequestReschedAppointment.mutate(data);
         setIsDeclineModalOpen(false);
       }
     } catch (error) {
@@ -168,19 +171,17 @@ const Appointments = () => {
   const onOpenApprovedModalChange = () => {
     setIsApprovedModalOpen((prev) => !prev);
   };
+
   const onOpenDeclineModalChange = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
-
-  console.log("allAppointments data: ", data);
-  console.log("allAppointments: ", allAppointments);
 
   return (
     <>
       <div className="flex items-center justify-between mb-6 ">
         <header className=" text-black/80">
           <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
-            My Appointments
+            Approval Re-schedule Appointments
           </h1>
         </header>
       </div>
@@ -190,7 +191,7 @@ const Appointments = () => {
         {allAppointments.length === 0 && !isLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
-              There are no records to display for Appointments
+              There are no records to display for Pending Approval Appointments
             </p>
           </div>
         )}
@@ -302,7 +303,9 @@ const Appointments = () => {
                   <React.Fragment key={row.id}>
                     <TableRow
                       key={row.id}
-                      isSelected={selectedDentistRow.includes(row.original.id)}
+                      isSelected={selectedAppointmentRow.includes(
+                        row.original.id
+                      )}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
@@ -320,10 +323,10 @@ const Appointments = () => {
                                 />
                                 <Link
                                   className="flex items-center"
-                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                  to={`/admin/appointments/${cell.row.original.id}`}
                                 >
                                   <label
-                                    key={userId}
+                                    key={row.original.id}
                                     className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
                                   >
                                     <span className="relative flex w-6 h-6 overflow-hidden border rounded-full select-none border-neutral-300 ">
@@ -337,19 +340,17 @@ const Appointments = () => {
                                       <span>
                                         {createUsername({
                                           firstname:
-                                            row.original.patientFirstName!,
+                                            row.original?.patientFirstName ||
+                                            "",
                                           middlename:
-                                            row.original.patientMiddleName! ||
+                                            row.original?.patientMiddleName ||
                                             "",
                                           lastname:
-                                            row.original.patientLastName!,
+                                            row.original?.patientLastName || "",
                                         })}
                                       </span>
                                     </div>
                                   </label>
-                                  {/* <UserName
-                                    userId={cell.row.original.patientId}
-                                  /> */}
                                 </Link>
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
@@ -360,6 +361,17 @@ const Appointments = () => {
                                 <div>
                                   {formatAppointmentDate(
                                     cell.row.original.schedule
+                                  )}
+                                </div>
+                              </TableCell>
+                            ) : cell.column.id === "requestedResched" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <div>
+                                  {formatAppointmentDate(
+                                    cell.row.original.requestedResched
                                   )}
                                 </div>
                               </TableCell>
@@ -390,15 +402,6 @@ const Appointments = () => {
                                   )}
                                 </span>
                               </TableCell>
-                            ) : cell.column.id === "createdBy" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <UserName
-                                  userId={cell.row.original.createdBy}
-                                />
-                              </TableCell>
                             ) : (
                               <TableCell
                                 key={cell.id}
@@ -426,104 +429,116 @@ const Appointments = () => {
                             align="end"
                             className="flex flex-col p-0 w-[150px]"
                           >
-                            {row.original.status === "pending" ? (
-                              <div className="pb-1 border-b border-black/10">
-                                <div className="flex flex-col w-full gap-2 px-3 pt-3 pb-2">
-                                  <Dialog
-                                    open={isApprovedModalOpen}
-                                    onOpenChange={onOpenApprovedModalChange}
+                            <div className="pb-1 border-b border-black/10">
+                              <div className="flex flex-col w-full gap-2 px-3 pt-3 pb-2">
+                                <Dialog
+                                  open={isApprovedModalOpen}
+                                  onOpenChange={onOpenApprovedModalChange}
+                                >
+                                  <Button
+                                    size="sm"
+                                    className="w-full  border-green-500 text-green-800 justify-between rounded-[4px] hover:bg-green-200 focus:bg-green-200 "
+                                    variant="db_outline"
+                                    onClick={onOpenApprovedModalChange}
                                   >
-                                    <Button
-                                      size="sm"
-                                      className="w-full  border-green-500 text-green-800 justify-between rounded-[4px] hover:bg-green-200 focus:bg-green-200 "
-                                      variant="db_outline"
-                                      onClick={onOpenApprovedModalChange}
-                                    >
-                                      <span>Approve</span>
-                                    </Button>
-                                    <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                                      <DialogHeader className="px-6 pt-8">
-                                        <DialogTitle className="text-2xl font-bold text-center">
-                                          Approve Appointment
-                                        </DialogTitle>
-                                        <DialogDescription className="text-center text-neutral-600">
-                                          Are you sure you want to approve this
-                                          appointment?
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <DialogFooter className="px-6 py-4 bg-gray-100">
-                                        <div className="flex items-center justify-center w-full gap-4">
-                                          <Button
-                                            className="rounded-md"
-                                            variant="db_outline"
-                                            onClick={onOpenApprovedModalChange}
-                                          >
-                                            Cancel
-                                          </Button>
-                                          <Button
-                                            variant="db_default"
-                                            onClick={() =>
-                                              handleApproveAppointment({
-                                                appointmentId: row.original.id,
-                                              })
-                                            }
-                                            className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
-                                          >
-                                            Approve
-                                          </Button>
-                                        </div>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                  <Dialog
-                                    open={isDeclineModalOpen}
-                                    onOpenChange={onOpenDeclineModalChange}
+                                    Approve
+                                  </Button>
+                                  <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                                    <DialogHeader className="px-6 pt-8">
+                                      <DialogTitle className="text-2xl font-bold text-center">
+                                        Approve Request Re-schedule of
+                                        Appointment
+                                      </DialogTitle>
+                                      <DialogDescription className="text-center text-neutral-600">
+                                        Are you sure you want to approve this
+                                        request for re-scheduling of appointment{" "}
+                                        <span className="font-semibold text-primary-700">
+                                          {formatReadableDate(
+                                            row.original.schedule
+                                          )}
+                                        </span>
+                                        ?
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter className="px-6 py-4 bg-gray-100">
+                                      <div className="flex items-center justify-center w-full gap-4">
+                                        <Button
+                                          className="rounded-md"
+                                          variant="db_outline"
+                                          onClick={onOpenApprovedModalChange}
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          variant="db_default"
+                                          onClick={() =>
+                                            handleApproveAppointment({
+                                              appointmentId: row.original.id,
+                                            })
+                                          }
+                                          className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
+                                        >
+                                          Approve
+                                        </Button>
+                                      </div>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                                <Dialog
+                                  open={isDeclineModalOpen}
+                                  onOpenChange={onOpenDeclineModalChange}
+                                >
+                                  <Button
+                                    size="sm"
+                                    className="w-full  border-red-500 text-red-800 justify-between rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
+                                    variant="db_outline"
+                                    onClick={onOpenDeclineModalChange}
                                   >
-                                    <Button
-                                      size="sm"
-                                      className="w-full  border-red-500 text-red-800 justify-between rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
-                                      variant="db_outline"
-                                      onClick={onOpenDeclineModalChange}
-                                    >
-                                      <span>Reject</span>
-                                    </Button>
-                                    <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                                      <DialogHeader className="px-6 pt-8">
-                                        <DialogTitle className="text-2xl font-bold text-center">
-                                          Reject Appointment
-                                        </DialogTitle>
-                                        <DialogDescription className="text-center text-neutral-600">
-                                          Are you sure you want to do reject
-                                          this appointment?{" "}
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <DialogFooter className="px-6 py-4 bg-gray-100">
-                                        <div className="flex items-center justify-center w-full gap-4">
-                                          <Button
-                                            className="rounded-md"
-                                            variant="db_outline"
-                                            onClick={onOpenDeclineModalChange}
-                                          >
-                                            Cancel
-                                          </Button>
-                                          <Button
-                                            variant="db_default"
-                                            className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
-                                            onClick={() =>
-                                              handleRejectAppointment({
-                                                appointmentId: row.original.id,
-                                              })
-                                            }
-                                          >
-                                            Reject
-                                          </Button>
-                                        </div>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                </div>
+                                    Reject
+                                  </Button>
+                                  <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                                    <DialogHeader className="px-6 pt-8">
+                                      <DialogTitle className="text-2xl font-bold text-center">
+                                        Reject Request Re-schedule of
+                                        Appointment
+                                      </DialogTitle>
+                                      <DialogDescription className="text-center text-neutral-600">
+                                        Are you sure you want to reject this
+                                        request for re-scheduling of appointment{" "}
+                                        <span className="font-semibold text-primary-700">
+                                          {formatReadableDate(
+                                            row.original.schedule
+                                          )}
+                                        </span>
+                                        ?
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter className="px-6 py-4 bg-gray-100">
+                                      <div className="flex items-center justify-center w-full gap-4">
+                                        <Button
+                                          className="rounded-md"
+                                          variant="db_outline"
+                                          onClick={onOpenDeclineModalChange}
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          variant="db_default"
+                                          className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
+                                          onClick={() =>
+                                            handleRejectAppointment({
+                                              appointmentId: row.original.id,
+                                            })
+                                          }
+                                        >
+                                          Reject
+                                        </Button>
+                                      </div>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
                               </div>
-                            ) : null}
+                            </div>
                             <div className="w-full px-3 pt-2 pb-2">
                               <Button
                                 size="sm"
@@ -531,7 +546,7 @@ const Appointments = () => {
                                 variant="db_outline"
                                 onClick={() =>
                                   navigate(
-                                    `/dentist/my_appointments/${row.original.id}`
+                                    `/admin/appointments/${row.original.id}`
                                   )
                                 }
                               >
@@ -555,10 +570,10 @@ const Appointments = () => {
           <p
             className={cn(
               "flex transition-colors duration-100 ease-in-out place-items-center font-inter ",
-              selectedDentistRow.length ? "text-black" : "text-black/60"
+              selectedAppointmentRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedDentistRow.length} of ${allAppointments.length} row(s) selected.`}
+            {`${selectedAppointmentRow.length} of ${allAppointments.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">
@@ -634,4 +649,4 @@ const Appointments = () => {
   );
 };
 
-export default Appointments;
+export default AdminReScheduledAppointments;

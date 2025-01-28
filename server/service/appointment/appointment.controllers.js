@@ -1,5 +1,44 @@
 const Appointment = require("./appointment.services");
 
+const rejectRequestRescheduleAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const data = await Appointment.rejectRequestReschedAppointment(
+      appointmentId
+    );
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
+
+const approveRequestRescheduleAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const data = await Appointment.approveRequestRescheduleAppointment(
+      appointmentId
+    );
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
 const requestRescheduleAppointment = async (req, res) => {
   try {
     const { appointmentId, date, time } = req.body;
@@ -24,10 +63,9 @@ const requestRescheduleAppointment = async (req, res) => {
 
 const approveAppointment = async (req, res) => {
   try {
-    const { appointmentId, dentistId } = req.body;
+    const { appointmentId } = req.body;
     const data = await Appointment.approveAppointment({
       appointmentId,
-      dentistId,
     });
 
     return res
@@ -42,11 +80,8 @@ const approveAppointment = async (req, res) => {
 };
 const rejectAppointment = async (req, res) => {
   try {
-    const { appointmentId, dentistId } = req.body;
-    const data = await Appointment.rejectAppointment({
-      appointmentId,
-      dentistId,
-    });
+    const { appointmentId } = req.body;
+    const data = await Appointment.rejectAppointment(appointmentId);
 
     return res
       .status(data.status)
@@ -80,6 +115,52 @@ const getDentistReScheduleAppointments = async (req, res) => {
     const { dentistId } = req.params;
 
     const data = await Appointment.getDentistReScheduleAppointments(dentistId);
+
+    if (!data || data.length === 0) {
+      return res.status(404).send({
+        message: "No appointments found",
+        ok: false,
+      });
+    }
+
+    return res.status(200).send({
+      data,
+      message: "Appointments retrieved successfully",
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+const getAllPedingAppointments = async (_, res) => {
+  try {
+    const data = await Appointment.getAllPendingAppointments();
+
+    if (!data || data.length === 0) {
+      return res.status(404).send({
+        message: "No appointments found",
+        ok: false,
+      });
+    }
+
+    return res.status(200).send({
+      data,
+      message: "Appointments retrieved successfully",
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+const getAllRequestingReschedAppointments = async (_, res) => {
+  try {
+    const data = await Appointment.getAllRequestingReschedAppointments();
 
     if (!data || data.length === 0) {
       return res.status(404).send({
@@ -175,6 +256,29 @@ const getDentistAppointments = async (req, res) => {
     });
   }
 };
+const getAllAppointments = async (req, res) => {
+  try {
+    const data = await Appointment.getAllAppointments();
+
+    if (!data || data.length === 0) {
+      return res.status(404).send({
+        message: "No appointments found",
+        ok: false,
+      });
+    }
+
+    return res.status(200).send({
+      data,
+      message: "Appointments retrieved successfully",
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
 const getAppointments = async (req, res) => {
   try {
     const { dentistId } = req.query;
@@ -204,13 +308,11 @@ const getAppointments = async (req, res) => {
 
 const getAppointment = async (req, res) => {
   try {
-    const { userId } = req.query;
     const { appointmentId } = req.params;
 
-    console.log("userId: ", userId);
     console.log("appointmentId: ", appointmentId);
 
-    const data = await Appointment.getAppointment(userId, appointmentId);
+    const data = await Appointment.getAppointment(appointmentId);
 
     if (!data) {
       return res.status(404).send({
@@ -291,6 +393,11 @@ const editAppointment = async (req, res) => {
 };
 
 module.exports = {
+  rejectRequestRescheduleAppointment,
+  approveRequestRescheduleAppointment,
+  getAllAppointments,
+  getAllPedingAppointments,
+  getAllRequestingReschedAppointments,
   requestRescheduleAppointment,
   approveAppointment,
   rejectAppointment,

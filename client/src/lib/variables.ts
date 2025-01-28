@@ -2,6 +2,9 @@ export const CITY_OF_MANILA_CODE = "City of Manila" as const;
 
 export const DEFAULT_ROLE_ID = "92b73582-0dc5-4b3d-a17d-20523d7e0a82" as const;
 
+export const TOOTH_ABODE_FB_URL =
+  "https://www.facebook.com/profile.php?id=100064125608150";
+
 export const ROW_PER_PAGE_OPTIONS = [
   "6",
   "10",
@@ -193,5 +196,14 @@ export const APPOINTMENT_STATUS = {
     backGround: "#ECFEFF",
     message:
       "You have requested to reschedule your appointment. The Tooth Abode Dental Clinic team is reviewing your request.",
+  },
+  REJECT_REQUEST_RE_SCHEDULE: {
+    title: "Reschedule Request Rejected!",
+    value: "rejected_request_re_sched",
+    label: "Rejected Reschedule",
+    foreGround: "#CA3401",
+    backGround: "#FFEDD4",
+    message:
+      "Your request to reschedule the appointment has been rejected. Please contact the clinic for further assistance.",
   },
 } as const;

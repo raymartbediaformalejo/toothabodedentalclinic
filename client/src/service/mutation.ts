@@ -32,6 +32,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import {
   approveAppointmentAPI,
+  approveRequestReschedAppointmentAPI,
   cancelAppointmentAPI,
   changePasswordAPI,
   changeUserPasswordAPI,
@@ -54,6 +55,7 @@ import {
   loginUserAPI,
   logout,
   rejectAppointmentAPI,
+  rejectRequestReschedAppointmentAPI,
   removeHeaderToken,
   requestRescheduleAppointmentAPI,
   saveSortedDentistAPI,
@@ -561,6 +563,47 @@ export const useApproveAppointment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: TApproveAppointment) => approveAppointmentAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+export const useApproveRequestReschedAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) =>
+      approveRequestReschedAppointmentAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.data?.data.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data?.data?.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
+
+export const useRejectRequestReschedAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) =>
+      rejectRequestReschedAppointmentAPI(data),
     onSuccess: (data) => {
       // @ts-ignore
       if (data?.data?.data.status === 200) {

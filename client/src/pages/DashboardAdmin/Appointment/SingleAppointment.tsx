@@ -2,21 +2,24 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import useAuth from "@/hooks/useAuth";
 import { useGetMyAppointment } from "@/service/queries";
 import {
   TApproveAppointment,
   TMyAppointment,
   TRejectAppointment,
 } from "@/types/types";
-import PatientProfile from "./components/PatientProfile";
+import PatientProfile from "@/pages/DashboardDentist/Appointment/components/PatientProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createUsername, formatAppointmentDate } from "@/lib/utils";
-import BookedBy from "./components/BookedBy";
-import BookedFor from "./components/BookedFor";
-import MedicalHistory from "./components/MedicalHistory";
 import {
-  useApproveAppointment,
+  createUsername,
+  formatAppointmentDate,
+  formatReadableDate,
+} from "@/lib/utils";
+import BookedBy from "@/pages/DashboardDentist/Appointment/components/BookedBy";
+import BookedFor from "@/pages/DashboardDentist/Appointment/components/BookedFor";
+import MedicalHistory from "@/pages/DashboardDentist/Appointment/components/MedicalHistory";
+import {
+  useApproveRequestReschedAppointment,
   useRejectAppointment,
 } from "@/service/mutation";
 import {
@@ -29,8 +32,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
+import { APPOINTMENT_STATUS } from "@/lib/variables";
 
-const SingleAppointment = () => {
+const AdminSingleAppointment = () => {
   const navigate = useNavigate();
   const { id: appointmentId } = useParams();
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
@@ -38,7 +42,8 @@ const SingleAppointment = () => {
   const { data: appointmentData, isLoading: isLoadingAppointment } =
     useGetMyAppointment(appointmentId!);
 
-  const approveAppointment = useApproveAppointment();
+  const approveRequestReschedAppointment =
+    useApproveRequestReschedAppointment();
   const rejectAppoinment = useRejectAppointment();
 
   const appointment: TMyAppointment = useMemo(
@@ -46,13 +51,15 @@ const SingleAppointment = () => {
     [appointmentData]
   );
 
+  console.log("AdminSingleAppointment: ", appointment);
+
   if (isLoadingAppointment) {
     return <div>Loading...</div>;
   }
   const handleApproveAppointment = async (data: TApproveAppointment) => {
     try {
       if (data.appointmentId) {
-        await approveAppointment.mutate(data);
+        await approveRequestReschedAppointment.mutate(data);
         setIsApprovedModalOpen(false);
         navigate("/dentist/my_appointments");
       }
@@ -161,7 +168,7 @@ const SingleAppointment = () => {
         </Card>
       </div>
 
-      {appointment.status === "pending" && (
+      {appointment.status === APPOINTMENT_STATUS.PENDING.value && (
         <div className="flex justify-center w-full">
           <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
             <Dialog
@@ -257,8 +264,110 @@ const SingleAppointment = () => {
           </div>
         </div>
       )}
+      {appointment.status ===
+        APPOINTMENT_STATUS.REQUESTING_RE_SCHEDULE.value && (
+        <div className="flex justify-center w-full">
+          <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
+            <Dialog
+              open={isDeclineModalOpen}
+              onOpenChange={onOpenDeclineModalChange}
+            >
+              <Button
+                size="sm"
+                className="w-full  border-red-500 text-red-800 justify-center bg-red-50/50 rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
+                variant="db_outline"
+                onClick={onOpenDeclineModalChange}
+              >
+                Reject Request Re-schedule
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Reject Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to do reject this appointment?{" "}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenDeclineModalChange}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
+                      onClick={() =>
+                        handleRejectAppointment({
+                          appointmentId: appointment.id,
+                        })
+                      }
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={isApprovedModalOpen}
+              onOpenChange={onOpenApprovedModalChange}
+            >
+              <Button
+                size="sm"
+                className="w-full  border-green-500 bg-green-200/50 text-green-800 justify-center items-center rounded-[4px] hover:bg-green-200 focus:bg-green-200 "
+                variant="db_outline"
+                onClick={onOpenApprovedModalChange}
+              >
+                <span className="text-center">Approve Request Re-schedule</span>
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Approve Request Re-schedule of Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to approve this request for
+                    re-scheduling of appointment{" "}
+                    <span className="font-semibold text-primary-700">
+                      {formatReadableDate(appointment.schedule)}
+                    </span>
+                    ?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenApprovedModalChange}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      onClick={() =>
+                        handleApproveAppointment({
+                          appointmentId: appointment.id,
+                        })
+                      }
+                      className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
+                    >
+                      Approve
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default SingleAppointment;
+export default AdminSingleAppointment;

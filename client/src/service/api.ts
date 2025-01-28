@@ -285,11 +285,14 @@ export const getAllMyAppointmentAPI = async (userId: string) => {
   return data;
 };
 
+export const getAllAppointmentsAPI = async () => {
+  const { data } = await axiosInstance.get("/appointment");
+  return data;
+};
+
 export const getMyAppointmentAPI = async (args: { queryKey: string[] }) => {
   const { queryKey } = args;
-  const { data } = await axiosInstance.get(`/appointment/${queryKey[1]}`, {
-    params: { userId: queryKey[0] },
-  });
+  const { data } = await axiosInstance.get(`/appointment/${queryKey[0]}`);
   return data;
 };
 
@@ -312,11 +315,26 @@ export const cancelAppointmentAPI = async (data: TCancelAppointment) => {
 };
 
 export const approveAppointmentAPI = async (data: TApproveAppointment) => {
-  const result = await axiosInstance.patch(`/appointment/approve`, data);
+  const result = await axiosInstance.patch(`/approve-appointment`, data);
   return result;
 };
+
+export const approveRequestReschedAppointmentAPI = async (
+  data: TApproveAppointment
+) => {
+  const result = await axiosInstance.patch(`/approve-reschedule`, data);
+  return result;
+};
+
+export const rejectRequestReschedAppointmentAPI = async (
+  data: TApproveAppointment
+) => {
+  const result = await axiosInstance.patch(`/reject-reschedule`, data);
+  return result;
+};
+
 export const rejectAppointmentAPI = async (data: TRejectAppointment) => {
-  const result = await axiosInstance.patch(`/appointment/reject`, data);
+  const result = await axiosInstance.patch(`/reject-appointment`, data);
   return result;
 };
 
@@ -408,6 +426,15 @@ export const getDentistAppointmentAPI = async (dentistId: string) => {
 
 export const getPatientAppointmentsAPI = async (patient: string) => {
   const { data } = await axiosInstance.get(`/appointment/${patient}/patient`);
+  return data;
+};
+
+export const getAllReschedAppointmentAPI = async () => {
+  const { data } = await axiosInstance.get(`/request-re-schedule-appointment`);
+  return data;
+};
+export const getAllPendingAppointmentAPI = async () => {
+  const { data } = await axiosInstance.get(`/pending-appointment`);
   return data;
 };
 

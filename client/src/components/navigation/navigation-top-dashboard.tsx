@@ -4,11 +4,10 @@ import {
   Breadcrumb,
   BreadcrumbList,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import React from "react";
 
 const NavigationTopDashboard = () => {
@@ -40,10 +39,10 @@ const NavigationTopDashboard = () => {
                 <React.Fragment key={segment}>
                   <BreadcrumbItem>
                     {!isLast ? (
-                      <BreadcrumbLink href={href}>
+                      <Link to={href}>
                         <span className="uppercase">{title[0]}</span>
                         {title.slice(1)}
-                      </BreadcrumbLink>
+                      </Link>
                     ) : (
                       <BreadcrumbPage>
                         <span className="uppercase">{title[0]}</span>

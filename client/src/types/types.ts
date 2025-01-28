@@ -125,6 +125,10 @@ export type TMyAppointment = {
   createdBy: string;
 };
 
+export type TMyAppointmentWithResched = TMyAppointment & {
+  requestedResched: string;
+};
+
 export type TMyAppointmentId = string;
 
 export type TPenalty = z.infer<typeof penaltySchema>;
@@ -142,11 +146,9 @@ export type TCancelAppointment = {
 
 export type TApproveAppointment = {
   appointmentId: string;
-  dentistId: string;
 };
 export type TRejectAppointment = {
   appointmentId: string;
-  dentistId: string;
 };
 
 // ============ || APPOINTMENT PATIENT INFO || ===========

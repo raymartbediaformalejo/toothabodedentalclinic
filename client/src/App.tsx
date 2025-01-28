@@ -34,6 +34,10 @@ import AdminPatients from "./pages/DashboardAdmin/Patient";
 import SingleAdminPatient from "./pages/DashboardAdmin/Patient/SinglePatient";
 import Users from "./pages/DashboardAdmin/User";
 import SingleUser from "./pages/DashboardAdmin/User/SingleUser";
+import AdminAppointments from "./pages/DashboardAdmin/Appointment";
+import AdminSingleAppointment from "./pages/DashboardAdmin/Appointment/SingleAppointment";
+import AdminPendingAppointments from "./pages/DashboardAdmin/Appointment/PendingAppointments";
+import AdminReScheduledAppointments from "./pages/DashboardAdmin/Appointment/ReScheduledAppointments";
 
 function App() {
   return (
@@ -104,6 +108,18 @@ function App() {
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
               <Route path="admin" element={<DashboardLayout />}>
                 <Route index element={<DashboardAdmin />} />
+                <Route path="appointments">
+                  <Route index element={<AdminAppointments />} />
+                  <Route path=":id" element={<AdminSingleAppointment />} />
+                  <Route
+                    path="pending_appointment"
+                    element={<AdminPendingAppointments />}
+                  />
+                  <Route
+                    path="re_schedule_appointment"
+                    element={<AdminReScheduledAppointments />}
+                  />
+                </Route>
                 <Route path="dentists">
                   <Route index element={<Dentists />} />
                   <Route path="add_new_dentist" element={<AddNewDentist />} />

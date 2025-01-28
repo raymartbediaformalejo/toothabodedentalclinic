@@ -1,7 +1,7 @@
 const express = require("express");
 const {
+  getAllAppointments,
   getAppointment,
-  getAppointments,
   getDentistAppointments,
   createAppointment,
   editAppointment,
@@ -9,20 +9,35 @@ const {
   approveAppointment,
   cancelAppointment,
   rejectAppointment,
+  getAllPedingAppointments,
   getDentistPedingAppointments,
   getDentistReScheduleAppointments,
+  getAllRequestingReschedAppointments,
   getPatientAppointments,
+  approveRequestRescheduleAppointment,
+  rejectRequestRescheduleAppointment,
 } = require("./appointment.controllers");
 
 const router = express.Router();
 
-router.get("/appointment", getAppointments);
+router.get("/appointment", getAllAppointments);
 
 router.get("/appointment/:appointmentId", getAppointment);
 
 router.get("/appointment/:dentistId/dentist", getDentistAppointments);
 
 router.get("/appointment/:patientId/patient", getPatientAppointments);
+
+router.get("/pending-appointment", getAllPedingAppointments);
+
+router.get(
+  "/request-re-schedule-appointment",
+  getAllRequestingReschedAppointments
+);
+
+router.patch("/approve-reschedule", approveRequestRescheduleAppointment);
+
+router.patch("/reject-reschedule", rejectRequestRescheduleAppointment);
 
 router.get(
   "/appointment/pending/:dentistId/dentist",
@@ -36,9 +51,9 @@ router.get(
 
 router.patch("/appointment/request-reschedule", requestRescheduleAppointment);
 
-router.patch("/appointment/approve", approveAppointment);
+router.patch("/approve-appointment", approveAppointment);
 
-router.patch("/appointment/reject", rejectAppointment);
+router.patch("/reject-appointment", rejectAppointment);
 
 router.patch("/appointment/cancel/:id", cancelAppointment);
 

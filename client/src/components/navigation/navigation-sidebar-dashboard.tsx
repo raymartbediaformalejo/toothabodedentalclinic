@@ -31,12 +31,18 @@ import { ChevronRight } from "lucide-react";
 import { NavigationUser } from "./navigation-user";
 import useAuth from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 // Menu items.
 const itemsAdmin = [
   {
     title: "Dashboard",
-    url: "/admin/dashboard",
+    url: "/admin",
     icon: DashboardIcon,
   },
   {
@@ -67,6 +73,22 @@ const itemsAdmin = [
       {
         title: "Penalty Fee",
         url: "#",
+      },
+    ],
+  },
+  {
+    title: "Appointments",
+    url: "#",
+    icon: PatientsIcon,
+    items: [
+      { title: "All Appointments", url: "/admin/appointments" },
+      {
+        title: "Pending Approval Appointment",
+        url: "/admin/appointments/pending_appointment",
+      },
+      {
+        title: "Approval Re-schedule Appointments",
+        url: "/admin/appointments/re_schedule_appointment",
       },
     ],
   },

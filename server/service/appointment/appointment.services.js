@@ -12,16 +12,114 @@ const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
+  static async rejectRequestReschedAppointment(appointmentId) {
+    const client = await pool.connect();
+    try {
+      // Fetch the current appointment details
+      const query = `
+        SELECT appointment_id, appointment_status
+        FROM tbl_appointment
+        WHERE appointment_id = $1
+      `;
+      const { rows } = await client.query(query, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      if (rows[0].appointment_status !== "requesting_re_schedule") {
+        throw new Error("Appointment is not in a reschedule request status.");
+      }
+
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET
+          appointment_status = 'rejected_request_re_sched',
+          updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING *;
+      `;
+
+      const updateValues = [appointmentId];
+      const updateResult = await client.query(updateQuery, updateValues);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: `Reschedule request for appointment has been rejected successfully.`,
+        data: updateResult.rows[0],
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
+  static async approveRequestRescheduleAppointment(appointmentId) {
+    const client = await pool.connect();
+    try {
+      // Fetch the current appointment details
+      const query = `
+        SELECT appointment_id, schedule, appointment_status, requested_re_schedule
+        FROM tbl_appointment
+        WHERE appointment_id = $1
+      `;
+      const { rows } = await client.query(query, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      const { requested_re_schedule } = rows[0];
+
+      // Check if the status is 'requesting_re_schedule'
+      if (rows[0].appointment_status !== "requesting_re_schedule") {
+        throw new Error("Appointment is not in a reschedule request status.");
+      }
+
+      // Update the appointment status and reschedule values
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET
+          appointment_status = 'approved',
+          schedule = $2,
+          requested_re_schedule = NULL,
+          updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING *;
+      `;
+
+      const updateValues = [appointmentId, requested_re_schedule];
+      const updateResult = await client.query(updateQuery, updateValues);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: `Appointment reschedule request has been approved successfully.`,
+        data: updateResult.rows[0],
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
   static async requestRescheduleAppointment(values) {
     const client = await pool.connect();
     try {
       const { appointmentId, requestedReschedule } = values;
 
+      // Fetch the current appointment details
       const query = `
-        SELECT appointment_status, limit_re_schedule
-        FROM tbl_appointment
-        WHERE appointment_id = $1
-      `;
+            SELECT limit_re_schedule
+            FROM tbl_appointment
+            WHERE appointment_id = $1
+        `;
       const { rows } = await client.query(query, [appointmentId]);
 
       if (rows.length === 0) {
@@ -36,21 +134,36 @@ class Appointment {
         );
       }
 
-      const updateQuery = `
-        UPDATE tbl_appointment
-        SET 
-          appointment_status = 'requesting_re_schedule',
-          limit_re_schedule = limit_re_schedule + 1,
-          requested_re_schedule = $2,
-          updated_at = NOW()
-        WHERE appointment_id = $1
-        RETURNING *;
-      `;
+      let updateQuery;
+      let updateValues;
 
-      const updateResult = await client.query(updateQuery, [
-        appointmentId,
-        requestedReschedule,
-      ]);
+      if (limit_re_schedule === 0) {
+        updateQuery = `
+                UPDATE tbl_appointment
+                SET 
+                    appointment_status = 'requesting_re_schedule',
+                    limit_re_schedule = limit_re_schedule + 1,
+                    requested_re_schedule = $2,
+                    updated_at = NOW()
+                WHERE appointment_id = $1
+                RETURNING *;
+            `;
+        updateValues = [appointmentId, requestedReschedule];
+      } else {
+        updateQuery = `
+                UPDATE tbl_appointment
+                SET 
+                    appointment_status = 'requesting_re_schedule',
+                    limit_re_schedule = limit_re_schedule + 1,
+                    requested_re_schedule = $2,
+                    updated_at = NOW()
+                WHERE appointment_id = $1
+                RETURNING *;
+            `;
+        updateValues = [appointmentId, requestedReschedule];
+      }
+
+      const updateResult = await client.query(updateQuery, updateValues);
 
       await client.query("COMMIT");
 
@@ -88,6 +201,89 @@ class Appointment {
       `;
 
       const result = await client.query(query, [dentistId]);
+
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching appointments: ", error);
+      throw new Error(`Internal Server Error: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+  static async getAllRequestingReschedAppointments() {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.appointment_id AS "id",
+          a.appointment_patient_info_id AS "patientInfoId",
+          a.schedule,
+          a.appointment_status AS "status",
+          array_agg(s.id) AS "services",
+          a.created_at AS "createdAt",
+          a.created_by AS "createdBy",
+          a.requested_re_schedule AS "requestedResched",
+          api.first_name AS "patientFirstName",
+          api.middle_name AS "patientMiddleName",
+          api.last_name AS "patientLastName"
+        FROM tbl_appointment a
+        LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
+        LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        LEFT JOIN tbl_appointment_patient_info api ON a.appointment_patient_info_id = api.appointment_patient_info_id
+        WHERE a.appointment_status = 'requesting_re_schedule'
+        GROUP BY a.appointment_id, api.first_name, api.middle_name, api.last_name
+        ORDER BY a.schedule DESC
+      `;
+
+      const result = await client.query(query);
+
+      if (result.rows.length === 0) {
+        return {
+          status: 404,
+          message: "Something went wrong",
+        };
+      }
+
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching appointments: ", error);
+      throw new Error(`Internal Server Error: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+  static async getAllPendingAppointments() {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.appointment_id AS "id",
+          a.appointment_patient_info_id AS "patientInfoId",
+          a.schedule,
+          a.appointment_status AS "status",
+          array_agg(s.id) AS "services",
+          a.created_at AS "createdAt",
+          a.created_by AS "createdBy",
+          api.first_name AS "patientFirstName",
+          api.middle_name AS "patientMiddleName",
+          api.last_name AS "patientLastName"
+        FROM tbl_appointment a
+        LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
+        LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        LEFT JOIN tbl_appointment_patient_info api ON a.appointment_patient_info_id = api.appointment_patient_info_id
+        WHERE a.appointment_status = 'pending'
+        GROUP BY a.appointment_id, api.first_name, api.middle_name, api.last_name
+        ORDER BY a.schedule DESC
+      `;
+
+      const result = await client.query(query);
+
+      if (result.rows.length === 0) {
+        return {
+          status: 404,
+          message: "Something went wrong",
+        };
+      }
 
       return result.rows;
     } catch (error) {
@@ -214,8 +410,49 @@ class Appointment {
       client.release();
     }
   }
+  static async getAllAppointments() {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.appointment_id AS "id",
+          a.appointment_patient_info_id AS "patientInfoId",
+          a.schedule,
+          a.appointment_status AS "status",
+          array_agg(s.id) AS "services",
+          a.created_at AS "createdAt",
+          a.created_by AS "createdBy",
+          api.first_name AS "patientFirstName",
+          api.middle_name AS "patientMiddleName",
+          api.last_name AS "patientLastName"
+        FROM tbl_appointment a
+        LEFT JOIN tbl_appointment_service as asrv ON a.appointment_id = asrv.appointment_id
+        LEFT JOIN tbl_service s ON asrv.service_id = s.id
+        LEFT JOIN tbl_appointment_patient_info api ON a.appointment_patient_info_id = api.appointment_patient_info_id
+        GROUP BY a.appointment_id, api.first_name, api.middle_name, api.last_name
+        ORDER BY a.schedule DESC
+      `;
 
-  static async approveAppointment(values) {
+      const result = await client.query(query);
+
+      if (result.rows.length === 0) {
+        return {
+          status: 404,
+          message: "Something went wrong",
+          accountStatus: null,
+        };
+      }
+
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching appointments: ", error);
+      throw new Error(`Internal Server Error: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
+  static async approveAppointment({ appointmentId }) {
     const client = await pool.connect();
     try {
       const approveAppointmentQuery = `
@@ -223,14 +460,11 @@ class Appointment {
         SET 
           appointment_status = 'approved',
           updated_at = NOW()
-        WHERE appointment_id = $1 AND dentist_id = $2
+        WHERE appointment_id = $1 
         RETURNING *
       `;
 
-      await client.query(approveAppointmentQuery, [
-        values.appointmentId,
-        values.dentistId,
-      ]);
+      await client.query(approveAppointmentQuery, [appointmentId]);
 
       await client.query("COMMIT");
 
@@ -245,22 +479,19 @@ class Appointment {
       client.release();
     }
   }
-  static async rejectAppointment(values) {
+  static async rejectAppointment(appointmentId) {
     const client = await pool.connect();
     try {
       const rejectAppointmentQuery = `
         UPDATE tbl_appointment
         SET 
-          appointment_status = 'reject',
+          appointment_status = 'rejected',
           updated_at = NOW()
-        WHERE appointment_id = $1 AND dentist_id = $2
+        WHERE appointment_id = $1
         RETURNING *
       `;
 
-      await client.query(rejectAppointmentQuery, [
-        values.appointmentId,
-        values.dentistId,
-      ]);
+      await client.query(rejectAppointmentQuery, [appointmentId]);
 
       await client.query("COMMIT");
 
@@ -334,9 +565,7 @@ class Appointment {
     }
   }
 
-  static async getAppointment(userId, appointmentId) {
-    console.log("class getAppointment userId: ", userId);
-    console.log("class getAppointment appointmentId: ", appointmentId);
+  static async getAppointment(appointmentId) {
     const client = await pool.connect();
     try {
       const query = `
@@ -366,7 +595,7 @@ class Appointment {
         LEFT JOIN tbl_service s ON asrv.service_id = s.id
         LEFT JOIN tbl_user dentist ON a.dentist_id = dentist.id
         LEFT JOIN tbl_user patient ON a.patient_id = patient.id
-        WHERE a.patient_id = $1 AND a.appointment_id = $2
+        WHERE a.appointment_id = $1
         GROUP BY 
           a.appointment_id, 
           apinfo.medical_history_id, 
@@ -374,7 +603,7 @@ class Appointment {
           patient.first_name, patient.middle_name, patient.last_name, patient.suffix
       `;
 
-      const result = await client.query(query, [userId, appointmentId]);
+      const result = await client.query(query, [appointmentId]);
 
       if (result.rows.length === 0) {
         throw new Error("Appointment not found");

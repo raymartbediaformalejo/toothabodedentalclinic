@@ -37,12 +37,8 @@ const MyAppointment = () => {
   const [isCancelAppointmentModalOpen, setIsCancelAppointmentModalOpen] =
     useState(false);
 
-  const { userId } = useAuth();
   const { id } = useParams();
-  const { data: myAppointmentData, isLoading } = useGetMyAppointment(
-    userId!,
-    id!
-  );
+  const { data: myAppointmentData, isLoading } = useGetMyAppointment(id!);
   const myAppointment: TMyAppointment | undefined = myAppointmentData?.data;
   const statusConfig = myAppointment
     ? getStatusConfig(myAppointment.status)

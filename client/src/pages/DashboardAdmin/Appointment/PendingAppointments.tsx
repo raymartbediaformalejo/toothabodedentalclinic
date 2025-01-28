@@ -7,6 +7,7 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
+
 import profileImgFallback from "@/assets/default-avatar.jpg";
 import {
   Table,
@@ -19,7 +20,7 @@ import {
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetDentistAppointments } from "@/service/queries";
+import { useGetAllPendingAppointments } from "@/service/queries";
 import {
   TApproveAppointment,
   TMyAppointment,
@@ -65,8 +66,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
+// import DentistName from "./components/DentistName";
+// import AvailabilityCell from "./components/AvailabilityCell";
 import useAuth from "@/hooks/useAuth";
-import UserName from "./components/UserName";
+import UserName from "@/pages/DashboardDentist/Appointment/components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
 
@@ -97,7 +100,7 @@ const columnAppointments = [
   },
 ];
 
-const Appointments = () => {
+const AdminPendingAppointments = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
@@ -108,12 +111,15 @@ const Appointments = () => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
+  // const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetDentistAppointments(userId);
+  const { data, isLoading } = useGetAllPendingAppointments();
   const allAppointments: TMyAppointment[] = useMemo(
     () => data?.data || [],
     [data]
   );
+  // const deleteAllDentist = useDeleteAllDentist();
+  // const deleteDentist = useDeleteDentist();
   const table = useReactTable({
     data: allAppointments,
     columns: columnAppointments,
@@ -134,7 +140,7 @@ const Appointments = () => {
     onSortingChange: setSorting,
   });
 
-  const selectedDentistRow = Object.keys(table.getState().rowSelection);
+  const selectedAppointmentRow = Object.keys(table.getState().rowSelection);
 
   useEffect(() => {
     table.setPageSize(rowPerPage);
@@ -172,15 +178,15 @@ const Appointments = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
 
-  console.log("allAppointments data: ", data);
-  console.log("allAppointments: ", allAppointments);
+  console.log("Pending allAppointments data: ", data);
+  console.log("Pending allAppointments: ", allAppointments);
 
   return (
     <>
       <div className="flex items-center justify-between mb-6 ">
         <header className=" text-black/80">
           <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
-            My Appointments
+            Pending Approval Appointments
           </h1>
         </header>
       </div>
@@ -190,7 +196,7 @@ const Appointments = () => {
         {allAppointments.length === 0 && !isLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
-              There are no records to display for Appointments
+              There are no records to display for Pending Approval Appointments
             </p>
           </div>
         )}
@@ -302,7 +308,9 @@ const Appointments = () => {
                   <React.Fragment key={row.id}>
                     <TableRow
                       key={row.id}
-                      isSelected={selectedDentistRow.includes(row.original.id)}
+                      isSelected={selectedAppointmentRow.includes(
+                        row.original.id
+                      )}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (
@@ -320,7 +328,7 @@ const Appointments = () => {
                                 />
                                 <Link
                                   className="flex items-center"
-                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                  to={`/admin/appointments/${cell.row.original.id}`}
                                 >
                                   <label
                                     key={userId}
@@ -337,19 +345,17 @@ const Appointments = () => {
                                       <span>
                                         {createUsername({
                                           firstname:
-                                            row.original.patientFirstName!,
+                                            row.original?.patientFirstName ||
+                                            "",
                                           middlename:
-                                            row.original.patientMiddleName! ||
+                                            row.original?.patientMiddleName ||
                                             "",
                                           lastname:
-                                            row.original.patientLastName!,
+                                            row.original?.patientLastName || "",
                                         })}
                                       </span>
                                     </div>
                                   </label>
-                                  {/* <UserName
-                                    userId={cell.row.original.patientId}
-                                  /> */}
                                 </Link>
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
@@ -379,6 +385,15 @@ const Appointments = () => {
                                   status={row.original.status}
                                 />
                               </TableCell>
+                            ) : cell.column.id === "createdBy" ? (
+                              <TableCell
+                                key={cell.id}
+                                className=" text-[#424242] text-sm"
+                              >
+                                <UserName
+                                  userId={cell.row.original.createdBy}
+                                />
+                              </TableCell>
                             ) : cell.column.id === "createdAt" ? (
                               <TableCell
                                 key={cell.id}
@@ -389,15 +404,6 @@ const Appointments = () => {
                                     cell.row.original.createdAt
                                   )}
                                 </span>
-                              </TableCell>
-                            ) : cell.column.id === "createdBy" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <UserName
-                                  userId={cell.row.original.createdBy}
-                                />
                               </TableCell>
                             ) : (
                               <TableCell
@@ -531,7 +537,7 @@ const Appointments = () => {
                                 variant="db_outline"
                                 onClick={() =>
                                   navigate(
-                                    `/dentist/my_appointments/${row.original.id}`
+                                    `/admin/appointments/${row.original.id}`
                                   )
                                 }
                               >
@@ -555,10 +561,10 @@ const Appointments = () => {
           <p
             className={cn(
               "flex transition-colors duration-100 ease-in-out place-items-center font-inter ",
-              selectedDentistRow.length ? "text-black" : "text-black/60"
+              selectedAppointmentRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedDentistRow.length} of ${allAppointments.length} row(s) selected.`}
+            {`${selectedAppointmentRow.length} of ${allAppointments.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">
@@ -634,4 +640,4 @@ const Appointments = () => {
   );
 };
 
-export default Appointments;
+export default AdminPendingAppointments;

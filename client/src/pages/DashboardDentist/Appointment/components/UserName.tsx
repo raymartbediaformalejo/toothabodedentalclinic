@@ -4,13 +4,22 @@ import { createUsername } from "@/lib/utils";
 import profileImgFallback from "@/assets/default-avatar.jpg";
 
 const UserName = ({ userId }: { userId: string }) => {
-  const { data, isLoading, isFetched } = useGetUser(userId);
-  const user: TUser | null = isFetched ? data.data : null;
+  console.log("userId: ", userId);
+  const { data, isLoading, isFetched, isError } = useGetUser(userId);
+  const user: TUser | null = isFetched ? data?.data : null;
 
   if (isLoading) {
     return (
       <label className="whitespace-nowrap text-[#424242] text-sm">
         Loading...
+      </label>
+    );
+  }
+
+  if (isError) {
+    return (
+      <label className="whitespace-nowrap text-[#424242] text-sm">
+        Error getting patient name
       </label>
     );
   }

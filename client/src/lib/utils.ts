@@ -8,6 +8,34 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const isScheduleInPast = (schedule: string): boolean => {
+  const currentDate = new Date();
+  const appointmentDate = new Date(schedule);
+
+  return appointmentDate < currentDate;
+};
+
+export const canRequestReschedule = (schedule: string): boolean => {
+  if (!schedule) return false; // Ensure the schedule exists
+
+  const now = new Date(); // Current date and time
+  const appointmentDate = new Date(schedule); // Parse the schedule into a Date object
+
+  if (isNaN(appointmentDate.getTime())) {
+    console.error("Invalid date format");
+    return false; // Handle invalid date formats
+  }
+
+  // Calculate the difference in milliseconds
+  const timeDifference = appointmentDate.getTime() - now.getTime();
+
+  // Convert the time difference into hours
+  const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+  // Check if the appointment is at least 24 hours away
+  return hoursDifference >= 24;
+};
+
 export const createUsername = (user: TUsername): string => {
   const { firstname = "", lastname = "", middlename = "" } = user;
   const formattedFirstName =

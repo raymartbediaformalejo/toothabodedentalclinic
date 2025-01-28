@@ -26,6 +26,9 @@ import {
   getPatientsOfDoctor,
   getAllPatientAPI,
   getAllUsersAPI,
+  getAllAppointmentsAPI,
+  getAllPendingAppointmentAPI,
+  getAllReschedAppointmentAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -126,6 +129,18 @@ export const useGetDentist = (dentistId: TDentistId) => {
 
 // ============ || APPOINTMENT || ===========
 
+export const useGetAllAppointments = () => {
+  return useQuery({
+    queryKey: ["appointment"],
+    queryFn: getAllAppointmentsAPI,
+  });
+};
+export const useGetAllRequestingReschedAppointments = () => {
+  return useQuery({
+    queryKey: ["appointment"],
+    queryFn: getAllReschedAppointmentAPI,
+  });
+};
 export const useGetMyAllAppointment = (userId: string) => {
   return useQuery({
     queryKey: ["appointment", userId],
@@ -133,10 +148,10 @@ export const useGetMyAllAppointment = (userId: string) => {
   });
 };
 
-export const useGetMyAppointment = (userId: string, appointmentId: string) => {
+export const useGetMyAppointment = (appointmentId: string) => {
   return useQuery({
-    queryKey: ["appointment", userId, appointmentId],
-    queryFn: () => getMyAppointmentAPI({ queryKey: [userId, appointmentId] }),
+    queryKey: ["appointment", appointmentId],
+    queryFn: () => getMyAppointmentAPI({ queryKey: [appointmentId] }),
   });
 };
 
@@ -199,6 +214,12 @@ export const useGetPatientAppointments = (patientId: string) => {
   return useQuery({
     queryKey: ["appointment", "patient", patientId],
     queryFn: () => getPatientAppointmentsAPI(patientId),
+  });
+};
+export const useGetAllPendingAppointments = () => {
+  return useQuery({
+    queryKey: ["appointment"],
+    queryFn: getAllPendingAppointmentAPI,
   });
 };
 export const useGetDentistPendingAppointments = (dentistId: string) => {

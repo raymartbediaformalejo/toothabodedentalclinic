@@ -150,7 +150,7 @@ const ReScheduledAppointments = () => {
 
   const handleApproveAppointment = async (data: TApproveAppointment) => {
     try {
-      if (data.appointmentId && data.dentistId) {
+      if (data.appointmentId) {
         await approveAppointment.mutate(data);
         setIsApprovedModalOpen(false);
       }
@@ -160,7 +160,7 @@ const ReScheduledAppointments = () => {
   };
   const handleRejectAppointment = async (data: TRejectAppointment) => {
     try {
-      if (data.appointmentId && data.dentistId) {
+      if (data.appointmentId) {
         await rejectAppoinment.mutate(data);
         setIsDeclineModalOpen(false);
       }
@@ -431,7 +431,6 @@ const ReScheduledAppointments = () => {
                                             onClick={() =>
                                               handleApproveAppointment({
                                                 appointmentId: row.original.id,
-                                                dentistId: userId,
                                               })
                                             }
                                             className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
@@ -479,7 +478,6 @@ const ReScheduledAppointments = () => {
                                             onClick={() =>
                                               handleRejectAppointment({
                                                 appointmentId: row.original.id,
-                                                dentistId: userId,
                                               })
                                             }
                                           >
