@@ -87,10 +87,6 @@ const columnAppointments = [
     accessorKey: "services",
   },
   {
-    header: "Status",
-    accessorKey: "status",
-  },
-  {
     header: "Created by",
     accessorKey: "createdBy",
   },

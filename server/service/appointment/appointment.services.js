@@ -12,6 +12,107 @@ const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
+  static async markAsCanceled(appointmentId) {
+    const client = await pool.connect();
+    try {
+      // Update the appointment status to 'canceled'
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET appointment_status = 'canceled', updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING *;
+      `;
+      const { rows } = await client.query(updateQuery, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: "Appointment has been marked as canceled successfully.",
+        data: rows[0],
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
+  static async markAsNoShow(appointmentId) {
+    const client = await pool.connect();
+    try {
+      // Update appointment status to 'no_show' and fetch the patient ID
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET appointment_status = 'no_show', updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING patient_id;
+      `;
+      const { rows } = await client.query(updateQuery, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      const { patient_id } = rows[0];
+
+      // Update user account status to 'no_show_restricted'
+      const updateUserQuery = `
+        UPDATE tbl_user
+        SET account_status = 'no_show_restricted', updated_at = NOW()
+        WHERE id = $1;
+      `;
+      await client.query(updateUserQuery, [patient_id]);
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: "Appointment has been marked as no-show successfully.",
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
+  static async markAsCompleted(appointmentId) {
+    const client = await pool.connect();
+    try {
+      // Update the appointment status to 'completed'
+      const updateQuery = `
+        UPDATE tbl_appointment
+        SET appointment_status = 'completed', updated_at = NOW()
+        WHERE appointment_id = $1
+        RETURNING *;
+      `;
+      const { rows } = await client.query(updateQuery, [appointmentId]);
+
+      if (rows.length === 0) {
+        throw new Error(`Appointment with ID ${appointmentId} not found.`);
+      }
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: "Appointment has been marked as completed successfully.",
+        data: rows[0],
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
   static async rejectRequestReschedAppointment(appointmentId) {
     const client = await pool.connect();
     try {
@@ -559,6 +660,31 @@ class Appointment {
       return result.rows;
     } catch (error) {
       console.error("Error fetching appointments: ", error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async getSchedule(appointmentId) {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          a.schedule
+        FROM tbl_appointment
+        WHERE appointment_id = $1`;
+
+      const result = await client.query(query, [appointmentId]);
+
+      if (result.rows.length === 0) {
+        throw new Error("Appointment not found");
+      }
+
+      const row = result.rows[0];
+      return row;
+    } catch (error) {
+      console.error("Error fetching appointment: ", error);
       throw error;
     } finally {
       client.release();

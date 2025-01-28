@@ -31,12 +31,6 @@ import { ChevronRight } from "lucide-react";
 import { NavigationUser } from "./navigation-user";
 import useAuth from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 
 // Menu items.
 const itemsAdmin = [
@@ -96,6 +90,11 @@ const itemsAdmin = [
     title: "Dentists",
     url: "/admin/dentists",
     icon: DentistsIcon,
+  },
+  {
+    title: "Payment Verification",
+    url: "/admin/payment-verification",
+    icon: PatientsIcon,
   },
   {
     title: "Patients",

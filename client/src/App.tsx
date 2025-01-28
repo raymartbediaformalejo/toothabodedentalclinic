@@ -38,6 +38,7 @@ import AdminAppointments from "./pages/DashboardAdmin/Appointment";
 import AdminSingleAppointment from "./pages/DashboardAdmin/Appointment/SingleAppointment";
 import AdminPendingAppointments from "./pages/DashboardAdmin/Appointment/PendingAppointments";
 import AdminReScheduledAppointments from "./pages/DashboardAdmin/Appointment/ReScheduledAppointments";
+import PaymentVerification from "./pages/DashboardAdmin/PaymentVerification";
 
 function App() {
   return (
@@ -120,6 +121,11 @@ function App() {
                     element={<AdminReScheduledAppointments />}
                   />
                 </Route>
+
+                <Route path="payment-verification">
+                  <Route index element={<PaymentVerification />} />
+                </Route>
+
                 <Route path="dentists">
                   <Route index element={<Dentists />} />
                   <Route path="add_new_dentist" element={<AddNewDentist />} />

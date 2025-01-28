@@ -173,7 +173,7 @@ export const APPOINTMENT_STATUS = {
   },
   COMPLETE: {
     title: "Completed Appointment!",
-    value: "complete",
+    value: "completed",
     label: "Complete",
     foreGround: "#6366F1",
     backGround: "#EEF2FF",
@@ -205,5 +205,25 @@ export const APPOINTMENT_STATUS = {
     backGround: "#FFEDD4",
     message:
       "Your request to reschedule the appointment has been rejected. Please contact the clinic for further assistance.",
+  },
+} as const;
+
+export const PAYMENT_VERIFICATION_STATUS = {
+  PENDING_PAYMENT_VERIFICATION: {
+    title: "Payment Verification in Progress!",
+    value: "pending_payment_verification",
+    label: "Pending Verification",
+    foreGround: "#C97E00",
+    backGround: "#FFF9F0",
+    message:
+      "Your payment is currently being verified. Please wait for confirmation. This process may take a few minutes.",
+  },
+  PAYMENT_VERIFIED: {
+    title: "Payment Verified!",
+    value: "payment_verified",
+    label: "Payment Verified",
+    foreGround: "#6366F1",
+    backGround: "#EEF2FF",
+    message: "Your payment has been successfully verified. Thank you!",
   },
 } as const;

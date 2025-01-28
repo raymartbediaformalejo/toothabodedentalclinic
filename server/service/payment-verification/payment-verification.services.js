@@ -2,10 +2,19 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../../config/conn.js");
 
 class PaymentVerification {
+  static approvePaymentVerification = async (id) => {};
   static getPaymentVerification = async (id) => {
     const client = await pool.connect();
     try {
-      const query = `SELECT * FROM tbl_payment_verification WHERE id = $1`;
+      const query = `
+      SELECT 
+        id,
+        user_id AS "userId",
+        gcash_receipt_url AS "gcashReceiptUrl",
+        appointment_ids AS "appointmentIds",
+        created_at AS "createdAt",
+        created_by AS "createdBy"
+      FROM tbl_payment_verification WHERE id = $1`;
       const result = await client.query(query, [id]);
       return result.rows[0];
     } catch (error) {
@@ -18,7 +27,17 @@ class PaymentVerification {
   static getPaymentVerifications = async () => {
     const client = await pool.connect();
     try {
-      const query = `SELECT * FROM tbl_payment_verification`;
+      const query = `
+      SELECT
+        id,
+        user_id AS "userId",
+        gcash_receipt_url AS "gcashReceiptUrl",
+        appointment_ids AS "appointmentIds",
+        status,
+        created_at AS "createdAt",
+        created_by AS "createdBy"
+      FROM tbl_payment_verification`;
+
       const result = await client.query(query);
       return result.rows;
     } catch (error) {

@@ -1,5 +1,9 @@
 const express = require("express");
 const {
+  markAsCanceled,
+  markAsCompleted,
+  markAsNoShow,
+  getSchedule,
   getAllAppointments,
   getAppointment,
   getDentistAppointments,
@@ -24,6 +28,8 @@ router.get("/appointment", getAllAppointments);
 
 router.get("/appointment/:appointmentId", getAppointment);
 
+router.get("/appointment-schedule/:appointmentId", getSchedule);
+
 router.get("/appointment/:dentistId/dentist", getDentistAppointments);
 
 router.get("/appointment/:patientId/patient", getPatientAppointments);
@@ -38,6 +44,12 @@ router.get(
 router.patch("/approve-reschedule", approveRequestRescheduleAppointment);
 
 router.patch("/reject-reschedule", rejectRequestRescheduleAppointment);
+
+router.patch("/mark-as-canceled-appointment", markAsCanceled);
+
+router.patch("/mark-as-no-show-appointment", markAsNoShow);
+
+router.patch("/mark-as-completed-appointment", markAsCompleted);
 
 router.get(
   "/appointment/pending/:dentistId/dentist",

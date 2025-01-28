@@ -19,10 +19,10 @@ import {
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
-import { useGetAllAppointments } from "@/service/queries";
+import { useGetAllPaymentVerification } from "@/service/queries";
 import {
   TApproveAppointment,
-  TMyAppointment,
+  TPaymentVerification,
   TRejectAppointment,
 } from "@/types/types";
 import {
@@ -40,7 +40,12 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
+import {
+  cn,
+  createUsername,
+  formatAppointmentDate,
+  formatReadableDate,
+} from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
@@ -69,27 +74,21 @@ import useAuth from "@/hooks/useAuth";
 import UserName from "@/pages/DashboardDentist/Appointment/components/UserName";
 import Services from "@/pages/MyAppointment/components/Services";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
+import PaymentVerificationStatus from "./components/PaymentVerificationStatus";
+import Schedule from "./components/Schedule";
 
 const columnAppointments = [
   {
-    header: "Patient Name",
-    accessorKey: "firstName",
+    header: "User",
+    accessorKey: "userId",
   },
   {
-    header: "Requested Date & Time",
-    accessorKey: "schedule",
+    header: "No-show Appointment",
+    accessorKey: "appointmentIds",
   },
   {
-    header: "Dental Service",
-    accessorKey: "services",
-  },
-  {
-    header: "Appointment Status",
+    header: "Payment Status",
     accessorKey: "status",
-  },
-  {
-    header: "Created by",
-    accessorKey: "createdBy",
   },
   {
     header: "Created at",
@@ -97,11 +96,10 @@ const columnAppointments = [
   },
 ];
 
-const AdminAppointments = () => {
-  const { userId } = useAuth();
+const PaymentVerification = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "schedule", desc: true },
+    { id: "createdAt", desc: true },
   ]);
   const approveAppointment = useApproveAppointment();
   const rejectAppoinment = useRejectAppointment();
@@ -109,13 +107,13 @@ const AdminAppointments = () => {
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const [rowPerPage, setRowPerPage] = useState(6);
-  const { data, isLoading } = useGetAllAppointments();
-  const allAppointments: TMyAppointment[] = useMemo(
+  const { data, isLoading } = useGetAllPaymentVerification();
+  const allPaymentVerification: TPaymentVerification[] = useMemo(
     () => data?.data || [],
     [data]
   );
   const table = useReactTable({
-    data: allAppointments,
+    data: allPaymentVerification,
     columns: columnAppointments,
     initialState: {
       pagination: {
@@ -172,29 +170,28 @@ const AdminAppointments = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
 
-  console.log("allAppointments data: ", data);
-  console.log("allAppointments: ", allAppointments);
+  console.log("allPaymentVerification: ", allPaymentVerification);
 
   return (
     <>
       <div className="flex items-center justify-between mb-6 ">
         <header className=" text-black/80">
           <h1 className="text-neutral-700 leading-[43.2px] font-bold text-[34px]">
-            All Appointments
+            All Payment Verifications
           </h1>
         </header>
       </div>
 
       {/* =========== START TABLE ============= */}
       <Card className="bg-white shadow-sidebar-shadow overflow-hidden border-[rgba(46,32,0,0.1)]">
-        {allAppointments.length === 0 && !isLoading && (
+        {allPaymentVerification.length === 0 && !isLoading && (
           <div className="w-full flex items-center justify-center  py-6 h-[200px]">
             <p className="w-full italic text-center text-black/70 ">
               There are no records to display for Appointments
             </p>
           </div>
         )}
-        {allAppointments.length > 0 && (
+        {allPaymentVerification.length > 0 && (
           <Table className="font-inter ">
             <TableHeader className="bg-neutral-100">
               {table.getHeaderGroups().map((headerGroup) => {
@@ -207,7 +204,7 @@ const AdminAppointments = () => {
                     {headerGroup.headers.map((header) => {
                       return (
                         <React.Fragment key={header.id}>
-                          {header.id === "firstName" && (
+                          {header.id === "userId" && (
                             <TableHead
                               key={header.id}
                               className="flex items-center ml-3"
@@ -248,7 +245,7 @@ const AdminAppointments = () => {
                             </TableHead>
                           )}
 
-                          {header.id !== "firstName" && (
+                          {header.id !== "userId" && (
                             <TableHead
                               key={header.id}
                               onClick={header.column.getToggleSortingHandler()}
@@ -309,7 +306,7 @@ const AdminAppointments = () => {
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <React.Fragment key={cell.id}>
-                            {cell.column.id === "firstName" ? (
+                            {cell.column.id === "userId" ? (
                               <TableCell
                                 key={cell.id}
                                 className="flex ml-3 text-[#424242] text-sm"
@@ -320,65 +317,31 @@ const AdminAppointments = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <Link
-                                  className="flex items-center"
-                                  to={`/admin/appointments/${cell.row.original.id}`}
-                                >
-                                  <label
-                                    key={userId}
-                                    className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
-                                  >
-                                    <span className="relative flex w-6 h-6 overflow-hidden border rounded-full select-none border-neutral-300 ">
-                                      <img
-                                        src={profileImgFallback}
-                                        alt="Profile picture"
-                                        className="w-full h-full aspect-square"
-                                      />
-                                    </span>
-                                    <div>
-                                      <span>
-                                        {createUsername({
-                                          firstname:
-                                            row.original?.patientFirstName ||
-                                            "",
-                                          middlename:
-                                            row.original?.patientMiddleName ||
-                                            "",
-                                          lastname:
-                                            row.original?.patientLastName || "",
-                                        })}
-                                      </span>
-                                    </div>
-                                  </label>
-                                  {/* <UserName
-                                    userId={cell.row.original.patientId}
-                                  /> */}
-                                </Link>
+                                <UserName userId={cell.row.original.userId} />
                               </TableCell>
-                            ) : cell.column.id === "schedule" ? (
+                            ) : cell.column.id === "appointmentIds" ? (
                               <TableCell
                                 key={cell.id}
                                 className=" text-[#424242] text-sm"
                               >
                                 <div>
-                                  {formatAppointmentDate(
-                                    cell.row.original.schedule
+                                  {row.original.appointmentIds.map(
+                                    (appointmentId) => (
+                                      <div>
+                                        <Schedule
+                                          appointmentId={appointmentId}
+                                        />
+                                      </div>
+                                    )
                                   )}
                                 </div>
-                              </TableCell>
-                            ) : cell.column.id === "services" ? (
-                              <TableCell
-                                key={cell.id}
-                                className=" text-[#424242] text-sm"
-                              >
-                                <Services serviceIds={row.original.services} />
                               </TableCell>
                             ) : cell.column.id === "status" ? (
                               <TableCell
                                 key={cell.id}
                                 className=" text-[#424242] text-sm"
                               >
-                                <AppointmentStatus
+                                <PaymentVerificationStatus
                                   status={row.original.status}
                                 />
                               </TableCell>
@@ -388,7 +351,7 @@ const AdminAppointments = () => {
                                 className=" text-[#424242] text-sm"
                               >
                                 <span className="text-nowrap">
-                                  {formatAppointmentDate(
+                                  {formatReadableDate(
                                     cell.row.original.createdAt
                                   )}
                                 </span>
@@ -553,7 +516,7 @@ const AdminAppointments = () => {
         )}
       </Card>
       {/* =========== END TABLE ============= */}
-      {!!allAppointments.length && (
+      {!!allPaymentVerification.length && (
         <div className="flex justify-between my-8 text-sm ">
           <p
             className={cn(
@@ -561,7 +524,7 @@ const AdminAppointments = () => {
               selectedAppointmentRow.length ? "text-black" : "text-black/60"
             )}
           >
-            {`${selectedAppointmentRow.length} of ${allAppointments.length} row(s) selected.`}
+            {`${selectedAppointmentRow.length} of ${allPaymentVerification.length} row(s) selected.`}
           </p>
 
           <div className="flex justify-around gap-6">
@@ -637,4 +600,4 @@ const AdminAppointments = () => {
   );
 };
 
-export default AdminAppointments;
+export default PaymentVerification;

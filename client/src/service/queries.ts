@@ -29,6 +29,7 @@ import {
   getAllAppointmentsAPI,
   getAllPendingAppointmentAPI,
   getAllReschedAppointmentAPI,
+  getAllPaymentVerificationAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -135,6 +136,7 @@ export const useGetAllAppointments = () => {
     queryFn: getAllAppointmentsAPI,
   });
 };
+
 export const useGetAllRequestingReschedAppointments = () => {
   return useQuery({
     queryKey: ["appointment"],
@@ -152,6 +154,14 @@ export const useGetMyAppointment = (appointmentId: string) => {
   return useQuery({
     queryKey: ["appointment", appointmentId],
     queryFn: () => getMyAppointmentAPI({ queryKey: [appointmentId] }),
+  });
+};
+
+// ============ || PAYMENT VERIFICATION || ===========
+export const useGetAllPaymentVerification = () => {
+  return useQuery({
+    queryKey: ["payment-verification"],
+    queryFn: getAllPaymentVerificationAPI,
   });
 };
 

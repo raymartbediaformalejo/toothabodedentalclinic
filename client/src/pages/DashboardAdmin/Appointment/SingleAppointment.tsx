@@ -20,6 +20,9 @@ import BookedFor from "@/pages/DashboardDentist/Appointment/components/BookedFor
 import MedicalHistory from "@/pages/DashboardDentist/Appointment/components/MedicalHistory";
 import {
   useApproveRequestReschedAppointment,
+  useMarkAsCanceledAppointment,
+  useMarkAsCompletedAppointment,
+  useMarkAsNoShowAppointment,
   useRejectAppointment,
 } from "@/service/mutation";
 import {
@@ -37,13 +40,23 @@ import { APPOINTMENT_STATUS } from "@/lib/variables";
 const AdminSingleAppointment = () => {
   const navigate = useNavigate();
   const { id: appointmentId } = useParams();
+  const [isMarkAsCompletedModalOpen, setIsMarkAsCompletedModalOpen] =
+    useState(false);
+  const [isMarkAsCanceledModalOpen, setIsMarkAsCanceledModalOpen] =
+    useState(false);
+  const [isMarkAsNoShowModalOpen, setIsMarkAsNoShowModalOpen] = useState(false);
   const [isApprovedModalOpen, setIsApprovedModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
   const { data: appointmentData, isLoading: isLoadingAppointment } =
     useGetMyAppointment(appointmentId!);
 
+  const markAsCompleted = useMarkAsCompletedAppointment();
+  const markAsCanceled = useMarkAsCanceledAppointment();
+  const markAsNoShow = useMarkAsNoShowAppointment();
+
   const approveRequestReschedAppointment =
     useApproveRequestReschedAppointment();
+
   const rejectAppoinment = useRejectAppointment();
 
   const appointment: TMyAppointment = useMemo(
@@ -56,12 +69,47 @@ const AdminSingleAppointment = () => {
   if (isLoadingAppointment) {
     return <div>Loading...</div>;
   }
+  const handleMarkAsCompletedAppointment = async (
+    data: TApproveAppointment
+  ) => {
+    try {
+      if (data.appointmentId) {
+        await markAsCompleted.mutate(data);
+        setIsMarkAsCompletedModalOpen(false);
+        navigate("/admin/appointments");
+      }
+    } catch (error) {
+      console.log("Error mark as completed appointment: ", error);
+    }
+  };
+  const handleMarkAsCanceledAppointment = async (data: TApproveAppointment) => {
+    try {
+      if (data.appointmentId) {
+        await markAsCanceled.mutate(data);
+        setIsMarkAsCanceledModalOpen(false);
+        navigate("/admin/appointments");
+      }
+    } catch (error) {
+      console.log("Error mark as canceled appointment: ", error);
+    }
+  };
+  const handleMarkAsNoShowAppointment = async (data: TApproveAppointment) => {
+    try {
+      if (data.appointmentId) {
+        await markAsNoShow.mutate(data);
+        setIsMarkAsNoShowModalOpen(false);
+        navigate("/admin/appointments");
+      }
+    } catch (error) {
+      console.log("Error mark as no-show appointment: ", error);
+    }
+  };
   const handleApproveAppointment = async (data: TApproveAppointment) => {
     try {
       if (data.appointmentId) {
         await approveRequestReschedAppointment.mutate(data);
         setIsApprovedModalOpen(false);
-        navigate("/dentist/my_appointments");
+        navigate("/admin/appointments");
       }
     } catch (error) {
       console.log("Error approve appointment: ", error);
@@ -72,18 +120,32 @@ const AdminSingleAppointment = () => {
       if (data.appointmentId) {
         await rejectAppoinment.mutate(data);
         setIsDeclineModalOpen(false);
-        navigate("/dentist/my_appointments");
+        navigate("/admin/appointments");
       }
     } catch (error) {
       console.log("Error approve appointment: ", error);
     }
   };
+  const onOpenMarkAsCompletedModalChange = () => {
+    setIsMarkAsCompletedModalOpen((prev) => !prev);
+  };
+
+  const onOpenMarkAsCanceledModalChange = () => {
+    setIsMarkAsCanceledModalOpen((prev) => !prev);
+  };
+
+  const onOpenMarkAsNoShowModalChange = () => {
+    setIsMarkAsNoShowModalOpen((prev) => !prev);
+  };
+
   const onOpenApprovedModalChange = () => {
     setIsApprovedModalOpen((prev) => !prev);
   };
+
   const onOpenDeclineModalChange = () => {
     setIsDeclineModalOpen((prev) => !prev);
   };
+
   console.log("appointment: ", appointment);
 
   return (
@@ -167,6 +229,167 @@ const AdminSingleAppointment = () => {
           </Tabs>
         </Card>
       </div>
+
+      {appointment.status === APPOINTMENT_STATUS.APPROVED.value && (
+        <div className="flex justify-center w-full">
+          <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
+            <Dialog
+              open={isMarkAsCanceledModalOpen}
+              onOpenChange={onOpenMarkAsCanceledModalChange}
+            >
+              <Button
+                variant="db_outline"
+                className="w-full text-neutral-500  border border-neutral-300  focus:bg-neutral-300/30 hover:bg-neutral-300/30 justify-center bg-neutral-100 rounded-[4px] "
+                onClick={onOpenMarkAsCanceledModalChange}
+              >
+                Mark as canceled
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Mark as Canceled this Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to marks as "
+                    <span className="text-[#737373] font-semibold">
+                      canceled
+                    </span>
+                    " this appointment?{" "}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenMarkAsCanceledModalChange}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      className="text-neutral-500 bg-neutral-50 border border-neutral-200 rounded-md focus:bg-neutral-200/30 hover:bg-neutral-200/30"
+                      onClick={() =>
+                        handleMarkAsCanceledAppointment({
+                          appointmentId: appointment.id,
+                        })
+                      }
+                    >
+                      Yes
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog
+              open={isMarkAsNoShowModalOpen}
+              onOpenChange={onOpenMarkAsNoShowModalChange}
+            >
+              <Button
+                variant="db_outline"
+                className="w-full text-[#EF4444]  border border-[#EF4444]/50  focus:bg-[#EF4444]/20 hover:bg-[#EF4444]/20 justify-center bg-[#FEF2F2] rounded-[4px]"
+                onClick={onOpenMarkAsNoShowModalChange}
+              >
+                Mark as no-show
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Mark as No-show this Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to marks as "
+                    <span className="text-[#EF4444] font-semibold">
+                      no-show
+                    </span>
+                    " this appointment?{" "}
+                    <p>
+                      Upon marking this no-show, the account associated to this
+                      will be "
+                      <span className="text-red-500 font-semibold">
+                        restricted
+                      </span>
+                      " .
+                    </p>
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenMarkAsNoShowModalChange}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      className="text-neutral-500 bg-neutral-50 border border-neutral-200 rounded-md focus:bg-neutral-200/30 hover:bg-neutral-200/30"
+                      onClick={() =>
+                        handleMarkAsNoShowAppointment({
+                          appointmentId: appointment.id,
+                        })
+                      }
+                    >
+                      Yes
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog
+              open={isMarkAsCompletedModalOpen}
+              onOpenChange={onOpenMarkAsCompletedModalChange}
+            >
+              <Button
+                variant="db_outline"
+                className="w-full text-[#6366F1]  border border-[#6366F1]/40  focus:bg-[#6366F1]/20 hover:bg-[#6366F1]/20 justify-center bg-[#EEF2FF] rounded-[4px]"
+                onClick={onOpenMarkAsCompletedModalChange}
+              >
+                Mark as completed
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Mark as Completed this Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to marks as "
+                    <span className="text-[#6366F1] font-semibold">
+                      completed
+                    </span>
+                    " this appointment?{" "}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenMarkAsCompletedModalChange}
+                    >
+                      No
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      className="text-green-600 bg-green-200 border border-green-500/60 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
+                      onClick={() =>
+                        handleMarkAsCompletedAppointment({
+                          appointmentId: appointment.id,
+                        })
+                      }
+                    >
+                      Yes
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      )}
 
       {appointment.status === APPOINTMENT_STATUS.PENDING.value && (
         <div className="flex justify-center w-full">
@@ -264,6 +487,7 @@ const AdminSingleAppointment = () => {
           </div>
         </div>
       )}
+
       {appointment.status ===
         APPOINTMENT_STATUS.REQUESTING_RE_SCHEDULE.value && (
         <div className="flex justify-center w-full">

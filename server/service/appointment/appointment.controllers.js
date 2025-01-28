@@ -1,5 +1,58 @@
 const Appointment = require("./appointment.services");
 
+const markAsCanceled = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const data = await Appointment.markAsCanceled(appointmentId);
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
+
+const markAsNoShow = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const data = await Appointment.markAsNoShow(appointmentId);
+
+    return res.status(data.status).send({
+      message: data.message,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
+
+const markAsCompleted = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const data = await Appointment.markAsCompleted(appointmentId);
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      message: error.message,
+      ok: false,
+    });
+  }
+};
+
 const rejectRequestRescheduleAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.body;
@@ -306,6 +359,31 @@ const getAppointments = async (req, res) => {
   }
 };
 
+const getSchedule = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+
+    const data = await Appointment.getSchedule(appointmentId);
+
+    if (!data) {
+      return res.status(404).send({
+        message: "Appointment not found",
+        ok: false,
+      });
+    }
+
+    return res.status(200).send({
+      data,
+      message: "Appointment retrieved successfully",
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
 const getAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
@@ -393,6 +471,10 @@ const editAppointment = async (req, res) => {
 };
 
 module.exports = {
+  markAsCanceled,
+  markAsCompleted,
+  markAsNoShow,
+  getSchedule,
   rejectRequestRescheduleAppointment,
   approveRequestRescheduleAppointment,
   getAllAppointments,

@@ -73,8 +73,8 @@ const columnUsers = [
     accessorKey: "sex",
   },
   {
-    header: "Age",
-    accessorKey: "age",
+    header: "Email",
+    accessorKey: "email",
   },
   {
     header: "Account status",
@@ -93,7 +93,7 @@ const columnUsers = [
 const Users = () => {
   const navigate = useNavigate();
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "schedule", desc: true },
+    { id: "firstName", desc: true },
   ]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isModalOpen, setIsModalOpen] = useState(false);

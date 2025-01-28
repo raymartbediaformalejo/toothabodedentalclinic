@@ -557,8 +557,11 @@ export const penaltySchema = z.object({
 });
 
 export const paymentVerificationSchema = z.object({
+  id: z.string(),
   userId: z.string(),
   gcashReceiptUrl: z.string(),
   appointmentIds: z.string().array(),
+  status: z.string(),
   createdBy: z.string(),
+  createdAt: z.string(),
 });

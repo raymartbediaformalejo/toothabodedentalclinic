@@ -20,7 +20,6 @@ import {
   TPatientIds,
   TPaymentVerification,
   TRejectAppointment,
-  TRequestDateAndTime,
   TRequestDateAndTimeWithId,
   TSaveSortedDentist,
   TSaveSortedService,
@@ -314,6 +313,32 @@ export const cancelAppointmentAPI = async (data: TCancelAppointment) => {
   return result;
 };
 
+export const markAsCompletedAppointmentAPI = async (
+  data: TApproveAppointment
+) => {
+  const result = await axiosInstance.patch(
+    `/mark-as-completed-appointment`,
+    data
+  );
+  return result;
+};
+export const markAsCanceledAppointmentAPI = async (
+  data: TApproveAppointment
+) => {
+  const result = await axiosInstance.patch(
+    `/mark-as-canceled-appointment`,
+    data
+  );
+  return result;
+};
+export const markAsNoShowAppointmentAPI = async (data: TApproveAppointment) => {
+  const result = await axiosInstance.patch(
+    `/mark-as-no-show-appointment`,
+    data
+  );
+  return result;
+};
+
 export const approveAppointmentAPI = async (data: TApproveAppointment) => {
   const result = await axiosInstance.patch(`/approve-appointment`, data);
   return result;
@@ -412,7 +437,10 @@ export const getAppointmentNoShowAPI = async (args: { queryKey: string[] }) => {
 };
 
 // ============ || PAYMENT VERIFICATION || ===========
-
+export const getAllPaymentVerificationAPI = async () => {
+  const { data } = await axiosInstance.get("/payment-verification");
+  return data;
+};
 export const createPaymentVerificationAPI = async (
   data: TPaymentVerification
 ) => await axiosInstance.post("/payment-verification", data);

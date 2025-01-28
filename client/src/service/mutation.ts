@@ -54,6 +54,9 @@ import {
   editUserAPI,
   loginUserAPI,
   logout,
+  markAsCanceledAppointmentAPI,
+  markAsCompletedAppointmentAPI,
+  markAsNoShowAppointmentAPI,
   rejectAppointmentAPI,
   rejectRequestReschedAppointmentAPI,
   removeHeaderToken,
@@ -559,6 +562,50 @@ export const useCreatePaymentVerification = () => {
   });
 };
 
+export const useMarkAsCompletedAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) =>
+      markAsCompletedAppointmentAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully mark as "completed" the appointment`);
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
+export const useMarkAsCanceledAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) =>
+      markAsCanceledAppointmentAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully mark as "canceled" the appointment`);
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
+export const useMarkAsNoShowAppointment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TApproveAppointment) => markAsNoShowAppointmentAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully mark as "no-show" the appointment`);
+      queryClient.invalidateQueries({ queryKey: ["appointment"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
 export const useApproveAppointment = () => {
   const queryClient = useQueryClient();
   return useMutation({
