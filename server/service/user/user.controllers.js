@@ -1,5 +1,30 @@
 const User = require("./user.services");
 
+const reactivateUserAccount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .send({ message: "User ID is required", ok: false });
+    }
+
+    const data = await User.reactivateUserAccount(userId);
+
+    return res.status(data.status).send({
+      message: data.message,
+      data: data.data,
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `Internal Server Error: ${error.message}`,
+      ok: false,
+    });
+  }
+};
+
 const getUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -271,6 +296,7 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
+  reactivateUserAccount,
   getUser,
   getUsers,
   getPatients,

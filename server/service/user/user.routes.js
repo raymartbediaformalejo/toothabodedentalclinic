@@ -1,6 +1,7 @@
 const { Router } = require("express");
 
 const {
+  reactivateUserAccount,
   getUsers,
   getUser,
   getPatients,
@@ -23,6 +24,7 @@ router.get("/user", getUsers);
 router.get("/user/patients", getPatients);
 router.get("/user/:userId/account-status", getUserAccountStatus);
 router.get("/user/:doctorId/patients", getPatientsOfDoctor);
+router.patch("/reactivate-user/:userId", reactivateUserAccount);
 
 router.get(
   "/user/:userId/no-show-appointment",

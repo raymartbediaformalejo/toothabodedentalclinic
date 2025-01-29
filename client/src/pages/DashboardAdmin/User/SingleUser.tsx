@@ -1,14 +1,5 @@
-import {
-  useGetAppointmentPatientInfo,
-  useGetPatientAppointments,
-  useGetUser,
-} from "@/service/queries";
-import {
-  TMyAppointment,
-  TPatientInfo,
-  TRequestDateAndTime,
-  TUser,
-} from "@/types/types";
+import { useGetPatientAppointments, useGetUser } from "@/service/queries";
+import { TMyAppointment, TUser } from "@/types/types";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -19,19 +10,10 @@ import {
   formatDate,
   formatDateTo12Hour,
   formatReadableDate,
-  isScheduleInPast,
 } from "@/lib/utils";
 
-import MedicalHistory from "@/pages/DashboardDentist/Appointment/components/MedicalHistory";
-import CreatedBy from "@/pages/DashboardDentist/Patient/components/CreatedBy";
-import AccountStatus from "@/pages/DashboardDentist/Patient/components/AccountStatus";
-import { Badge } from "@/components/ui/badge";
-import {
-  useCancelAppointment,
-  useRequestRescheduleAppointment,
-} from "@/service/mutation";
+import { useReactivateUser } from "@/service/mutation";
 import React, { useEffect, useMemo, useState } from "react";
-import useAuth from "@/hooks/useAuth";
 import {
   flexRender,
   getCoreRowModel,
@@ -41,10 +23,6 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { requestDateTimeSchema } from "@/types/schema";
-import { eachDayOfInterval, endOfWeek, startOfWeek } from "date-fns";
 import {
   Table,
   TableBody,
@@ -58,14 +36,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Services from "@/pages/MyAppointment/components/Services";
 import DentistName from "../Dentist/components/DentistName";
 import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
+
+import { ACCOUNT_STATUS, ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { BsThreeDots } from "react-icons/bs";
-import { APPOINTMENT_STATUS, ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { Dialog } from "@/components/ui/dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -82,6 +62,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import AccountStatus from "./components/AccountStatus";
+import { Button } from "@/components/ui/button";
 const columnMyAppointment = [
   {
     header: "Dentist",
@@ -118,6 +100,8 @@ const SingleUser = () => {
     { id: "createdAt", desc: true },
   ]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [isActivateUserModalOpen, setActivateUserModalOpen] = useState(false);
+  const activateUser = useReactivateUser();
 
   const [rowPerPage, setRowPerPage] = useState(6);
   const { data, isLoading } = useGetPatientAppointments(id!);
@@ -125,6 +109,22 @@ const SingleUser = () => {
     () => data?.data || [],
     [data]
   );
+
+  const handleActivateUser = async (data: { id: string }) => {
+    try {
+      if (data.id) {
+        await activateUser.mutate(data);
+        setActivateUserModalOpen(false);
+        navigate("/admin/users");
+      }
+    } catch (error) {
+      console.log("Error activating user: ", error);
+    }
+  };
+
+  const onOpenActivateUserShowModalChange = () => {
+    setActivateUserModalOpen((prev) => !prev);
+  };
   console.log("user: ", user);
   console.log("allMyAppoinment: ", allMyAppoinment);
 
@@ -188,8 +188,7 @@ const SingleUser = () => {
                 Account status:
               </span>
               <span className="gap-4 text-sm break-words text-neutral-800">
-                <Badge>{user.accountStatus}</Badge>
-                {/* <AccountStatus userId={patient.createdBy as string} /> */}
+                <AccountStatus accountStatus={user.accountStatus as string} />
               </span>
             </div>
             <div className="grid items-center grid-cols-2">
@@ -259,6 +258,7 @@ const SingleUser = () => {
             </div>
           </CardContent>
         </Card>
+
         <Card className="w-[70%]">
           <CardHeader className="flex flex-row items-center justify-between ">
             Appointment History
@@ -539,6 +539,103 @@ const SingleUser = () => {
           </CardContent>
         </Card>
       </div>
+
+      {user.accountStatus === ACCOUNT_STATUS.NO_SHOW_RESTRICTED.value && (
+        <div className="flex justify-center w-full">
+          <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
+            {/* <Dialog
+              open={isActivateUserModalOpen}
+              onOpenChange={onOpenActivateUserShowModalChange}
+            >
+              <Button
+                size="sm"
+                className="w-full  border-red-500 text-red-800 justify-center bg-red-50/50 rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
+                variant="db_outline"
+                onClick={onOpenActivateUserShowModalChange}
+              >
+                <span>Reject</span>
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Reject Appointment
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to do reject this appointment?{" "}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenActivateUserShowModalChange}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
+                      onClick={() =>
+                        handleActivateUser({
+                          id: id as string,
+                        })
+                      }
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog> */}
+            <Dialog
+              open={isActivateUserModalOpen}
+              onOpenChange={onOpenActivateUserShowModalChange}
+            >
+              <Button
+                size="sm"
+                className="w-full  border-green-500 bg-green-200/50 text-green-800 justify-center items-center rounded-[4px] hover:bg-green-200 focus:bg-green-200 "
+                variant="db_outline"
+                onClick={onOpenActivateUserShowModalChange}
+              >
+                <span className="text-center">Re-activate User</span>
+              </Button>
+              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
+                <DialogHeader className="px-6 pt-8">
+                  <DialogTitle className="text-2xl font-bold text-center">
+                    Re-activate User
+                  </DialogTitle>
+                  <DialogDescription className="text-center text-neutral-600">
+                    Are you sure you want to re-activate this user?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="px-6 py-4 bg-gray-100">
+                  <div className="flex items-center justify-center w-full gap-4">
+                    <Button
+                      className="rounded-md"
+                      variant="db_outline"
+                      onClick={onOpenActivateUserShowModalChange}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="db_default"
+                      onClick={() =>
+                        handleActivateUser({
+                          id: id as string,
+                        })
+                      }
+                      className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
+                    >
+                      Approve
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

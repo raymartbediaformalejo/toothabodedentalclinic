@@ -1,11 +1,20 @@
 import { CardContent } from "@/components/ui/card";
-import { createUsername, formatDate } from "@/lib/utils";
+import { cn, createUsername, formatDate } from "@/lib/utils";
+import { APPOINTMENT_STATUS } from "@/lib/variables";
 import { useGetAppointmentPatientInfo } from "@/service/queries";
 import { TPatientInfo } from "@/types/types";
 
-type PatientProfileProps = { patientId: string };
+type PatientProfileProps = {
+  patientId: string;
+  isPenaltyPaid: string;
+  appointmentStatus: string;
+};
 
-const PatientProfile = ({ patientId }: PatientProfileProps) => {
+const PatientProfile = ({
+  patientId,
+  isPenaltyPaid,
+  appointmentStatus,
+}: PatientProfileProps) => {
   const { data, isLoading } = useGetAppointmentPatientInfo(patientId!);
   const patientInfo: TPatientInfo = data?.data;
   console.log("data: ", data);
@@ -31,6 +40,21 @@ const PatientProfile = ({ patientId }: PatientProfileProps) => {
           {patientInfo.nickname || "N/A"}
         </span>
       </div>
+      {appointmentStatus === APPOINTMENT_STATUS.NO_SHOW.value ? (
+        <div className="grid items-center grid-cols-2">
+          <span className="text-sm text-neutral-500/90">Is Penalty Paid:</span>
+          <span
+            className={cn(
+              "capitalize gap-4 text-sm break-words font-semibold",
+              isPenaltyPaid === "yes" && "text-green-800",
+              isPenaltyPaid === "no" && "text-red-800"
+            )}
+          >
+            {isPenaltyPaid}
+          </span>
+        </div>
+      ) : null}
+
       <div className="grid items-center grid-cols-2">
         <span className="text-sm text-neutral-500/90">Gender:</span>
         <span className="gap-4 text-sm break-words text-neutral-800">

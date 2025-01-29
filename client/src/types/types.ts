@@ -120,6 +120,7 @@ export type TMyAppointment = {
   status: string;
   requestedReschedule: string;
   limitReschedule: number;
+  isPenaltyPaid: string;
   services: string[];
   createdAt: string;
   createdBy: string;

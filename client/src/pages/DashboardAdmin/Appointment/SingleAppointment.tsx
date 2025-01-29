@@ -160,7 +160,11 @@ const AdminSingleAppointment = () => {
           <CardHeader>
             <p>Patient's Profile</p>
           </CardHeader>
-          <PatientProfile patientId={appointment.appointmentPatientInfoId} />
+          <PatientProfile
+            patientId={appointment.appointmentPatientInfoId}
+            isPenaltyPaid={appointment.isPenaltyPaid}
+            appointmentStatus={appointment.status}
+          />
         </Card>
         <Card className="w-[70%]">
           <Tabs defaultValue="appointment_details">
@@ -173,6 +177,7 @@ const AdminSingleAppointment = () => {
                   Medical history
                 </TabsTrigger>
               </TabsList>
+
               <div className="flex items-center gap-3 m-0">
                 <p className="text-sm text-neutral-500/90">Status:</p>
                 <div className="pb-2">

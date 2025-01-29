@@ -85,6 +85,15 @@ export const createPatientAPI = async (data: TCreatePatient) => {
 
 // ============ || USER || ===========
 
+export const reactivateUserAPI = async (data: { id: string }) => {
+  const result = await axiosInstance.patch(
+    `/reactivate-user/${data.id}`
+  );
+
+  console.log("changePasswordAPI: ", changePasswordAPI);
+  return result;
+};
+
 export const getUserAPI = async (args: { queryKey: string[] }) => {
   const userId = args.queryKey[2]; // Extract userId from updated queryKey
   const { data } = await axiosInstance.get(`/user/single/${userId}`);

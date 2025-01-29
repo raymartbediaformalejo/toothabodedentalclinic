@@ -57,6 +57,7 @@ import {
   markAsCanceledAppointmentAPI,
   markAsCompletedAppointmentAPI,
   markAsNoShowAppointmentAPI,
+  reactivateUserAPI,
   rejectAppointmentAPI,
   rejectRequestReschedAppointmentAPI,
   removeHeaderToken,
@@ -142,6 +143,26 @@ export const useLogout = () => {
 };
 
 // ============ || USER || ===========
+
+export const useReactivateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { id: string }) => reactivateUserAPI(data),
+    onSuccess: (data) => {
+      // @ts-ignore
+      if (data?.status === 200) {
+        // @ts-ignore
+        toast.success(data?.data.message);
+      }
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onSettled: (_, error) => {
+      // @ts-ignore
+      if (error) toast.error(error?.response?.data.message);
+      return error;
+    },
+  });
+};
 
 export const useVerifyEmail = () => {
   const navigate = useNavigate();

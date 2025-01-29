@@ -6,6 +6,67 @@ const { sendVerificationEmail } = require("../../mailtrap/emails");
 const { ACCOUNT_STATUS } = require("../../utils/variables");
 
 class User {
+  static async reactivateUserAccount(userId) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      // Update account_status to 'active' in tbl_user
+      const updateUserQuery = `
+        UPDATE tbl_user
+        SET account_status = 'active', updated_at = NOW()
+        WHERE id = $1
+        RETURNING id, account_status;
+      `;
+      const updateUserResult = await client.query(updateUserQuery, [userId]);
+
+      console.log("updateUserResult: ", updateUserResult.rows[0]);
+
+      if (updateUserResult.rowCount === 0) {
+        throw new Error(`User with ID ${userId} not found.`);
+      }
+
+      // Find appointments with appointment_status = 'no-show' for the user
+      const getAppointmentsQuery = `
+        SELECT appointment_id
+        FROM tbl_appointment
+        WHERE patient_id = $1 AND appointment_status = 'no_show';
+      `;
+      const appointmentsResult = await client.query(getAppointmentsQuery, [
+        userId,
+      ]);
+
+      console.log("appointmentsResult: ", appointmentsResult.row);
+
+      if (appointmentsResult.rowCount > 0) {
+        // Update is_penalty_paid to 'yes' for all 'no-show' appointments
+        const updateAppointmentsQuery = `
+          UPDATE tbl_appointment
+          SET is_penalty_paid = 'yes', updated_at = NOW()
+          WHERE patient_id = $1 AND appointment_status = 'no_show';
+        `;
+        await client.query(updateAppointmentsQuery, [userId]);
+      }
+
+      await client.query("COMMIT");
+
+      return {
+        status: 200,
+        message: `User account reactivated successfully.`,
+        data: {
+          user: updateUserResult.rows[0],
+          affectedAppointments: appointmentsResult.rowCount,
+        },
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`Error reactivating user account: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   static async getPatients() {
     const client = await pool.connect();
 

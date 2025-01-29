@@ -706,6 +706,7 @@ class Appointment {
           array_agg(s.title) AS "services",
           a.created_at AS "createdAt",
           a.created_by AS "createdBy",
+          a.is_penalty_paid AS "isPenaltyPaid",
           dentist.first_name AS "dentistFirstName",
           dentist.middle_name AS "dentistMiddleName",
           dentist.last_name AS "dentistLastName",
