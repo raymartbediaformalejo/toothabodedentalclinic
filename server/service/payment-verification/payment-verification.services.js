@@ -8,10 +8,11 @@ class PaymentVerification {
     try {
       const query = `
       SELECT 
-        id,
+      id,
         user_id AS "userId",
         gcash_receipt_url AS "gcashReceiptUrl",
         appointment_ids AS "appointmentIds",
+        status,
         created_at AS "createdAt",
         created_by AS "createdBy"
       FROM tbl_payment_verification WHERE id = $1`;

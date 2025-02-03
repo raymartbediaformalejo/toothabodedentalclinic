@@ -30,6 +30,7 @@ import {
   getAllPendingAppointmentAPI,
   getAllReschedAppointmentAPI,
   getAllPaymentVerificationAPI,
+  getPaymentVerificationAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -162,6 +163,14 @@ export const useGetAllPaymentVerification = () => {
   return useQuery({
     queryKey: ["payment-verification"],
     queryFn: getAllPaymentVerificationAPI,
+  });
+};
+
+export const useGetPaymentVerification = (id: string) => {
+  console.log("useGetPaymentVerification id: ", id);
+  return useQuery({
+    queryKey: ["payment-verification", id],
+    queryFn: () => getPaymentVerificationAPI({ queryKey: [id] }),
   });
 };
 

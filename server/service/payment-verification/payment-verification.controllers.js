@@ -3,6 +3,7 @@ const PaymentVerification = require("./payment-verification.services");
 const getPaymentVerification = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("getPaymentVerification id: ", id);
     const data = await PaymentVerification.getPaymentVerification(id);
     if (!data) {
       return res

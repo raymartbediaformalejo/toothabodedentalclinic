@@ -226,4 +226,22 @@ export const PAYMENT_VERIFICATION_STATUS = {
     backGround: "#EEF2FF",
     message: "Your payment has been successfully verified. Thank you!",
   },
+  PAYMENT_INCOMPLETE: {
+    title: "Insufficient Payment!",
+    value: "payment_incomplete",
+    label: "Payment Incomplete",
+    foreGround: "#D97706",
+    backGround: "#FEF3C7",
+    message:
+      "Your payment is insufficient. Please settle the remaining balance to complete your payment.",
+  },
+  PAYMENT_OVERPAID: {
+    title: "Overpayment Received!",
+    value: "payment_overpaid",
+    label: "Overpaid",
+    foreGround: "#059669",
+    backGround: "#D1FAE5",
+    message:
+      "You have paid more than the required amount. Please contact support for a refund or credit adjustment.",
+  },
 } as const;

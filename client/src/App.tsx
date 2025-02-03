@@ -39,6 +39,7 @@ import AdminSingleAppointment from "./pages/DashboardAdmin/Appointment/SingleApp
 import AdminPendingAppointments from "./pages/DashboardAdmin/Appointment/PendingAppointments";
 import AdminReScheduledAppointments from "./pages/DashboardAdmin/Appointment/ReScheduledAppointments";
 import PaymentVerification from "./pages/DashboardAdmin/PaymentVerification";
+import SinglePaymentVerification from "./pages/DashboardAdmin/PaymentVerification/SinglePaymentVerification";
 
 function App() {
   return (
@@ -124,6 +125,7 @@ function App() {
 
                 <Route path="payment-verification">
                   <Route index element={<PaymentVerification />} />
+                  <Route path=":id" element={<SinglePaymentVerification />} />
                 </Route>
 
                 <Route path="dentists">

@@ -86,9 +86,7 @@ export const createPatientAPI = async (data: TCreatePatient) => {
 // ============ || USER || ===========
 
 export const reactivateUserAPI = async (data: { id: string }) => {
-  const result = await axiosInstance.patch(
-    `/reactivate-user/${data.id}`
-  );
+  const result = await axiosInstance.patch(`/reactivate-user/${data.id}`);
 
   console.log("changePasswordAPI: ", changePasswordAPI);
   return result;
@@ -450,6 +448,17 @@ export const getAllPaymentVerificationAPI = async () => {
   const { data } = await axiosInstance.get("/payment-verification");
   return data;
 };
+
+export const getPaymentVerificationAPI = async (args: {
+  queryKey: string[];
+}) => {
+  const { queryKey } = args;
+  const { data } = await axiosInstance.get(
+    `/payment-verification/${queryKey[0]}`
+  );
+  return data;
+};
+
 export const createPaymentVerificationAPI = async (
   data: TPaymentVerification
 ) => await axiosInstance.post("/payment-verification", data);

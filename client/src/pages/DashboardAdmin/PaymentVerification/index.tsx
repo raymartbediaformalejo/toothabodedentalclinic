@@ -7,7 +7,6 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
-import profileImgFallback from "@/assets/default-avatar.jpg";
 import {
   Table,
   TableHeader,
@@ -317,7 +316,11 @@ const PaymentVerification = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <UserName userId={cell.row.original.userId} />
+                                <Link
+                                  to={`/admin/payment-verification/${row.original.id}`}
+                                >
+                                  <UserName userId={cell.row.original.userId} />
+                                </Link>
                               </TableCell>
                             ) : cell.column.id === "appointmentIds" ? (
                               <TableCell
