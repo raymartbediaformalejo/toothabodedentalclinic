@@ -8,7 +8,9 @@ const {
   subHours,
 } = require("date-fns");
 
-const { sendAppointmentReminderEmail } = require("../../mailtrap/emails.js");
+const {
+  sendAppointmentReminderEmail,
+} = require("../../mailtrap/nodemailer.config.js");
 const pool = require("../../config/conn.js");
 
 class Appointment {
@@ -848,6 +850,7 @@ class Appointment {
 
       const appointmentId = uuidv4();
       const schedule = `${values.date} ${values.time}`;
+      const formattedSchedule = `${values.date} / ${values.time}`;
       const insertAppointmentQuery = `
         INSERT INTO tbl_appointment (
           appointment_id,
@@ -889,8 +892,10 @@ class Appointment {
       const createdAt = new Date(resultAppointment.created_at);
 
       if (timeDifferenceInHours <= 2) {
-        console.log(
-          "Appointment created less than 2 hours before scheduled time, no reminder sent."
+        sendAppointmentReminderEmail(
+          values.email,
+          values.firstName,
+          formattedSchedule
         );
       } else {
         const timeDifferenceSinceCreation = differenceInHours(
@@ -904,7 +909,11 @@ class Appointment {
             "Scheduling reminder email to be sent 3 hours before appointment."
           );
           setTimeout(() => {
-            sendAppointmentReminderEmail(values.email, schedule);
+            sendAppointmentReminderEmail(
+              values.email,
+              values.firstName,
+              formattedSchedule
+            );
           }, threeHoursBefore - currentTime);
         } else {
           const sixHoursBefore = addHours(schedule, -6);
@@ -912,7 +921,11 @@ class Appointment {
             "Scheduling reminder email to be sent 6 hours before appointment."
           );
           setTimeout(() => {
-            sendAppointmentReminderEmail(values.email, schedule);
+            sendAppointmentReminderEmail(
+              values.email,
+              values.firstName,
+              formattedSchedule
+            );
           }, sixHoursBefore - currentTime);
         }
       }

@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
 const pool = require("../../config/conn");
-const { sendVerificationEmail } = require("../../mailtrap/emails");
+const { sendVerificationEmail } = require("../../mailtrap/nodemailer.config");
 const { ACCOUNT_STATUS } = require("../../utils/variables");
 
 class User {
