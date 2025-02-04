@@ -20,6 +20,7 @@ import {
   saveSortedDentistSchema,
   saveSortedServiceSchema,
   serviceSchema,
+  updatePenaltyFeeSchema,
   userSchema,
   userWithRoleSchema,
   verifyEmailSchema,
@@ -133,6 +134,9 @@ export type TMyAppointmentWithResched = TMyAppointment & {
 export type TMyAppointmentId = string;
 
 export type TPenalty = z.infer<typeof penaltySchema>;
+
+export type TUpdatePenaltyFee = z.infer<typeof updatePenaltyFeeSchema>;
+
 export type TPaymentVerification = z.infer<typeof paymentVerificationSchema>;
 
 export type TPaymentVerificationId = {

@@ -26,6 +26,7 @@ import {
   TSaveSortedService,
   TServiceId,
   TServiceIds,
+  TUpdatePenaltyFee,
   TUserId,
   TUserIds,
   TVerifyEmail,
@@ -428,6 +429,11 @@ export const getMedicalHistoryAPI = async (args: { queryKey: string[] }) => {
   console.log("queryKey: ", queryKey);
   const { data } = await axiosInstance.get(`/medical-history/${queryKey[0]}`);
   return data;
+};
+
+export const editPenaltyFeeAPI = async (data: TUpdatePenaltyFee) => {
+  const { data: result } = await axiosInstance.patch(`/penalty`, data);
+  return result;
 };
 
 export const penaltyAPI = async () => {

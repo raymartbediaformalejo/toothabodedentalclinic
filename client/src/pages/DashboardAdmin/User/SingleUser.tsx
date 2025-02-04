@@ -543,51 +543,6 @@ const SingleUser = () => {
       {user.accountStatus === ACCOUNT_STATUS.NO_SHOW_RESTRICTED.value && (
         <div className="flex justify-center w-full">
           <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
-            {/* <Dialog
-              open={isActivateUserModalOpen}
-              onOpenChange={onOpenActivateUserShowModalChange}
-            >
-              <Button
-                size="sm"
-                className="w-full  border-red-500 text-red-800 justify-center bg-red-50/50 rounded-[4px] hover:bg-red-100 focus:bg-red-100 "
-                variant="db_outline"
-                onClick={onOpenActivateUserShowModalChange}
-              >
-                <span>Reject</span>
-              </Button>
-              <DialogContent className="p-0 overflow-hidden bg-white text-neutral-900">
-                <DialogHeader className="px-6 pt-8">
-                  <DialogTitle className="text-2xl font-bold text-center">
-                    Reject Appointment
-                  </DialogTitle>
-                  <DialogDescription className="text-center text-neutral-600">
-                    Are you sure you want to do reject this appointment?{" "}
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="px-6 py-4 bg-gray-100">
-                  <div className="flex items-center justify-center w-full gap-4">
-                    <Button
-                      className="rounded-md"
-                      variant="db_outline"
-                      onClick={onOpenActivateUserShowModalChange}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="db_default"
-                      className="text-red-800 bg-red-100 border border-red-500 rounded-md focus:bg-red-500/30 hover:bg-red-500/30"
-                      onClick={() =>
-                        handleActivateUser({
-                          id: id as string,
-                        })
-                      }
-                    >
-                      Reject
-                    </Button>
-                  </div>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog> */}
             <Dialog
               open={isActivateUserModalOpen}
               onOpenChange={onOpenActivateUserShowModalChange}
@@ -627,7 +582,7 @@ const SingleUser = () => {
                       }
                       className="text-green-800 bg-green-200 border border-green-500 rounded-md focus:bg-green-500/30 hover:bg-green-500/30"
                     >
-                      Approve
+                      Activate
                     </Button>
                   </div>
                 </DialogFooter>

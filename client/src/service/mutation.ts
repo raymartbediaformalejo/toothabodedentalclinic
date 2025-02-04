@@ -11,6 +11,7 @@ import {
   TPaymentVerificationId,
   TRejectAppointment,
   TRequestDateAndTimeWithId,
+  TUpdatePenaltyFee,
   TUserId,
   TUserIds,
   TVerifyEmail,
@@ -51,6 +52,7 @@ import {
   deleteServiceAPI,
   deleteUserAPI,
   editDentistAPI,
+  editPenaltyFeeAPI,
   editServiceAPI,
   editUserAPI,
   loginUserAPI,
@@ -555,6 +557,22 @@ export const useCreateAppointment = () => {
         // @ts-ignore
         toast.error(error?.response?.data.message);
       }
+      return error;
+    },
+  });
+};
+
+// ============ || PENALTY FEE || ===========
+export const useEditPenaltyFee = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TUpdatePenaltyFee) => editPenaltyFeeAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully update penalty fee`);
+      queryClient.invalidateQueries({ queryKey: ["penalty"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
       return error;
     },
   });

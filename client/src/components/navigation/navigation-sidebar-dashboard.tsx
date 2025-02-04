@@ -32,7 +32,6 @@ import { NavigationUser } from "./navigation-user";
 import useAuth from "@/hooks/useAuth";
 import { Link, useLocation } from "react-router-dom";
 
-// Menu items.
 const itemsAdmin = [
   {
     title: "Dashboard",
@@ -49,24 +48,8 @@ const itemsAdmin = [
         url: "#",
       },
       {
-        title: "Special Offers",
-        url: "#",
-      },
-      {
-        title: "Testimonials",
-        url: "#",
-      },
-      {
-        title: "Contact Page",
-        url: "#",
-      },
-      {
-        title: "Articles",
-        url: "#",
-      },
-      {
         title: "Penalty Fee",
-        url: "#",
+        url: "/admin/penalty-fee",
       },
     ],
   },

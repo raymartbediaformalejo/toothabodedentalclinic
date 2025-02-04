@@ -40,6 +40,7 @@ import AdminPendingAppointments from "./pages/DashboardAdmin/Appointment/Pending
 import AdminReScheduledAppointments from "./pages/DashboardAdmin/Appointment/ReScheduledAppointments";
 import PaymentVerification from "./pages/DashboardAdmin/PaymentVerification";
 import SinglePaymentVerification from "./pages/DashboardAdmin/PaymentVerification/SinglePaymentVerification";
+import PenaltyFee from "./pages/DashboardAdmin/PenaltyFee";
 
 function App() {
   return (
@@ -110,6 +111,11 @@ function App() {
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
               <Route path="admin" element={<DashboardLayout />}>
                 <Route index element={<DashboardAdmin />} />
+
+                <Route path="penalty-fee">
+                  <Route index element={<PenaltyFee />} />
+                </Route>
+
                 <Route path="appointments">
                   <Route index element={<AdminAppointments />} />
                   <Route path=":id" element={<AdminSingleAppointment />} />

@@ -1,6 +1,28 @@
 const pool = require("../../config/conn.js");
 
 class Penalty {
+  static async updatePenaltyFee(newPenaltyFee) {
+    console.log("updatePenaltyFee: ", newPenaltyFee);
+    const client = await pool.connect();
+    try {
+      const query = `
+        UPDATE tbl_penalty 
+        SET penalty_fee = $1 
+        RETURNING penalty_fee AS "penaltyFee"
+      `;
+      const result = await client.query(query, [newPenaltyFee]);
+
+      if (result.rowCount === 0) {
+        throw new Error("Penalty record not found.");
+      }
+
+      return result.rows[0];
+    } catch (err) {
+      throw new Error(`Database Error: ${err.message}`);
+    } finally {
+      client.release();
+    }
+  }
   static async getPenalty() {
     const client = await pool.connect();
     try {

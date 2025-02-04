@@ -556,6 +556,8 @@ export const penaltySchema = z.object({
   gcashQrCodeUrl: z.string(),
 });
 
+export const updatePenaltyFeeSchema = penaltySchema.pick({ penaltyFee: true });
+
 export const paymentVerificationSchema = z.object({
   id: z.string(),
   userId: z.string(),
