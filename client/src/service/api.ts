@@ -19,6 +19,7 @@ import {
   TPatientId,
   TPatientIds,
   TPaymentVerification,
+  TPaymentVerificationId,
   TRejectAppointment,
   TRequestDateAndTimeWithId,
   TSaveSortedDentist,
@@ -444,6 +445,31 @@ export const getAppointmentNoShowAPI = async (args: { queryKey: string[] }) => {
 };
 
 // ============ || PAYMENT VERIFICATION || ===========
+export const markAsVerifiedPaymentVerificationAPI = async (
+  data: TPaymentVerificationId
+) => {
+  const result = await axiosInstance.patch(
+    `/mark-verified-payment-verification/${data.id}`
+  );
+  return result;
+};
+export const markAsIncompletePaymentVerificationAPI = async (
+  data: TPaymentVerificationId
+) => {
+  const result = await axiosInstance.patch(
+    `/mark-incomplete-payment-verification/${data.id}`
+  );
+  return result;
+};
+export const markAsOverpaidPaymentVerificationAPI = async (
+  data: TPaymentVerificationId
+) => {
+  const result = await axiosInstance.patch(
+    `/mark-overpaid-payment-verification/${data.id}`
+  );
+  return result;
+};
+
 export const getAllPaymentVerificationAPI = async () => {
   const { data } = await axiosInstance.get("/payment-verification");
   return data;

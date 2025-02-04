@@ -1,5 +1,8 @@
 const { Router } = require("express");
 const {
+  markAsIncomplete,
+  markAsOverpaid,
+  markAsVerified,
   getPaymentVerification,
   getPaymentVerifications,
   createPaymentVerification,
@@ -9,6 +12,9 @@ const {
 
 const router = Router();
 
+router.patch("/mark-verified-payment-verification/:id", markAsVerified);
+router.patch("/mark-incomplete-payment-verification/:id", markAsIncomplete);
+router.patch("/mark-overpaid-payment-verification/:id", markAsOverpaid);
 router.get("/payment-verification/:id", getPaymentVerification);
 router.get("/payment-verification", getPaymentVerifications);
 router.post("/payment-verification", createPaymentVerification);

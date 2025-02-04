@@ -2,7 +2,126 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../../config/conn.js");
 
 class PaymentVerification {
-  static approvePaymentVerification = async (id) => {};
+  static markAsVerified = async (id) => {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      // Update payment verification status
+      const updateVerificationQuery = `
+        UPDATE tbl_payment_verification 
+        SET status = 'payment_verified' 
+        WHERE id = $1 RETURNING appointment_ids
+      `;
+      const verificationResult = await client.query(updateVerificationQuery, [
+        id,
+      ]);
+
+      if (verificationResult.rowCount === 0) {
+        await client.query("ROLLBACK");
+        throw new Error("Payment verification not found.");
+      }
+
+      // Extract appointment_ids
+      const { appointment_ids } = verificationResult.rows[0];
+
+      if (appointment_ids && appointment_ids.length > 0) {
+        // Update appointments to mark penalty as paid
+        const updateAppointmentQuery = `
+          UPDATE tbl_appointment 
+          SET is_penalty_paid = 'yes' 
+          WHERE appointment_id = ANY($1)
+        `;
+        await client.query(updateAppointmentQuery, [appointment_ids]);
+      }
+
+      await client.query("COMMIT");
+      return { message: "Payment marked as verified and penalties updated." };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  };
+
+  static markAsIncomplete = async (id) => {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const query = `
+        UPDATE tbl_payment_verification 
+        SET status = 'payment_incomplete' 
+        WHERE id = $1 RETURNING appointment_ids
+      `;
+      const result = await client.query(query, [id]);
+
+      if (result.rowCount === 0) {
+        await client.query("ROLLBACK");
+        throw new Error("Payment verification not found.");
+      }
+
+      const { appointment_ids } = result.rows[0];
+
+      if (appointment_ids && appointment_ids.length > 0) {
+        // Update appointments to mark penalty as paid
+        const updateAppointmentQuery = `
+          UPDATE tbl_appointment 
+          SET is_penalty_paid = 'no' 
+          WHERE appointment_id = ANY($1)
+        `;
+        await client.query(updateAppointmentQuery, [appointment_ids]);
+      }
+
+      await client.query("COMMIT");
+
+      return { message: "Payment marked as incomplete." };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  };
+
+  static markAsOverpaid = async (id) => {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const query = `
+        UPDATE tbl_payment_verification 
+        SET status = 'payment_overpaid' 
+        WHERE id = $1 RETURNING appointment_ids
+      `;
+      const result = await client.query(query, [id]);
+
+      if (result.rowCount === 0) {
+        await client.query("ROLLBACK");
+        throw new Error("Payment verification not found.");
+      }
+
+      const { appointment_ids } = result.rows[0];
+
+      if (appointment_ids && appointment_ids.length > 0) {
+        // Update appointments to mark penalty as paid
+        const updateAppointmentQuery = `
+          UPDATE tbl_appointment 
+          SET is_penalty_paid = 'yes' 
+          WHERE appointment_id = ANY($1)
+        `;
+        await client.query(updateAppointmentQuery, [appointment_ids]);
+      }
+
+      await client.query("COMMIT");
+
+      return { message: "Payment marked as overpaid." };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  };
   static getPaymentVerification = async (id) => {
     const client = await pool.connect();
     try {

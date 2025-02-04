@@ -134,6 +134,11 @@ export type TMyAppointmentId = string;
 
 export type TPenalty = z.infer<typeof penaltySchema>;
 export type TPaymentVerification = z.infer<typeof paymentVerificationSchema>;
+
+export type TPaymentVerificationId = {
+  id: string;
+};
+
 export type TUserNoShowSchedule = {
   appointments: {
     id: string;

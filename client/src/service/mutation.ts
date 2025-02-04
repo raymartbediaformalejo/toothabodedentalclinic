@@ -8,6 +8,7 @@ import {
   TPatientId,
   TPatientIds,
   TPaymentVerification,
+  TPaymentVerificationId,
   TRejectAppointment,
   TRequestDateAndTimeWithId,
   TUserId,
@@ -56,7 +57,10 @@ import {
   logout,
   markAsCanceledAppointmentAPI,
   markAsCompletedAppointmentAPI,
+  markAsIncompletePaymentVerificationAPI,
   markAsNoShowAppointmentAPI,
+  markAsOverpaidPaymentVerificationAPI,
+  markAsVerifiedPaymentVerificationAPI,
   reactivateUserAPI,
   rejectAppointmentAPI,
   rejectRequestReschedAppointmentAPI,
@@ -558,6 +562,52 @@ export const useCreateAppointment = () => {
 
 // ============ || PAYMENT VERIFICATION || ===========
 
+export const useMarkAsVerifiedPaymentVerification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPaymentVerificationId) =>
+      markAsVerifiedPaymentVerificationAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully verified the payment`);
+      queryClient.invalidateQueries({ queryKey: ["payment-verification"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
+export const useMarkAsIncompletePaymentVerification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPaymentVerificationId) =>
+      markAsIncompletePaymentVerificationAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully mark as "incomplete" payment`);
+      queryClient.invalidateQueries({ queryKey: ["payment-verification"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
+export const useMarkAsOverpaidPaymentVerification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: TPaymentVerificationId) =>
+      markAsOverpaidPaymentVerificationAPI(data),
+    onSuccess: () => {
+      toast.success(`Successfully mark as 'overpaid' the payment`);
+      queryClient.invalidateQueries({ queryKey: ["payment-verification"] });
+    },
+    onError: (_, error) => {
+      toast.error("Something went wrong.");
+      return error;
+    },
+  });
+};
+
 export const useCreatePaymentVerification = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -572,7 +622,7 @@ export const useCreatePaymentVerification = () => {
       });
       navigate("/");
     },
-    onSettled: (_, error) => {
+    onError: (_, error) => {
       console.log("error: ", error);
       if (error) {
         // @ts-ignore

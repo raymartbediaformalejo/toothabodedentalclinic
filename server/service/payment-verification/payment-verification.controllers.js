@@ -1,5 +1,35 @@
 const PaymentVerification = require("./payment-verification.services");
 
+const markAsVerified = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await PaymentVerification.markAsVerified(id);
+    return res.status(200).send({ message: result.message, ok: true });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, ok: false });
+  }
+};
+
+const markAsIncomplete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await PaymentVerification.markAsIncomplete(id);
+    return res.status(200).send({ message: result.message, ok: true });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, ok: false });
+  }
+};
+
+const markAsOverpaid = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await PaymentVerification.markAsOverpaid(id);
+    return res.status(200).send({ message: result.message, ok: true });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, ok: false });
+  }
+};
+
 const getPaymentVerification = async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,6 +103,9 @@ const deletePaymentVerification = async (req, res) => {
 };
 
 module.exports = {
+  markAsVerified,
+  markAsIncomplete,
+  markAsOverpaid,
   getPaymentVerification,
   getPaymentVerifications,
   createPaymentVerification,
