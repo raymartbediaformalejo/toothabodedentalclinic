@@ -11,6 +11,7 @@ import {
   useGetUserAppoitmentNoShowSchedule,
 } from "@/service/queries";
 import {
+  TCreatePaymentVerification,
   TPaymentVerification,
   TPenalty,
   TUserNoShowSchedule,
@@ -20,7 +21,10 @@ import { formatAppointmentDate } from "@/lib/utils";
 import { useCreatePaymentVerification } from "@/service/mutation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { paymentVerificationSchema } from "@/types/schema";
+import {
+  createPaymentVerificationSchema,
+  paymentVerificationSchema,
+} from "@/types/schema";
 import { Form } from "@/components/ui/form";
 
 const NoShowRestricted = () => {
@@ -34,14 +38,14 @@ const NoShowRestricted = () => {
   const userNoShowAppointment: TUserNoShowSchedule | undefined =
     userNoShowAppointmentData?.data;
 
-  const form = useForm<TPaymentVerification>({
+  const form = useForm<TCreatePaymentVerification>({
     defaultValues: {
       userId: "",
       gcashReceiptUrl: "",
       appointmentIds: [],
       createdBy: "",
     },
-    resolver: zodResolver(paymentVerificationSchema),
+    resolver: zodResolver(createPaymentVerificationSchema),
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState<boolean>(true);
@@ -92,7 +96,7 @@ const NoShowRestricted = () => {
   };
 
   const handleCreatePaymentVerification: SubmitHandler<
-    TPaymentVerification
+    TCreatePaymentVerification
   > = async (data) => {
     console.log("data: ", data);
 

@@ -297,9 +297,7 @@ const SinglePaymentVerification = () => {
                 </DialogTitle>
                 <DialogDescription className="text-center text-neutral-600">
                   Are you sure you want to marks as "
-                  <span className="text-[#6366F1] font-semibold">
-                    completed
-                  </span>
+                  <span className="text-[#6366F1] font-semibold">verified</span>
                   " this appointment?{" "}
                 </DialogDescription>
               </DialogHeader>

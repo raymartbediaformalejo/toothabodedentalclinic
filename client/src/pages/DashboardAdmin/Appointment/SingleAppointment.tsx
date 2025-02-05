@@ -235,7 +235,10 @@ const AdminSingleAppointment = () => {
         </Card>
       </div>
 
-      {appointment.status === APPOINTMENT_STATUS.APPROVED.value && (
+      {!(
+        appointment.status === APPOINTMENT_STATUS.PENDING.value ||
+        appointment.status === APPOINTMENT_STATUS.REQUESTING_RE_SCHEDULE.value
+      ) && (
         <div className="flex justify-center w-full">
           <div className="flex w-full mb-10 mt-6 max-w-[500px] gap-2 px-3 pt-3 pb-2">
             <Dialog

@@ -558,12 +558,17 @@ export const penaltySchema = z.object({
 
 export const updatePenaltyFeeSchema = penaltySchema.pick({ penaltyFee: true });
 
-export const paymentVerificationSchema = z.object({
-  id: z.string(),
+export const createPaymentVerificationSchema = z.object({
   userId: z.string(),
   gcashReceiptUrl: z.string(),
   appointmentIds: z.string().array(),
-  status: z.string(),
   createdBy: z.string(),
-  createdAt: z.string(),
 });
+
+export const paymentVerificationSchema = createPaymentVerificationSchema.extend(
+  {
+    id: z.string(),
+    status: z.string(),
+    createdAt: z.string(),
+  }
+);

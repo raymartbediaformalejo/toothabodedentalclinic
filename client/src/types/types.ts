@@ -4,6 +4,7 @@ import {
   changePasswordSchema,
   createDentistSchema,
   createPatientSchema,
+  createPaymentVerificationSchema,
   createServiceSchema,
   dentistSchema,
   editDentistSchema,
@@ -138,6 +139,10 @@ export type TPenalty = z.infer<typeof penaltySchema>;
 export type TUpdatePenaltyFee = z.infer<typeof updatePenaltyFeeSchema>;
 
 export type TPaymentVerification = z.infer<typeof paymentVerificationSchema>;
+
+export type TCreatePaymentVerification = z.infer<
+  typeof createPaymentVerificationSchema
+>;
 
 export type TPaymentVerificationId = {
   id: string;

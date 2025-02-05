@@ -8,6 +8,7 @@ import {
   TChangePassword,
   TCreateDentist,
   TCreatePatient,
+  TCreatePaymentVerification,
   TCreateService,
   TDentistId,
   TDentistIds,
@@ -492,7 +493,7 @@ export const getPaymentVerificationAPI = async (args: {
 };
 
 export const createPaymentVerificationAPI = async (
-  data: TPaymentVerification
+  data: TCreatePaymentVerification
 ) => await axiosInstance.post("/payment-verification", data);
 
 // ============ || DENTIST/APPOINTMENT || ===========

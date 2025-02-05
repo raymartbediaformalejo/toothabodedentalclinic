@@ -11,7 +11,7 @@ class PaymentVerification {
       const updateVerificationQuery = `
         UPDATE tbl_payment_verification 
         SET status = 'payment_verified' 
-        WHERE id = $1 RETURNING appointment_ids
+        WHERE id = $1 RETURNING appointment_ids, user_id
       `;
       const verificationResult = await client.query(updateVerificationQuery, [
         id,
@@ -22,8 +22,8 @@ class PaymentVerification {
         throw new Error("Payment verification not found.");
       }
 
-      // Extract appointment_ids
-      const { appointment_ids } = verificationResult.rows[0];
+      // Extract appointment_ids and user_id
+      const { appointment_ids, user_id } = verificationResult.rows[0];
 
       if (appointment_ids && appointment_ids.length > 0) {
         // Update appointments to mark penalty as paid
@@ -35,8 +35,19 @@ class PaymentVerification {
         await client.query(updateAppointmentQuery, [appointment_ids]);
       }
 
+      // Update user account status to 'activate'
+      const updateUserStatusQuery = `
+        UPDATE tbl_user
+        SET account_status = 'active'
+        WHERE id = $1
+      `;
+      await client.query(updateUserStatusQuery, [user_id]);
+
       await client.query("COMMIT");
-      return { message: "Payment marked as verified and penalties updated." };
+      return {
+        message:
+          "Payment marked as verified, penalties updated, and user activated.",
+      };
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -180,10 +191,11 @@ class PaymentVerification {
           user_id,
           gcash_receipt_url,
           appointment_ids,
+          status,
           created_at,
           created_by
         ) VALUES (
-         $1, $2, $3, $4, NOW(), $5
+         $1, $2, $3, $4, 'pending_payment_verification', NOW(), $5
         ) RETURNING *
       `;
       const result = await client.query(insertQuery, [

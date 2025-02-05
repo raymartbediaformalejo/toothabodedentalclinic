@@ -3,6 +3,7 @@ import {
   TApproveAppointment,
   TCancelAppointment,
   TChangePassword,
+  TCreatePaymentVerification,
   TDentistIds,
   TEditUser,
   TPatientId,
@@ -630,7 +631,7 @@ export const useCreatePaymentVerification = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: TPaymentVerification) =>
+    mutationFn: (data: TCreatePaymentVerification) =>
       createPaymentVerificationAPI(data),
     onSuccess: (data) => {
       console.log("useCreatePaymentVerification: ", data);
