@@ -122,6 +122,8 @@ const EditDentist = () => {
     isFetched,
   ]);
 
+  console.log("SERVICES: ", form.watch("services"));
+
   const uploadToCloudinary = async (file: File): Promise<string> => {
     setImageUploading(true);
     const formData = new FormData();
@@ -424,7 +426,10 @@ const EditDentist = () => {
                                     id="services"
                                     options={servicesOptions}
                                     defaultValue={defaultServices}
-                                    onValueChange={field.onChange}
+                                    onValueChange={(value) => {
+                                      console.log("Updated Services: ", value);
+                                      field.onChange(value);
+                                    }}
                                     placeholder="Select service"
                                     animation={4}
                                     maxCount={2}
@@ -1201,7 +1206,7 @@ const EditDentist = () => {
                           name="saturday"
                           render={() => {
                             return (
-                              <FormItem className="w-[100px] flex flex-col ">
+                              <FormItem className="w-[100px] flex flex-col">
                                 <FormLabel
                                   className="font-normal"
                                   htmlFor="saturday"
@@ -1213,7 +1218,7 @@ const EditDentist = () => {
                                     value={
                                       form.watch("saturday")?.[0]?.startTime ||
                                       "--|--"
-                                    }
+                                    } // Always access the first item in the array
                                     onValueChange={(value) => {
                                       const updatedTime = [
                                         {
@@ -1221,7 +1226,7 @@ const EditDentist = () => {
                                           startTime: value,
                                         },
                                       ];
-                                      form.setValue("saturday", updatedTime);
+                                      form.setValue("saturday", updatedTime); // Ensure the value is set as an array
                                     }}
                                   >
                                     <FormControl>
@@ -1250,6 +1255,7 @@ const EditDentist = () => {
                             );
                           }}
                         />
+
                         <IoIosArrowRoundForward className="h-4 w-5 absolute top-[50%] left-[50%] translate-x-[-50%]" />
                         <FormField
                           control={form.control}
@@ -1320,7 +1326,7 @@ const EditDentist = () => {
                 </div>
 
                 <div className="flex content-end justify-center gap-3 mt-10 ">
-                  <Button asChild variant="db_outline" size="lg">
+                  <Button type="button" asChild variant="db_outline" size="lg">
                     <Link to="/admin/dentists">Cancel</Link>
                   </Button>
                   <Button

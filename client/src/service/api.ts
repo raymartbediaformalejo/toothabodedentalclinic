@@ -287,6 +287,12 @@ export const changeUserPasswordAPI = async (data: TChangePassword) => {
 };
 
 // ============ || APPOINTMENT || ===========
+
+export const getAllApprovedAppointmentsPerDayAPI = async () => {
+  const { data } = await axiosInstance.get("/approved-appointments");
+  return data;
+};
+
 export const getAllMyAppointmentAPI = async (userId: string) => {
   const { data } = await axiosInstance.get("/appointment", {
     params: { userId },

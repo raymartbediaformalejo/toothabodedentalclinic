@@ -10,14 +10,24 @@ import {
   addWeeks,
   subWeeks,
   set,
+  getDay,
 } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MdPlayArrow } from "react-icons/md";
 
-import { TIME_LIST } from "@/lib/variables";
+import { TIME_BUTTON_LIST } from "@/lib/variables";
 import { cn, formatDate } from "@/lib/utils";
 import { useFormContext } from "react-hook-form";
-import { TRequestDateAndTime } from "@/types/types";
+import {
+  TApprovedAppointmentsPerDay,
+  TDentist,
+  TRequestDateAndTime,
+} from "@/types/types";
+import {
+  useGetAllApprovedAppointmentPerDay,
+  useGetDentist,
+} from "@/service/queries";
+import { useSearchParams } from "react-router-dom";
 
 type TRequestDateAndTimeProps = {
   onSaveRequestDateAndTimeData: (
@@ -26,6 +36,23 @@ type TRequestDateAndTimeProps = {
 };
 
 const RequestDateAndTime = (props: TRequestDateAndTimeProps) => {
+  const [searchParams] = useSearchParams();
+  const dentistParam = searchParams.get("dentist");
+  const dentistId = JSON.parse(decodeURIComponent(dentistParam as string));
+
+  const { data: dentistData } = useGetDentist(dentistId!);
+  const dentist: TDentist | undefined = dentistData?.data;
+
+  console.log("DENTIST ID: ", dentistId);
+  console.log("DENTIST: ", dentist);
+  const { data: approvedAppointmentsData } =
+    useGetAllApprovedAppointmentPerDay();
+
+  const allApprovedAppointments: TApprovedAppointmentsPerDay[] = useMemo(
+    () => approvedAppointmentsData?.data || [],
+    [approvedAppointmentsData]
+  );
+  console.log("allApprovedAppointments: ", allApprovedAppointments);
   const { formState, watch, setValue } = useFormContext<TRequestDateAndTime>();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const firstDayOfWeek = startOfWeek(currentWeek);
@@ -53,19 +80,62 @@ const RequestDateAndTime = (props: TRequestDateAndTimeProps) => {
     props.onSaveRequestDateAndTimeData(requestDateAndTimeData);
   }, [requestedDate, requestedTime]);
 
-  const isDisabledDay = (day: Date) => {
-    return isPast(day) && !isToday(day);
-  };
-
   const isDisabledTime = (timeValue: string) => {
     if (!requestedDate) return false;
 
     const selectedDate = new Date(requestedDate);
+    const appointmentForDay = allApprovedAppointments.find(
+      (appointment) =>
+        appointment.year === format(selectedDate, "yyyy") &&
+        appointment.month === format(selectedDate, "MMMM") &&
+        appointment.day === format(selectedDate, "d")
+    );
 
-    if (isToday(selectedDate)) {
-      const [hours, minutes] = timeValue.split(":").map(Number);
-      const selectedTime = set(today, { hours, minutes });
-      return isPast(selectedTime);
+    if (!appointmentForDay) return false;
+
+    const [selectedHours, selectedMinutes] = timeValue.split(":").map(Number);
+    const selectedTime = set(today, {
+      hours: selectedHours,
+      minutes: selectedMinutes,
+    });
+
+    const serviceDuration = 60 * 60 * 1000;
+    const selectedEndTime = new Date(selectedTime.getTime() + serviceDuration);
+
+    for (const bookedSlot of appointmentForDay.bookedTime) {
+      if (
+        typeof bookedSlot !== "object" ||
+        !bookedSlot.startTime ||
+        !bookedSlot.endTime
+      ) {
+        continue; // Skip invalid entries
+      }
+
+      const { startTime, endTime } = bookedSlot;
+      const [startHours, startMinutes] = startTime.split(":").map(Number);
+      const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+      const bookedStartTime = set(today, {
+        hours: startHours,
+        minutes: startMinutes,
+      });
+      const bookedEndTime = set(today, {
+        hours: endHours,
+        minutes: endMinutes,
+      });
+
+      if (
+        (selectedTime >= bookedStartTime && selectedTime < bookedEndTime) ||
+        (selectedEndTime > bookedStartTime &&
+          selectedEndTime <= bookedEndTime) ||
+        (selectedTime <= bookedStartTime && selectedEndTime >= bookedEndTime)
+      ) {
+        return true;
+      }
+    }
+
+    if (isToday(selectedDate) && isPast(selectedTime)) {
+      return true;
     }
 
     return false;
@@ -97,27 +167,76 @@ const RequestDateAndTime = (props: TRequestDateAndTimeProps) => {
           </button>
         </div>
         <div className="grid grid-cols-7 gap-2">
-          {daysInWeek.map((day, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => {
-                const formattedDay = formatDate(day + "");
-                console.log("formattedDay: ", formattedDay);
-                setValue("date", formattedDay);
-              }}
-              disabled={isDisabledDay(day)}
-              className={cn(
-                "border rounded-md p-2 text-center cursor-pointer",
-                isSameDay(watch("date"), day)
-                  ? "bg-primary-100  outline outline-2 outline-primary-600 text-primary-900"
-                  : "",
-                isDisabledDay(day) ? "opacity-50 cursor-not-allowed" : ""
-              )}
-            >
-              {format(day, "d")}
-            </button>
-          ))}
+          {daysInWeek.map((day, index) => {
+            const formattedDay = formatDate(day + "");
+            const weekDayIndex = getDay(day);
+            const weekDayNames = [
+              "sunday",
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+            ] as const;
+
+            const weekDayName = weekDayNames[weekDayIndex] as keyof TDentist;
+            const scheduleForDay = Array.isArray(dentist?.[weekDayName])
+              ? dentist?.[weekDayName].filter(
+                  (schedule) =>
+                    typeof schedule === "object" && schedule !== null
+                )
+              : [];
+
+            const isDentistUnavailable =
+              Array.isArray(scheduleForDay) &&
+              scheduleForDay.some(
+                (schedule) =>
+                  schedule.startTime === "N/A" && schedule.endTime === "N/A"
+              );
+
+            const appointmentForDay = allApprovedAppointments.find(
+              (appointment) =>
+                appointment.year === format(day, "yyyy") &&
+                appointment.month === format(day, "MMMM") &&
+                appointment.day === format(day, "d")
+            ) || { availableSlot: 8 };
+
+            const isSlotZero = appointmentForDay.availableSlot === 0;
+            const isBeforeToday = isPast(day) && !isToday(day);
+            const isDisabled =
+              isBeforeToday || isSlotZero || isDentistUnavailable;
+
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => {
+                  console.log("formattedDay: ", formattedDay);
+                  setValue("date", formattedDay);
+                  setValue("time", "");
+                }}
+                disabled={isDisabled}
+                className={cn(
+                  "border rounded-md p-2 text-center cursor-pointer",
+                  isSameDay(watch("date"), day)
+                    ? "bg-primary-100 outline outline-2 outline-primary-600 text-primary-900"
+                    : "",
+                  isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                )}
+              >
+                <div>{format(day, "d")}</div>
+                <div className="text-[10px] text-center text-neutral-500 mt-1">
+                  {isBeforeToday || isDentistUnavailable
+                    ? "--"
+                    : isSlotZero
+                    ? "Fully Booked"
+                    : `Slots: ${appointmentForDay.availableSlot}`}
+                </div>
+              </button>
+            );
+          })}
+
           {formState.errors.date && (
             <span className="text-sm text-destructive">
               {formState.errors.date.message}
@@ -130,7 +249,7 @@ const RequestDateAndTime = (props: TRequestDateAndTimeProps) => {
           All times are in Asia/Manila (UTC+08)
         </p>
         <div className="grid grid-cols-4 gap-4 mt-3">
-          {TIME_LIST.map(({ value, label }) => (
+          {TIME_BUTTON_LIST.map(({ value, label }) => (
             <button
               key={value}
               type="button"

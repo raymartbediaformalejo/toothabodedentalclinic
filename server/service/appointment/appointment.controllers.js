@@ -1,5 +1,29 @@
 const Appointment = require("./appointment.services");
 
+const getAllApprovedAppointmentsPerDay = async (_, res) => {
+  try {
+    const data = await Appointment.getAllApprovedAppointmentsPerDay();
+
+    if (!data || data.length === 0) {
+      return res.status(404).send({
+        message: "No approved appointments found",
+        ok: false,
+      });
+    }
+
+    return res.status(200).send({
+      data,
+      message: "Approved appointments retrieved successfully",
+      ok: true,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: `${error.message}`,
+      ok: false,
+    });
+  }
+};
+
 const markAsCanceled = async (req, res) => {
   try {
     const { appointmentId } = req.body;
@@ -471,6 +495,7 @@ const editAppointment = async (req, res) => {
 };
 
 module.exports = {
+  getAllApprovedAppointmentsPerDay,
   markAsCanceled,
   markAsCompleted,
   markAsNoShow,

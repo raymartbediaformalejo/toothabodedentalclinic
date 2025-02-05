@@ -3,7 +3,10 @@ const {
   differenceInHours,
   isBefore,
   isAfter,
+  startOfDay,
   addHours,
+  format,
+  parse,
   subDays,
   subHours,
 } = require("date-fns");
@@ -14,6 +17,72 @@ const {
 const pool = require("../../config/conn.js");
 
 class Appointment {
+  static async getAllApprovedAppointmentsPerDay() {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT 
+          appointment_id AS "appointmentId",
+          schedule,
+          start_time AS "startTime",
+          end_time AS "endTime"
+        FROM tbl_appointment
+        WHERE appointment_status = 'approved'
+        ORDER BY schedule ASC;
+      `;
+
+      const result = await client.query(query);
+      const appointments = result.rows;
+
+      const groupedAppointments = {};
+      const availableSlots = 8;
+      const today = startOfDay(new Date());
+
+      appointments.forEach(
+        ({ appointmentId, schedule, startTime, endTime }) => {
+          const parsedDate = parse(schedule, "MMMM d, yyyy HH:mm", new Date());
+
+          // Filter out past appointments
+          if (isBefore(parsedDate, today)) return;
+
+          const year = format(parsedDate, "yyyy");
+          const month = format(parsedDate, "MMMM");
+          const day = format(parsedDate, "d");
+
+          const key = `${year}-${month}-${day}`;
+          if (!groupedAppointments[key]) {
+            groupedAppointments[key] = {
+              year,
+              month,
+              day,
+              availableSlot: availableSlots,
+              bookedTime: [],
+            };
+          }
+
+          // Calculate used slots based on appointment duration
+          const start = parse(startTime, "HH:mm", new Date());
+          const end = parse(endTime, "HH:mm", new Date());
+          const hoursUsed = (end - start) / (1000 * 60 * 60);
+          groupedAppointments[key].availableSlot -= Math.floor(hoursUsed);
+
+          groupedAppointments[key].bookedTime.push({
+            appointmentId,
+            startTime,
+            endTime,
+          });
+        }
+      );
+
+      return Object.values(groupedAppointments);
+    } catch (error) {
+      console.error("Error fetching approved appointments: ", error);
+      throw new Error(`Internal Server Error: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   static async markAsCanceled(appointmentId) {
     const client = await pool.connect();
     try {
@@ -290,7 +359,9 @@ class Appointment {
         SELECT 
           a.appointment_id AS "id", 
           a.patient_id AS "patientId",
-          a.schedule, 
+          a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status", 
           array_agg(s.id) AS "services", 
           a.created_at AS "createdAt",
@@ -321,6 +392,8 @@ class Appointment {
           a.appointment_id AS "id",
           a.appointment_patient_info_id AS "patientInfoId",
           a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status",
           array_agg(s.id) AS "services",
           a.created_at AS "createdAt",
@@ -363,6 +436,8 @@ class Appointment {
           a.appointment_id AS "id",
           a.appointment_patient_info_id AS "patientInfoId",
           a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status",
           array_agg(s.id) AS "services",
           a.created_at AS "createdAt",
@@ -403,7 +478,9 @@ class Appointment {
         SELECT 
           a.appointment_id AS "id", 
           a.patient_id AS "patientId",
-          a.schedule, 
+          a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status", 
           array_agg(s.id) AS "services", 
           a.created_at AS "createdAt",
@@ -440,7 +517,9 @@ class Appointment {
         SELECT 
           a.appointment_id AS "id", 
           a.dentist_id AS "dentistId",
-          a.schedule, 
+          a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status", 
           array_agg(s.id) AS "services", 
           a.created_at AS "createdAt",
@@ -479,6 +558,8 @@ class Appointment {
           a.appointment_id AS "id",
           a.appointment_patient_info_id AS "patientInfoId",
           a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status",
           array_agg(s.id) AS "services",
           a.created_at AS "createdAt",
@@ -521,6 +602,8 @@ class Appointment {
           a.appointment_id AS "id",
           a.appointment_patient_info_id AS "patientInfoId",
           a.schedule,
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.appointment_status AS "status",
           array_agg(s.id) AS "services",
           a.created_at AS "createdAt",
@@ -645,7 +728,9 @@ class Appointment {
           a.appointment_id AS "id", 
           a.dentist_id AS "dentistId",
           a.schedule, 
-          a.appointment_status AS "status", 
+          a.appointment_status AS "status",
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           array_agg(s.id) AS "services", 
           a.created_at AS "createdAt",
           a.created_by AS "createdBy"
@@ -708,6 +793,8 @@ class Appointment {
           array_agg(s.title) AS "services",
           a.created_at AS "createdAt",
           a.created_by AS "createdBy",
+          a.start_time AS "startTime",
+          a.end_time AS "endTime",
           a.is_penalty_paid AS "isPenaltyPaid",
           dentist.first_name AS "dentistFirstName",
           dentist.middle_name AS "dentistMiddleName",

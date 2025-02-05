@@ -293,7 +293,7 @@ class Dentist {
     const client = await pool.connect();
     const updatedAt = new Date();
     const dentistId = values.dentistId;
-
+    console.log("SERVICES: ", values);
     const availability = [
       { dayOfWeek: "Sunday", data: values.sunday },
       { dayOfWeek: "Monday", data: values.monday },

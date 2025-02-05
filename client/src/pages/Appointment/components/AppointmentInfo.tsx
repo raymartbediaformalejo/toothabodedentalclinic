@@ -7,12 +7,15 @@ import { useGetAllDentist, useGetAllServices } from "@/service/queries";
 import { TAppointmentInfo, TDentist, TService } from "@/types/types";
 import { useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 
 type TServicesOption = { value: string; label: string };
 type TAppointmentInfoProps = {
   onSaveAppointmentInfoData: (enteredAppointmentInfo: TAppointmentInfo) => void;
 };
+
 const AppointmentInfo = (props: TAppointmentInfoProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { userId } = useAuth();
   const { data } = useGetAllServices();
   const allServices: TService[] = useMemo(() => data?.data || [], [data]);
@@ -27,11 +30,12 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
     [dentistData]
   );
 
+  console.log("all dentist: ", allDentists);
+
   const { watch, setValue, register, trigger, formState } =
     useFormContext<TAppointmentInfo>();
-
   const patientId = watch("patientId");
-  const serviceIds = watch("serviceIds");
+  const serviceIds = watch("serviceIds") || [];
   const dentistId = watch("dentistId");
 
   useEffect(() => {
@@ -39,9 +43,33 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
   }, [userId]);
 
   useEffect(() => {
+    const dentistParam = searchParams.get("dentist");
+    if (dentistParam) {
+      try {
+        const dentistId = JSON.parse(decodeURIComponent(dentistParam));
+        setValue("dentistId", dentistId);
+      } catch (e) {
+        console.error("Error parsing dentistId:", e);
+        setValue("dentistId", ""); // Set default value or handle accordingly
+      }
+    }
+  }, [searchParams, setValue]);
+
+  useEffect(() => {
     const appointmentData = { patientId, serviceIds, dentistId };
     props.onSaveAppointmentInfoData(appointmentData);
   }, [patientId, serviceIds, dentistId]);
+
+  // Filter dentists based on selected serviceIds
+  const filteredDentists = useMemo(
+    () =>
+      allDentists.filter((dentist) =>
+        dentist.services.some((service) =>
+          (serviceIds || []).includes(service || "")
+        )
+      ),
+    [allDentists, serviceIds]
+  );
 
   return (
     <div className="">
@@ -68,79 +96,90 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
               setValue("serviceIds", values);
               trigger("serviceIds");
             }}
+            value={serviceIds || []}
             defaultValue={serviceIds}
             placeholder="Select dental services"
             className="mt-2 "
           />
-
           {formState.errors.serviceIds && (
             <span className="text-sm text-destructive">
               {formState.errors.serviceIds.message}
             </span>
           )}
         </div>
-        <div className="mt-12">
-          <p className="text-[14px] text-neutral-800 leading-[160%]">
-            Please select your preferred dentist to proceed with booking your
-            appointment.
-          </p>
-          <Label
-            isRequired
-            className="block mt-4 text-sm font-medium text-primary"
-          >
-            Our Dentist:
-          </Label>
-          <div className="grid grid-cols-2 gap-4 mt-2">
-            {!isLoadingDentist &&
-              allDentists.map((dentist) => {
-                const isSelected = dentistId === dentist.id;
+        {serviceIds.length > 0 ? (
+          <div className="mt-12">
+            <p className="text-[14px] text-neutral-800 leading-[160%]">
+              Please select your preferred dentist to proceed with booking your
+              appointment.
+            </p>
+            <Label
+              isRequired
+              className="block mt-4 text-sm font-medium text-primary"
+            >
+              Our Dentist:
+            </Label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              {!isLoadingDentist &&
+                filteredDentists.map((dentist) => {
+                  const isSelected = dentistId === dentist.id;
 
-                return (
-                  <button
-                    key={dentist.id}
-                    type="button"
-                    onClick={() => setValue("dentistId", dentist.id)}
-                    className={cn(
-                      "cursor-pointer select-none shadow-mui-shadow-1 border border-neutral-300 rounded-[8px] transition",
-                      isSelected
-                        ? "border-primary-500 bg-primary-50"
-                        : "border-gray-300"
-                    )}
-                  >
-                    <input
-                      id={dentist.id}
-                      type="radio"
-                      value={dentist.id}
-                      checked={isSelected}
-                      onChange={() => setValue("dentistId", dentist.id)}
-                      className="hidden"
-                    />
-                    <img
-                      src={
-                        dentist.profilePicUrl
-                          ? dentist.profilePicUrl
-                          : DEFAULT_USER_PROFILE_IMG_URL
-                      }
-                      alt={dentist.firstName}
-                      className="object-cover w-full rounded-t-[8px] h-[200px]"
-                    />
-                    <h3 className="px-4 py-3 leading-4 font-semibold text-left text-neutral-900 text-[12px]">
-                      {`Dr. ${createUsername({
-                        firstname: dentist?.firstName,
-                        middlename: dentist.middleName || "",
-                        lastname: dentist?.lastName,
-                      })}`}
-                    </h3>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={dentist.id}
+                      type="button"
+                      onClick={() => {
+                        setValue("dentistId", dentist.id);
+                        setSearchParams((prev) => {
+                          prev.set(
+                            "dentist",
+                            encodeURIComponent(JSON.stringify(dentist.id))
+                          );
+                          return prev;
+                        });
+                      }}
+                      className={cn(
+                        "cursor-pointer select-none shadow-mui-shadow-1 border border-neutral-300 rounded-[8px] transition",
+                        isSelected
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-gray-300"
+                      )}
+                    >
+                      <input
+                        id={dentist.id}
+                        type="radio"
+                        value={dentist.id}
+                        checked={isSelected}
+                        onChange={() => setValue("dentistId", dentist.id)}
+                        className="hidden"
+                      />
+                      <img
+                        src={
+                          dentist.profilePicUrl
+                            ? dentist.profilePicUrl
+                            : DEFAULT_USER_PROFILE_IMG_URL
+                        }
+                        alt={dentist.firstName}
+                        className="object-cover w-full rounded-t-[8px] h-[200px]"
+                      />
+                      <h3 className="px-4 py-3 leading-4 font-semibold text-left text-neutral-900 text-[12px]">
+                        {`Dr. ${createUsername({
+                          firstname: dentist?.firstName,
+                          middlename: dentist.middleName || "",
+                          lastname: dentist?.lastName,
+                        })}`}
+                      </h3>
+                    </button>
+                  );
+                })}
+            </div>
+            {formState.errors.dentistId && (
+              <span className="text-sm text-destructive">
+                {formState.errors.dentistId.message}
+              </span>
+            )}
           </div>
-          {formState.errors.dentistId && (
-            <span className="text-sm text-destructive">
-              {formState.errors.dentistId.message}
-            </span>
-          )}
-        </div>
+        ) : null}
       </div>
     </div>
   );

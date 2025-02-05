@@ -31,6 +31,7 @@ import {
   getAllReschedAppointmentAPI,
   getAllPaymentVerificationAPI,
   getPaymentVerificationAPI,
+  getAllApprovedAppointmentsPerDayAPI,
 } from "./api";
 import { TDentistId, TServiceId, TServiceIds } from "@/types/types";
 
@@ -151,6 +152,12 @@ export const useGetMyAllAppointment = (userId: string) => {
   });
 };
 
+export const useGetAllApprovedAppointmentPerDay = () => {
+  return useQuery({
+    queryKey: ["approved-appointments"],
+    queryFn: getAllApprovedAppointmentsPerDayAPI,
+  });
+};
 export const useGetMyAppointment = (appointmentId: string) => {
   return useQuery({
     queryKey: ["appointment", appointmentId],

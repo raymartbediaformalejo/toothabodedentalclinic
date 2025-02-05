@@ -126,6 +126,8 @@ export type TMyAppointment = {
   services: string[];
   createdAt: string;
   createdBy: string;
+  startTime: string;
+  endTime: string;
 };
 
 export type TMyAppointmentWithResched = TMyAppointment & {
@@ -164,6 +166,14 @@ export type TApproveAppointment = {
 };
 export type TRejectAppointment = {
   appointmentId: string;
+};
+
+export type TApprovedAppointmentsPerDay = {
+  year: string;
+  month: string;
+  day: string;
+  availableSlot: number;
+  bookedTime: { appointmentId: string; startTime: string; endTime: string }[];
 };
 
 // ============ || APPOINTMENT PATIENT INFO || ===========

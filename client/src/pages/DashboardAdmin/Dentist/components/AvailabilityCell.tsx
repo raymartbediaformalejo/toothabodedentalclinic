@@ -9,13 +9,13 @@ const AvailabilityCell = ({ dayOfWeek, availability }: TAvailability) => {
   const firstLetter = dayOfWeek[0];
   const startTime = availability && availability[0]?.startTime;
   const endTime = availability && availability[0]?.endTime;
-  const isHaveValue = !!startTime && !!endTime;
+  const isNotAvailable = startTime === "N/A" && endTime === "N/A";
 
   return (
     <div
       className={cn(
         "rounded-full p-2 h-6 w-6 flex justify-center items-center ",
-        isHaveValue
+        !isNotAvailable
           ? "bg-primary-600  text-white"
           : "bg-neutral-200 text-neutral-600"
       )}

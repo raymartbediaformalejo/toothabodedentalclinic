@@ -1,5 +1,6 @@
 const express = require("express");
 const {
+  getAllApprovedAppointmentsPerDay,
   markAsCanceled,
   markAsCompleted,
   markAsNoShow,
@@ -23,6 +24,8 @@ const {
 } = require("./appointment.controllers");
 
 const router = express.Router();
+
+router.get("/approved-appointments", getAllApprovedAppointmentsPerDay);
 
 router.get("/appointment", getAllAppointments);
 
