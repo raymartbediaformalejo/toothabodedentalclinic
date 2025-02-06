@@ -41,6 +41,10 @@ import AdminReScheduledAppointments from "./pages/DashboardAdmin/Appointment/ReS
 import PaymentVerification from "./pages/DashboardAdmin/PaymentVerification";
 import SinglePaymentVerification from "./pages/DashboardAdmin/PaymentVerification/SinglePaymentVerification";
 import PenaltyFee from "./pages/DashboardAdmin/PenaltyFee";
+import AboutUs from "./pages/AboustUs";
+import AllServices from "./pages/Services";
+import FAQs from "./pages/FAQs";
+import ContactUs from "./pages/ContactUs";
 
 function App() {
   return (
@@ -59,6 +63,11 @@ function App() {
               path="wait-for-verification"
               element={<WaitForVerification />}
             />
+
+            <Route path="about-us" element={<AboutUs />} />
+            <Route path="all-services" element={<AllServices />} />
+            <Route path="faqs" element={<FAQs />} />
+            <Route path="contact-us" element={<ContactUs />} />
           </Route>
 
           {/* PROTECTED ROUTES */}

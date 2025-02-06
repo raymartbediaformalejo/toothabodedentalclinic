@@ -131,9 +131,6 @@ export function NavigationSidebarDashboard() {
   const location = useLocation();
 
   const isActive = (url: string) => {
-    console.log("url: ", url);
-    console.log("location.pathname: ", location.pathname);
-    console.log(location.pathname === url ? true : false);
     return location.pathname === url ? true : false;
   };
 

@@ -35,19 +35,12 @@ const NavigationSidebar = () => {
             </span>
           </div>
         </SheetClose>
-        <SheetClose asChild onClick={() => navigate("/all-dentist")}>
-          <div className="flex gap-3 py-3 select-none group">
-            <LuUsers className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
-            <span className="text-lg transition-[color] duration-200 tracking-wide uppercase text-neutral-400 group-hover:text-white">
-              All Dentists
-            </span>
-          </div>
-        </SheetClose>
+
         <SheetClose asChild onClick={() => navigate("/services")}>
           <div className="flex gap-3 py-3 select-none group">
             <RiServiceLine className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
             <span className="text-lg transition-[color] duration-200 tracking-wide uppercase text-neutral-400 group-hover:text-white">
-              Services
+              All Services
             </span>
           </div>
         </SheetClose>
@@ -55,7 +48,7 @@ const NavigationSidebar = () => {
           <div className="flex gap-3 py-3 select-none group">
             <BsQuestionCircle className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
             <span className="text-lg transition-[color] duration-200 tracking-wide uppercase text-neutral-400 group-hover:text-white">
-              Faq's
+              FAQ's
             </span>
           </div>
         </SheetClose>

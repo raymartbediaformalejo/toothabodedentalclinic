@@ -36,10 +36,6 @@ export function NavigationUser({ userId }: { userId: string }) {
     logout.mutate();
     navigate("/");
   };
-
-  console.log("data: ", data);
-  console.log("userId: ", userId);
-  console.log("user: ", user);
   return (
     <SidebarMenu>
       <SidebarMenuItem>
