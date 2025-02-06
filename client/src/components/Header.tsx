@@ -17,14 +17,11 @@ const Header = () => {
   const { userId } = useAuth();
   const location = useLocation();
 
-  console.log("userId: ", userId);
-
-  // Function to check if the link is active
   const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className=" flex items-center justify-center px-4 py-3 border-b border-b-primary-700/10 bg-primary-50">
-      <div className="flex items-center justify-between w-full max-w-[1163px] ">
+      <div className="flex items-center justify-between w-full max-w-[1048px] ">
         <Link to="/" className="flex items-center gap-1">
           <img
             className="h-[50px]"
@@ -46,7 +43,6 @@ const Header = () => {
               { name: "About Us", path: "/about-us" },
               { name: "All Services", path: "/all-services" },
               { name: "FAQ's", path: "/faqs" },
-              { name: "Contact Us", path: "/contact-us" },
             ].map(({ name, path }) => (
               <NavigationMenuItem key={path}>
                 <Link to={path}>

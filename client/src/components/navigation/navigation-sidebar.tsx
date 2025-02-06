@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 
-import { LuHome, LuUsers, LuContact } from "react-icons/lu";
+import { LuHome, LuContact } from "react-icons/lu";
 import { RiArticleLine, RiServiceLine } from "react-icons/ri";
 import { BsQuestionCircle } from "react-icons/bs";
 import { SheetClose } from "../ui/sheet";
@@ -52,14 +52,7 @@ const NavigationSidebar = () => {
             </span>
           </div>
         </SheetClose>
-        <SheetClose asChild onClick={() => navigate("/contact-us")}>
-          <div className="flex gap-3 py-3 select-none group">
-            <LuContact className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
-            <span className="text-lg transition-[color] duration-200 tracking-wide uppercase text-neutral-400 group-hover:text-white">
-              Contact Us
-            </span>
-          </div>
-        </SheetClose>
+
         <SheetClose asChild onClick={() => navigate("/my-account")}>
           <div className="flex gap-3 py-3 select-none group">
             <LuContact className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
