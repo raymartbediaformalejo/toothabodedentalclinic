@@ -36,7 +36,7 @@ const NavigationSidebar = () => {
           </div>
         </SheetClose>
 
-        <SheetClose asChild onClick={() => navigate("/services")}>
+        <SheetClose asChild onClick={() => navigate("/all-services")}>
           <div className="flex gap-3 py-3 select-none group">
             <RiServiceLine className="w-7 h-7 transition-[color] duration-200 text-neutral-600 group-hover:text-white" />
             <span className="text-lg transition-[color] duration-200 tracking-wide uppercase text-neutral-400 group-hover:text-white">
