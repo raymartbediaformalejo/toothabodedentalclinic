@@ -19,7 +19,6 @@ import {
   TLoginUser,
   TPatientId,
   TPatientIds,
-  TPaymentVerification,
   TPaymentVerificationId,
   TRejectAppointment,
   TRequestDateAndTimeWithId,

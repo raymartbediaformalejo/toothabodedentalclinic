@@ -25,8 +25,8 @@ const MedicalHistory = ({ sex }: TMedicalHistoryProps) => {
 
   return (
     <div>
-      <div>
-        <div className="flex flex-col gap-6">
+      <div className="flex justify-center">
+        <div className="flex  flex-col gap-6 w-full max-w-[400px]">
           <div>
             <Label isOptional htmlFor={register("physicianName").name}>
               Name of Physician:

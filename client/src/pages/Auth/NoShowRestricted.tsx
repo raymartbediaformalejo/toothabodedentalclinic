@@ -12,7 +12,6 @@ import {
 } from "@/service/queries";
 import {
   TCreatePaymentVerification,
-  TPaymentVerification,
   TPenalty,
   TUserNoShowSchedule,
 } from "@/types/types";
@@ -23,7 +22,6 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createPaymentVerificationSchema,
-  paymentVerificationSchema,
 } from "@/types/schema";
 import { Form } from "@/components/ui/form";
 

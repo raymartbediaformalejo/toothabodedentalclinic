@@ -18,7 +18,12 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { userId } = useAuth();
   const { data } = useGetAllServices();
-  const allServices: TService[] = useMemo(() => data?.data || [], [data]);
+  const allServices: TService[] = useMemo(() => {
+    return (data?.data || []).sort(
+      (a: TService, b: TService) =>
+        (a.orderNo as number) - (b.orderNo as number)
+    );
+  }, [data]);
   const servicesOption: TServicesOption[] = allServices.map((service) => ({
     value: service.id,
     label: service.title,
@@ -29,8 +34,6 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
     () => dentistData?.data || [],
     [dentistData]
   );
-
-  console.log("all dentist: ", allDentists);
 
   const { watch, setValue, register, trigger, formState } =
     useFormContext<TAppointmentInfo>();
@@ -74,10 +77,10 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
   return (
     <div className="">
       <div className="">
-        <p className="mt-8 text-[14px] text-neutral-800 leading-[160%]">
+        <p className="mt-8 md:mx-auto md:text-lg md:text-center md:w-full md:max-w-[600px] text-[14px] text-neutral-800 leading-[160%]">
           What dental service would you like to schedule an appointment for?
         </p>
-        <div className="mt-4">
+        <div className="mt-4 md:mx-auto w-full max-w-[600px] md:mt-6">
           <Label
             isRequired
             htmlFor={register("serviceIds").name}
@@ -109,7 +112,7 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
         </div>
         {serviceIds.length > 0 ? (
           <div className="mt-12">
-            <p className="text-[14px] text-neutral-800 leading-[160%]">
+            <p className="mt-8  md:mx-auto md:text-lg md:text-center md:w-full md:max-w-[600px] text-[14px] text-neutral-800 leading-[160%]">
               Please select your preferred dentist to proceed with booking your
               appointment.
             </p>
@@ -119,7 +122,7 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
             >
               Our Dentist:
             </Label>
-            <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="grid w-full max-w-[800px] grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4 mt-2">
               {!isLoadingDentist &&
                 filteredDentists.map((dentist) => {
                   const isSelected = dentistId === dentist.id;
@@ -160,7 +163,7 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
                             : DEFAULT_USER_PROFILE_IMG_URL
                         }
                         alt={dentist.firstName}
-                        className="object-cover w-full rounded-t-[8px] h-[200px]"
+                        className=" bg-top w-full rounded-t-[8px] "
                       />
                       <h3 className="px-4 py-3 leading-4 font-semibold text-left text-neutral-900 text-[12px]">
                         {`Dr. ${createUsername({

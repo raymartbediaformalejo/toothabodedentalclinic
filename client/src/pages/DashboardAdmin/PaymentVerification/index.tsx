@@ -41,8 +41,6 @@ import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
 import {
   cn,
-  createUsername,
-  formatAppointmentDate,
   formatReadableDate,
 } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,10 +67,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
-import useAuth from "@/hooks/useAuth";
 import UserName from "@/pages/DashboardDentist/Appointment/components/UserName";
-import Services from "@/pages/MyAppointment/components/Services";
-import AppointmentStatus from "@/pages/MyAppointment/components/AppointmentStatus";
 import PaymentVerificationStatus from "./components/PaymentVerificationStatus";
 import Schedule from "./components/Schedule";
 

@@ -94,13 +94,13 @@ export function NavigationPatientAccount({ userId }: { userId: string }) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to="my-appointment">
+            <Link to="/my-appointment">
               <BadgeCheck />
               My Appointments
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link to="account">
+            <Link to="/account">
               <BadgeCheck />
               Account
             </Link>

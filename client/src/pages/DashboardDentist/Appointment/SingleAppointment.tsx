@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import useAuth from "@/hooks/useAuth";
 import { useGetMyAppointment } from "@/service/queries";
 import {
   TApproveAppointment,
@@ -91,7 +90,11 @@ const SingleAppointment = () => {
           <CardHeader>
             <p>Patient's Profile</p>
           </CardHeader>
-          <PatientProfile patientId={appointment.appointmentPatientInfoId} />
+          <PatientProfile
+            patientId={appointment.appointmentPatientInfoId}
+            isPenaltyPaid={appointment.isPenaltyPaid}
+            appointmentStatus={appointment.status}
+          />
         </Card>
         <Card className="w-[70%]">
           <Tabs defaultValue="appointment_details">

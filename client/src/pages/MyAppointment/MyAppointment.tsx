@@ -3,7 +3,6 @@ import { FaCheckCircle } from "react-icons/fa";
 import { IoPersonCircleOutline } from "react-icons/io5";
 
 import H1 from "@/components/ui/H1";
-import useAuth from "@/hooks/useAuth";
 import { useGetMyAppointment } from "@/service/queries";
 import { TMyAppointment } from "@/types/types";
 import { APPOINTMENT_STATUS } from "@/lib/variables";

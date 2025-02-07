@@ -110,160 +110,175 @@ const Appointment = () => {
           We prioritize your smile and satisfaction
         </p>
       </header>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="p-6 space-y-6 rounded-lg "
-        >
-          <div className="flex justify-between">
-            <div className="flex items-center justify-end w-full gap-2">
-              <span className="self-end text-sm text-muted-foreground">
-                Step {stepper.current.index + 1} of {steps.length}
-              </span>
+      <div className="flex justify-center">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-6 space-y-6 rounded-lg w-full max-w-[800px]"
+          >
+            <div className="flex justify-between">
+              <div className="flex items-center justify-end w-full gap-2">
+                <span className="self-end text-sm text-muted-foreground">
+                  Step {stepper.current.index + 1} of {steps.length}
+                </span>
+              </div>
             </div>
-          </div>
-          <nav aria-label="Checkout Steps" className="my-4 group">
-            <ol
-              className="flex items-center justify-between gap-2"
-              aria-orientation="horizontal"
-            >
-              {stepper.all.map((step, index, array) => (
-                <React.Fragment key={step.id}>
-                  <li className="flex items-center flex-shrink-0 gap-4">
-                    <div
-                      aria-current={
-                        stepper.current.id === step.id ? "step" : undefined
-                      }
-                      aria-posinset={index + 1}
-                      aria-setsize={steps.length}
-                      aria-selected={stepper.current.id === step.id}
-                      className={cn(
-                        "flex items-center select-none justify-center rounded-full size-10",
-                        index <= stepper.current.index
-                          ? "bg-neutral-700 text-white"
-                          : "bg-neutral-200 text-neutral-600"
-                      )}
-                    >
-                      {index + 1}
-                    </div>
-                  </li>
-                  {index < array.length - 1 && (
-                    <Separator
-                      className={`flex-1 ${
-                        index < stepper.current.index
-                          ? "bg-neutral-700"
-                          : "bg-neutral-200"
-                      }`}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </ol>
-          </nav>
-          <h2 className="pt-4 font-semibold text-center heading-3 text-primary-950">
-            {stepper.current.label}
-          </h2>
-          <div className="">
-            {stepper.switch({
-              appointmentInfo: () => (
-                <AppointmentInfo
-                  onSaveAppointmentInfoData={saveAppointmentInfoDataHandler}
-                />
-              ),
-              requestDateTime: () => (
-                <RequestDateAndTime
-                  onSaveRequestDateAndTimeData={
-                    saveRequestDateAndTimeDataHandler
-                  }
-                />
-              ),
-              patientInfo: () => <PatientInfo />,
-              medicalHistory: () => <MedicalHistory sex={form.watch("sex")} />,
-              reviewAndBook: () => <ReviewAndBook />,
-            })}
-            {!stepper.isLast ? (
-              <div className="flex justify-end gap-4 mt-16 mb-4 ">
-                {stepper.isFirst ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={stepper.prev}
-                    disabled={stepper.isFirst}
-                    asChild
-                    className="w-[50%]"
-                  >
-                    <Link to="/">Cancel</Link>
-                  </Button>
-                ) : stepper.current.id === "patientInfo" ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => stepper.goTo("requestDateTime")}
-                    disabled={stepper.isFirst}
-                    className="w-[50%]"
-                  >
-                    Previous
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={stepper.prev}
-                    disabled={stepper.isFirst}
-                    className="w-[50%]"
-                  >
-                    Previous
-                  </Button>
-                )}
+            <nav aria-label="Checkout Steps" className="my-4 group">
+              <ol
+                className="flex items-center justify-between gap-2"
+                aria-orientation="horizontal"
+              >
+                {stepper.all.map((step, index, array) => (
+                  <React.Fragment key={step.id}>
+                    <li className="flex items-center flex-shrink-0 gap-4">
+                      <div
+                        aria-current={
+                          stepper.current.id === step.id ? "step" : undefined
+                        }
+                        aria-posinset={index + 1}
+                        aria-setsize={steps.length}
+                        aria-selected={stepper.current.id === step.id}
+                        className={cn(
+                          "flex items-center select-none justify-center rounded-full size-10",
+                          index <= stepper.current.index
+                            ? "bg-neutral-700 text-white"
+                            : "bg-neutral-200 text-neutral-600"
+                        )}
+                      >
+                        {index + 1}
+                      </div>
+                    </li>
+                    {index < array.length - 1 && (
+                      <Separator
+                        className={`flex-1 ${
+                          index < stepper.current.index
+                            ? "bg-neutral-700"
+                            : "bg-neutral-200"
+                        }`}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </ol>
+            </nav>
+            <h2 className="pt-4 font-semibold text-center heading-3 text-primary-950">
+              {stepper.current.label}
+            </h2>
+            <div className="">
+              {stepper.switch({
+                appointmentInfo: () => (
+                  <AppointmentInfo
+                    onSaveAppointmentInfoData={saveAppointmentInfoDataHandler}
+                  />
+                ),
+                requestDateTime: () => (
+                  <RequestDateAndTime
+                    onSaveRequestDateAndTimeData={
+                      saveRequestDateAndTimeDataHandler
+                    }
+                  />
+                ),
+                patientInfo: () => <PatientInfo />,
+                medicalHistory: () => (
+                  <MedicalHistory sex={form.watch("sex")} />
+                ),
+                reviewAndBook: () => <ReviewAndBook />,
+              })}
+              {!stepper.isLast ? (
+                <div className="flex justify-center">
+                  <div className="flex justify-end gap-4 mt-16 mb-4 w-full max-w-[500px]">
+                    {stepper.isFirst ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={stepper.prev}
+                        disabled={stepper.isFirst}
+                        asChild
+                        className="w-[50%] md:h-[49px] uppercase"
+                      >
+                        <Link to="/">Cancel</Link>
+                      </Button>
+                    ) : stepper.current.id === "patientInfo" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => stepper.goTo("requestDateTime")}
+                        disabled={stepper.isFirst}
+                        className="w-[50%] md:h-[49px] uppercase"
+                      >
+                        Previous
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={stepper.prev}
+                        disabled={stepper.isFirst}
+                        className="w-[50%] md:h-[49px] uppercase"
+                      >
+                        Previous
+                      </Button>
+                    )}
 
-                {stepper.current.id === "appointmentInfo" ? (
-                  <Button
-                    type="submit"
-                    variant={isAppoitmentInfoValid ? "default" : "disabled"}
-                    disabled={!isAppoitmentInfoValid}
-                    className="w-[50%]"
-                  >
-                    Next
-                  </Button>
-                ) : stepper.current.id === "requestDateTime" ? (
-                  <Button
-                    type="submit"
-                    className="w-[50%]"
-                    variant={isRequestDateAndTimeValid ? "default" : "disabled"}
-                    disabled={!isRequestDateAndTimeValid}
-                  >
-                    {stepper.isLast ? "Complete" : "Next"}
-                  </Button>
-                ) : (
-                  <Button type="submit" className="w-[50%]">
-                    {stepper.isLast ? "Complete" : "Next"}
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="flex justify-end gap-4 mt-16 mb-4 ">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={stepper.prev}
-                  disabled={stepper.isFirst}
-                  className="w-[50%]"
-                >
-                  Previous
-                </Button>
-                <Button className="w-[50%]">Submit</Button>
-              </div>
-            )}
-            {stepper.current.id === "requestDateTime" ? (
-              <p className="text-center text-neutral-600 text-[12px]">
-                Tooth Abode Dental Clinic - Pritil, Tondo will need to approve
-                your proposed data and time in order to confirm your
-                appointment.
-              </p>
-            ) : null}
-          </div>
-        </form>
-      </Form>
+                    {stepper.current.id === "appointmentInfo" ? (
+                      <Button
+                        type="submit"
+                        variant={isAppoitmentInfoValid ? "default" : "disabled"}
+                        disabled={!isAppoitmentInfoValid}
+                        className="w-[50%] md:h-[49px] uppercase"
+                      >
+                        Next
+                      </Button>
+                    ) : stepper.current.id === "requestDateTime" ? (
+                      <Button
+                        type="submit"
+                        className="w-[50%] md:h-[49px] uppercase"
+                        variant={
+                          isRequestDateAndTimeValid ? "default" : "disabled"
+                        }
+                        disabled={!isRequestDateAndTimeValid}
+                      >
+                        {stepper.isLast ? "Complete" : "Next"}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="w-[50%] md:h-[49px] uppercase"
+                      >
+                        {stepper.isLast ? "Complete" : "Next"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <div className="flex justify-end gap-4 mt-16 mb-4 w-full max-w-[500px]">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={stepper.prev}
+                      disabled={stepper.isFirst}
+                      className="w-[50%] md:h-[49px] uppercase"
+                    >
+                      Previous
+                    </Button>
+                    <Button className="w-[50%] md:h-[49px] uppercase">
+                      Submit
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {stepper.current.id === "requestDateTime" ? (
+                <p className="text-center text-neutral-600 text-[12px]">
+                  Tooth Abode Dental Clinic - Pritil, Tondo will need to approve
+                  your proposed data and time in order to confirm your
+                  appointment.
+                </p>
+              ) : null}
+            </div>
+          </form>
+        </Form>
+      </div>
     </>
   );
 };

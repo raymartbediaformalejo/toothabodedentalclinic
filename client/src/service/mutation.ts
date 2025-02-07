@@ -8,7 +8,6 @@ import {
   TEditUser,
   TPatientId,
   TPatientIds,
-  TPaymentVerification,
   TPaymentVerificationId,
   TRejectAppointment,
   TRequestDateAndTimeWithId,
