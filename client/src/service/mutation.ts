@@ -196,7 +196,7 @@ export const useVerifyEmail = () => {
         },
       });
     },
-    onSettled: (_, error) => {
+    onError: (_, error) => {
       console.log("error: ", error);
       if (error) {
         // @ts-ignore
