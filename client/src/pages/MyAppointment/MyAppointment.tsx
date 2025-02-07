@@ -63,9 +63,9 @@ const MyAppointment = () => {
         </H1>
       </header>
 
-      <div>
+      <div className="flex justify-center">
         {!isLoading && myAppointment && (
-          <div className="mx-4 my-8">
+          <div className="mx-4 my-8 w-full max-w-[800px]">
             <div className="flex items-center gap-2">
               <FaCheckCircle
                 className="w-6 h-6"
