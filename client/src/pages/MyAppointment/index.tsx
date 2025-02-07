@@ -38,7 +38,6 @@ import {
   formatDate,
   formatDateTo12Hour,
   formatReadableDate,
-  isScheduleInPast,
 } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
