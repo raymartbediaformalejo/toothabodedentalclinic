@@ -47,7 +47,7 @@ const LogIn = () => {
   return (
     <div className={cn("flex overflow-hidden lg:h-fit")}>
       <div
-        className="bg-[url('/src/assets/img/LoginImg2.png')] bg-no-repeat bg-top bg-cover after:relative after:bg-[linear-gradient(180deg,rgba(255,255,255,0)_36%,rgb(0,153,255)_92.5%,rgb(0,138,230)_100%)]
+        className="bg-[url('https://res.cloudinary.com/deklgilr5/image/upload/v1738812299/zzlmc39dozb4lbpldy5i.jpg')] bg-no-repeat bg-cover after:relative after:bg-[linear-gradient(180deg,rgba(201,126,0,0)_36%,rgb(87,62,40)_92.5%,rgb(46,32,0)_100%)]
         after:w-full after:h-full after:top-0 after:left-0 w-3/6 hidden flex-1 lg:w-[1000px] lg:flex  justify-end items-center "
       />
 
