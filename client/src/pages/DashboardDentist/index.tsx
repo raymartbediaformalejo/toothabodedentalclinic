@@ -71,7 +71,7 @@ const DashboardDentist = () => {
   return (
     <div>
       <div className="grid grid-cols-[4fr,1fr,1fr] gap-4">
-        <div className="flex items-center justify-between pl-4 pr-0 border rounded-lg text-primary-950 bg-primary-100 border-primary-200 shadow-mui-shadow-1">
+        <div className="flex items-center select-none justify-between pl-4 pr-0 border rounded-lg text-primary-950 bg-primary-100 border-primary-200 shadow-mui-shadow-1">
           <div>
             <p className="text-sm font-medium capitalize">{greeting},</p>
             <h1
@@ -97,7 +97,7 @@ const DashboardDentist = () => {
 
         <Link
           to="/dentist/my_appointments/pending_appointment"
-          className="flex flex-col items-center justify-start gap-2 pt-4 border rounded-lg hover:bg-primary-50 border-neutral-200/80 shadow-mui-shadow-2"
+          className="select-none flex flex-col items-center justify-start gap-2 pt-4 border rounded-lg hover:bg-primary-50 border-neutral-200/80 shadow-mui-shadow-2"
         >
           <div className="p-4 rounded-full bg-primary-600/20">
             <MdPendingActions className="text-primary-700 w-7 h-7 " />
@@ -111,7 +111,7 @@ const DashboardDentist = () => {
         </Link>
         <Link
           to="/dentist/my_patients"
-          className="flex flex-col items-center justify-start gap-2 pt-4 border rounded-lg hover:bg-blue-50 border-neutral-200/80 shadow-mui-shadow-2"
+          className="flex select-none flex-col items-center justify-start gap-2 pt-4 border rounded-lg hover:bg-blue-50 border-neutral-200/80 shadow-mui-shadow-2"
         >
           <div className="p-4 bg-blue-200 rounded-full">
             <GrGroup className="text-blue-800 w-7 h-7 " />

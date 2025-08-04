@@ -351,7 +351,7 @@ const getAllAppointments = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({
-      message: `${error.message}`,
+      message: `Error getAllAppointments: ${error.message}`,
       ok: false,
     });
   }
@@ -430,7 +430,7 @@ const getAppointment = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).send({
-      message: `${error.message}`,
+      message: `Error getAppointment: ${error.message}`,
       ok: false,
     });
   }

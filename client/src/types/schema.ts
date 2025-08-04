@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const letterOnlyRegex = /^[a-zA-Z]+$/;
+const letterOnlyRegex = /^[a-zA-Z\s]+$/;
 const passwordPattern =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{}|;:',.<>/?~])[A-Za-z\d!@#$%^&*()_+\-=[\]{}|;:',.<>/?~]{8,}$/;
 

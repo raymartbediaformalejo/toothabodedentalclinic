@@ -17,7 +17,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ROW_PER_PAGE_OPTIONS } from "@/lib/variables";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useState } from "react";
 import { useGetDentistPendingAppointments } from "@/service/queries";
 import {
@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, formatAppointmentDate } from "@/lib/utils";
+import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
@@ -319,9 +319,24 @@ const PendingAppointments = () => {
                                   checked={row.getIsSelected()}
                                   className="h-[38px]"
                                 />
-                                <UserName
+                                <Link
+                                  className="flex items-center"
+                                  to={`/dentist/my_appointments/${cell.row.original.id}`}
+                                >
+                                  <label
+                                    key={userId}
+                                    className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm"
+                                  >
+                                    <div>
+                                      <UserName
+                                        userId={cell.row.original.patientId}
+                                      />
+                                    </div>
+                                  </label>
+                                </Link>
+                                {/* <UserName
                                   userId={cell.row.original.patientId}
-                                />
+                                /> */}
                               </TableCell>
                             ) : cell.column.id === "schedule" ? (
                               <TableCell
@@ -492,7 +507,9 @@ const PendingAppointments = () => {
                                 className="w-full justify-between rounded-[4px] hover:bg-primary-400/20"
                                 variant="db_outline"
                                 onClick={() =>
-                                  navigate(`/admin/dentists/${row.original.id}`)
+                                  navigate(
+                                    `/dentist/my_appointments/${row.original.id}`
+                                  )
                                 }
                               >
                                 <span>View</span>

@@ -441,7 +441,7 @@ const AdminPatients = () => {
                               >
                                 <Link
                                   className="flex items-center"
-                                  to={`/admin/patients/${row.original.createdBy}`}
+                                  to={`/admin/users/${row.original.createdBy}`}
                                 >
                                   <div className="flex gap-[9px] items-center whitespace-nowrap text-[#424242] text-sm">
                                     <div>

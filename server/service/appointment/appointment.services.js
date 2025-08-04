@@ -300,9 +300,9 @@ class Appointment {
 
       const { limit_re_schedule } = rows[0];
 
-      if (limit_re_schedule >= 2) {
+      if (limit_re_schedule >= 3) {
         throw new Error(
-          "You have reached the maximum limit of 2 reschedules for this appointment. Please contact the clinic directly for further assistance."
+          "You have reached the maximum limit of 3 reschedules for this appointment. Please contact the clinic directly for further assistance."
         );
       }
 

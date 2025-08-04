@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require("uuid");
 const pool = require("../../config/conn.js");
 
 class Penalty {
@@ -41,6 +42,41 @@ class Penalty {
       throw new Error(`Database Error: ${err.message}`);
     }
   }
+
+  static createPenalty = async (values) => {
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+
+      const id = uuidv4();
+      const insertQuery = `
+        INSERT INTO tbl_penalty (
+          id,
+          penalty_fee,
+          gcash_qr_code_url,
+          created_by,
+          created_at
+        ) VALUES (
+         $1, $2, $3, $4, NOW()
+        ) RETURNING *
+      `;
+      const result = await client.query(insertQuery, [
+        id,
+        values.penaltyFee,
+        values.gcashQrCodeUrl,
+        values.createdBy,
+      ]);
+
+      await client.query("COMMIT");
+
+      return result.rows[0];
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw new Error(`${error.message}`);
+    } finally {
+      client.release();
+    }
+  };
 }
 
 module.exports = Penalty;

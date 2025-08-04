@@ -9,12 +9,10 @@ const updatePenaltyFee = async (req, res) => {
     }
 
     const updatedPenalty = await Penalty.updatePenaltyFee(penaltyFee);
-    return res
-      .status(200)
-      .json({
-        message: "Penalty fee updated successfully",
-        data: updatedPenalty,
-      });
+    return res.status(200).json({
+      message: "Penalty fee updated successfully",
+      data: updatedPenalty,
+    });
   } catch (err) {
     return res
       .status(500)
@@ -37,4 +35,14 @@ const getPenalty = async (req, res) => {
   }
 };
 
-module.exports = { getPenalty, updatePenaltyFee };
+const createPenalty = async (req, res) => {
+  try {
+    const penaltyData = req.body;
+    const data = await Penalty.createPenalty(penaltyData);
+    return res.status(201).send({ data, ok: true });
+  } catch (error) {
+    return res.status(500).send({ message: error.message, ok: false });
+  }
+};
+
+module.exports = { getPenalty, updatePenaltyFee, createPenalty };

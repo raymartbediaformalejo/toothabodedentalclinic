@@ -1,6 +1,6 @@
 export const CITY_OF_MANILA_CODE = "City of Manila" as const;
 
-export const DEFAULT_ROLE_ID = "92b73582-0dc5-4b3d-a17d-20523d7e0a82" as const;
+export const DEFAULT_ROLE_ID = "0b998ea6-5c2d-4e16-b79c-cabcb6486dc0" as const;
 
 export const TOOTH_ABODE_FB_URL =
   "https://www.facebook.com/profile.php?id=100064125608150";

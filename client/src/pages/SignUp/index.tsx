@@ -154,9 +154,7 @@ const SignUp = () => {
   const onSubmit: SubmitHandler<TCreatePatient> = async (data) => {
     const finalData = {
       ...data,
-      roleIds: data.roleIds.length
-        ? data.roleIds
-        : ["92b73582-0dc5-4b3d-a17d-20523d7e0a82"],
+      roleIds: data.roleIds.length ? data.roleIds : [DEFAULT_ROLE_ID],
     };
 
     console.log("Submitting data: ", finalData);
