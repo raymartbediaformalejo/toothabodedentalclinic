@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/customCheckbox";
 import { LuArrowUp } from "react-icons/lu";
-import { cn, createUsername, formatAppointmentDate } from "@/lib/utils";
+import { cn, formatAppointmentDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BsThreeDots } from "react-icons/bs";
 import {
