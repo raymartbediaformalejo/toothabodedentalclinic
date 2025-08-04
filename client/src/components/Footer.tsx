@@ -37,31 +37,25 @@ const Footer = () => {
               </Link>
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="/about-us"
               >
                 About Us
               </Link>
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="/all-services"
               >
                 Services
               </Link>
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
-              >
-                All Dentists
-              </Link>
-              <Link
-                className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="/faqs"
               >
                 FAQ's
               </Link>
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="/appointment"
               >
                 Book Appointment
               </Link>
@@ -75,7 +69,7 @@ const Footer = () => {
             <div className="flex flex-col gap-4 ">
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="https://www.facebook.com/profile.php?id=100064125608150"
               >
                 Facebook
               </Link>
@@ -106,7 +100,7 @@ const Footer = () => {
               </Link>
               <Link
                 className="text-sm transition-[color,text-decoration-line] no-underline duration-200 ease-in-out hover:text-primary-500 font-light hover:underline "
-                to="/"
+                to="mailto:tooth.abode@gmail.com"
               >
                 tooth.abode@gmail.com
               </Link>

@@ -122,7 +122,7 @@ const AppointmentInfo = (props: TAppointmentInfoProps) => {
             >
               Our Dentist:
             </Label>
-            <div className="grid w-full max-w-[800px] grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4 mt-2">
+            <div className="grid w-full max-w-[800px] grid-cols-2 md:grid-cols-3 gap-4 mt-2">
               {!isLoadingDentist &&
                 filteredDentists.map((dentist) => {
                   const isSelected = dentistId === dentist.id;

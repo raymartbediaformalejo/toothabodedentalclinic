@@ -185,7 +185,7 @@ const SignUp = () => {
                   <div className="flex flex-col gap-[30px]">
                     <div className="flex flex-col">
                       <div className="flex flex-col gap-[10px]">
-                        <p className=" text-xs md:text-base leading-[14.52px] text-center lg:text-left text-neutral-400">
+                        <p className=" text-xs md:text-sm leading-[14.52px] text-center lg:text-left text-neutral-400">
                           Already have an account?
                           <Link
                             to="/login"

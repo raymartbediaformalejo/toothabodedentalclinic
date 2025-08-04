@@ -5,6 +5,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import H1 from "@/components/ui/H1";
+import healthCards from "@/assets/health_cards.jpg";
+import asianCare from "@/assets/asian_care.jpg";
 
 const FAQs = () => {
   return (
@@ -137,7 +139,7 @@ const FAQs = () => {
                   </AccordionTrigger>
                   <AccordionContent className="text-sm text-neutral-600">
                     <div>
-                      <ol>
+                      <ol className="list-decimal list-inside">
                         <li>Oral Prophylaxis (Cleaning)</li>
                         <li>Restoration Dentistry (Fillings)</li>
                         <li>Cosmetic Dentistry (Veneers)</li>
@@ -186,6 +188,12 @@ const FAQs = () => {
                         Yes! We accept health cards under Health Partners Dental
                         Access and by Company.
                       </p>
+
+                      <img
+                        src={healthCards}
+                        alt="health cards"
+                        className="mt-4 w-full h-auto rounded-md"
+                      />
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -218,6 +226,11 @@ const FAQs = () => {
                         Yes! We are now accredited by AsianCare for dental
                         services.
                       </p>
+                      <img
+                        src={asianCare}
+                        alt="Asian Care accreditation"
+                        className="mt-4 w-full h-auto rounded-md"
+                      />
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -230,7 +243,7 @@ const FAQs = () => {
                   </AccordionTrigger>
                   <AccordionContent className="text-sm text-neutral-600">
                     <div>
-                      <ol>
+                      <ol className="list-decimal list-inside">
                         <li>Valid ID</li>
                         <li>Health card (if applicable)</li>
                         <li> Previous dental records (if available)</li>

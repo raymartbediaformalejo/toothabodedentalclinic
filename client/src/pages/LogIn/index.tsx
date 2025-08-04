@@ -45,14 +45,14 @@ const LogIn = () => {
   };
 
   return (
-    <div className={cn("flex overflow-hidden lg:h-fit")}>
+    <div className="flex overflow-hidden">
       <div
         className="bg-[url('https://res.cloudinary.com/deklgilr5/image/upload/v1738812299/zzlmc39dozb4lbpldy5i.jpg')] bg-no-repeat bg-cover after:relative after:bg-[linear-gradient(180deg,rgba(201,126,0,0)_36%,rgb(87,62,40)_92.5%,rgb(46,32,0)_100%)]
         after:w-full after:h-full after:top-0 after:left-0 w-3/6 hidden flex-1 lg:w-[1000px] lg:flex  justify-end items-center "
       />
 
       {/* ================== START REGISTRATION FORM ===============   */}
-      <div className="flex flex-col flex-1 w-3/6 h-full py-8 mx-auto lg:py-0">
+      <div className="flex flex-col flex-1 w-3/6 py-28 lg:py-40 mx-auto">
         <Form {...form}>
           <form
             className="flex flex-col h-full gap-8 my-10 "
@@ -174,8 +174,8 @@ const LogIn = () => {
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="flex flex-col gap-[10px]">
-                <p className=" text-xs md:text-base leading-[14.52px] text-center lg:text-left text-neutral-400">
+              <div className="flex justify-center items-center flex-col gap-[10px]">
+                <p className="text-xs md:text-sm leading-[14.52px] text-center lg:text-left text-neutral-400">
                   Don't have an account?
                   <Link
                     to="/signup"

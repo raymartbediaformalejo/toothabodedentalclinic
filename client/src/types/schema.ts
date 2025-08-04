@@ -112,9 +112,9 @@ export const createPatientSchema = userSchema
     path: ["cPassword"],
   });
 
-export const loginUserSchema = userSchema.pick({
-  email: true,
-  password: true,
+export const loginUserSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const editUserSchema = userSchema.pick({
